@@ -1,0 +1,66 @@
+/** @jsx React.DOM */
+
+var Templates = require('./templates.js.min.js');
+var Schedules = require('./schedule.js.min.js');
+
+module.exports = React.createClass({
+  getInitialState: function() {
+    return {
+      selectedScreen: 'Templates'
+    }
+  },
+  
+  toggleScreen: function(screen) {
+    this.setState({selectedScreen : screen})
+  },
+
+  render: function() {
+    console.log(this.state.selectedScreen)
+    switch (this.state.selectedScreen){
+      case 'Templates':
+        currentScreen = <Templates />
+        break;
+      case 'Schedules':
+        currentScreen = <Schedules />
+        break;
+    }
+
+    return (
+      <div className="" style={{height:'400px'}}>
+        <div className="container" style={{padding:'0',width:'100%',height:'100%'}}>
+            <SideMenu toggleScreen={this.toggleScreen}/>
+          <div className="col-md-10" style={{padding:'0',height:'100%'}}>
+            {currentScreen}
+          </div>
+        </div>
+      </div>
+    );
+  }
+});
+
+var SideMenu = React.createClass({
+  toggleScreen: function(e) {
+    this.props.toggleScreen($(e.target).text().trim())
+  },
+  render: function() {
+    return (
+      <div className="col-md-2" style={{padding:'0',height:'100%',backgroundColor:'rgb(90, 107, 119)',borderBottomLeftRadius:'3px'}}>
+        <div className="btn-group-vertical" style={{width:'100%'}}>
+          <button type="button" className="sharp btn btn-default" onClick={this.toggleScreen}>
+            <i className="fa fa-file-text" /> &nbsp; Templates
+          </button>
+          <button type="button" className="sharp btn btn-default" onClick={this.toggleScreen}>
+            <i className="fa fa-clock-o" /> &nbsp; Schedules
+          </button>
+          <button type="button" className="sharp btn btn-default">
+            <i className="fa fa-code-fork" /> &nbsp; 
+            <span style={{marginLeft:'4px'}}>Rules</span>
+          </button>
+          <button type="button" className="sharp btn btn-default">
+            <i className="fa fa-paper-plane" /> &nbsp; Sent Mail
+          </button>
+        </div>
+      </div>
+    );
+  }
+});
