@@ -10,6 +10,7 @@ var nodemon    = require('gulp-nodemon');
 var browserify = require('gulp-browserify');
 
 //Parse and compress JS and JSX files
+//TODO -- Add Watchify
 
 gulp.task('react-jsx -> js', function() {
   return gulp.src('frontend/js/**/*.jsx')

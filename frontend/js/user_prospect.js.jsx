@@ -90,7 +90,8 @@ module.exports = React.createClass({
           <td style={color}>
             <h6 style={{margin:'0px'}}>{prospect.city}</h6></td>
           <td style={color}>
-            <a href={"mailto:"+prospect.email} style={{margin:'0px'}}>
+            <a href={"mailto:"+prospect.email} 
+               style={{margin:'0px'}}>
             {(prospect.email) ? prospect.email.toLowerCase() : ""}
           </a></td>
           <td style={color}>{this.props.li}&nbsp;{this.props.link}</td>

@@ -131,7 +131,8 @@ module.exports = React.createClass({
       }
 
       profile = this.state.prospects[i].linkedin_url.replace('http://','')
-      li = <a href={'http://'+profile} ><i className="fa fa-linkedin-square" /></a>
+      profile = this.state.prospects[i].linkedin_url.replace('https://','')
+      li = <a href={'http://'+profile} className="linkedin_link"><i className="fa fa-linkedin-square" /></a>
 
       keyboardSelected = (i == this.state.keyboardActiveProspect)
 
@@ -625,9 +626,34 @@ module.exports = React.createClass({
         thiss.setState({keyboardActiveProspect: keyboard-1})
     });
 
-    Mousetrap.bind('shift+enter', function() { 
+    Mousetrap.bind('l', function() { 
+
+    });
+
+    Mousetrap.bind('l', function() { 
+
+    });
+
+    Mousetrap.bind('o', function() { 
       console.log('open current prospect')
-      //keyboard = thiss.state.keyboardActiveProspect
+      console.log($($('.keySelect').find('a.linkedin_link')[0]).attr('href'))
+      link = $($('.keySelect').find('a.linkedin_link')[0]).attr('href')
+      /*
+      window.open(link, '_blank')
+      console.log('new')
+      */
+      //popupWindow.blur();
+      //window.focus();
+      // keyboard = thiss.state.keyboardActiveProspect
+      
+      var a = document.createElement("a");
+      a.href = link
+      var evt = document.createEvent("MouseEvents");
+      //the tenth parameter of initMouseEvent sets ctrl key
+      // For Mac This Works Check For - Windows
+      evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0,
+                                  false, false, false, true, 0, null);
+      a.dispatchEvent(evt);
     });
 
 
