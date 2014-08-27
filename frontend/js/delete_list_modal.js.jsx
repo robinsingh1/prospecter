@@ -48,6 +48,10 @@ module.exports = React.createClass({
       this.createList()
   },
 
+  deleteList: function() {
+    this.props.deleteList()
+  },
+
   render: function() {
     return (
           <div className="modal fade bs-deleteList-modal-sm" tabIndex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="createListModal" style={{top:'200px'}}>
@@ -60,16 +64,16 @@ module.exports = React.createClass({
                     <i className="fa fa-trash-o" /> &nbsp;Delete List?</h4>
                 </div>
                 <div className="modal-body"> 
-                  <form onSubmit={this.createMiningJob}>
+                  <form onSubmit={this.deleteList}>
                     <a href="javascript:" 
-                      onClick={this.createListButtonClick} 
+                      onClick={this.deleteList} 
                       className="btn btn-danger" 
                       style={{display:'block', width:'100%'}}>
                       Delete
                     </a>
                     <br/>
                     <a href="javascript:" 
-                      onClick={this.createListButtonClick} 
+                      onClick={this.deleteList} 
                       className="btn btn-default" 
                       style={{display:'block', width:'100%'}}>
                       Cancel

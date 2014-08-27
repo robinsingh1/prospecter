@@ -57,7 +57,7 @@ module.exports = React.createClass({
         </div>
         <br/>
         <br/>
-        <a href="javascript:" className="btn btn-primary" 
+        <a href="javascript:" className="btn btn-primary new-list-btn" 
               data-toggle="modal" data-target=".bs-example-modal-sm"
               style={{ backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%)'}}>
           <i className="fa fa-plus-circle" />&nbsp;&nbsp;New List

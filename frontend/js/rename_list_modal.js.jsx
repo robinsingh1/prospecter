@@ -36,16 +36,12 @@ module.exports = React.createClass({
     //$('button.close').click()
   },
 
-  createListButtonClick: function() {
-    if($('#listTitle').val().trim() != "")
-      this.createList()
-  },
-
-  createMiningJob: function(e) {
+  renameList: function(e) {
     e.preventDefault()
-    console.log('lmao')
-    if($('#listTitle').val().trim() != "")
-      this.createList()
+    //console.log($('#newListName').val())
+    newListName = $('#newListName').val()
+    this.props.renameList(newListName)
+    // Disable Modal
   },
 
   render: function() {
@@ -61,7 +57,7 @@ module.exports = React.createClass({
                 </div>
                 <div className="modal-body"> 
                   <form onSubmit={this.renameList}>
-                    <input id="listTitle" type="text" placeholder="Enter list title..." className="form-control"/>
+                    <input id="newListName" type="text" placeholder="Enter list title..." className="form-control"/>
                     <br/>
                     <a href="javascript:" 
                       onClick={this.renameList}

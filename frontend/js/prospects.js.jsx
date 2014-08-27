@@ -33,6 +33,45 @@ module.exports = React.createClass({
     this.setState({ lists: lists })
   },
 
+  renameList: function(newName) {
+    console.log(this.state.currentListObjectId)
+    console.log(this.state.currentList)
+    console.log(newName)
+
+    // Update Local State
+    thiss = this;
+    var filtered = _.filter(this.state.lists, function(item) {
+      if(item.name == thiss.state.currentList){
+        item.name = newName
+        return item
+      }
+      return item
+    });
+
+    this.setState({lists : filtered})
+    this.setState({currentList: newName})
+
+    // Persist / Ajax
+  },
+
+  deleteList: function() {
+    // Launch Modal
+    // Get All Members Of This List
+    // Remove From List Array
+    
+    var filtered = _.filter(this.state.lists, function(item) {
+      if(item.objectId == thiss.state.currentListObjectId)
+        return false
+      return true
+    });
+
+    this.setState({lists: filtered})
+    this.setState({currentList: 'All'})
+    this.changeList('All', '')
+    // Remove
+    // Persist / Ajax
+  },
+
   changeList: function(newListName,objectId) {
     // add overlay loading
     //console.log(newListName)
@@ -174,6 +213,8 @@ module.exports = React.createClass({
         <div className="col-md-10" style={{padding:'0'}}>
               <div id="prospectDetailButtons">
                 <ListDetailButtons 
+                  renameList={this.renameList}
+                  deleteList={this.deleteList}
                   currentListName={this.state.currentList}
                   currentList={this.state.currentListObjectId}/>
 
@@ -608,7 +649,8 @@ module.exports = React.createClass({
 
   startKeyboardShortcuts: function() {
     /* Keyboard Shortcuts */
-    Mousetrap.reset()
+    //Mousetrap.reset()
+    Mousetrap.unbind(['j','k','o'])
     thiss = this;
 
     /* Prospect Table Shortcuts */
@@ -626,13 +668,6 @@ module.exports = React.createClass({
         thiss.setState({keyboardActiveProspect: keyboard-1})
     });
 
-    Mousetrap.bind('l', function() { 
-
-    });
-
-    Mousetrap.bind('l', function() { 
-
-    });
 
     Mousetrap.bind('o', function() { 
       console.log('open current prospect')
@@ -658,21 +693,28 @@ module.exports = React.createClass({
 
 
 
-    /* Prospect Window Shortcuts */
-    Mousetrap.bind('ctrl+r', function(){
-      console.log('reload')
+    /* List Modification Shortcuts */
+    Mousetrap.bind('tab+r', function(){
+      //console.log('reload')
       $('#renameListBtn').click()
     })
 
-    Mousetrap.bind('ctrl+d', function(){
-      console.log('reload')
+    Mousetrap.bind('tab+d', function(){
+      //console.log('reload')
       $('#deleteListModal').click()
     })
 
-    Mousetrap.bind('ctrl+s', function(){
-      console.log('reload')
+    Mousetrap.bind('tab+s', function(){
+      //console.log('reload')
       //$('#downloadProspects').click()
       thiss.downloadFile()
+    })
+
+    Mousetrap.bind('shift+l', function(){
+      //console.log('reload')
+      //$('#downloadProspects').click()
+      //thiss.downloadFile()
+      $('.new-list-btn').click()
     })
 
     Mousetrap.bind('e', function(){
@@ -960,21 +1002,18 @@ var ListDetailButtons = React.createClass({
                 <i className="fa fa-trash-o" />
               </a>
             </h4>
-            <RenameListModal />
-            <DeleteListModal />
+            <RenameListModal renameList={this.props.renameList}/>
+            <DeleteListModal deleteList={this.props.deleteList}/>
           </div>
       );
   },
 
-  renameList: function() {
-
+  renameList: function(newListName) {
+    this.props.renameList(newListName)
   },
 
   deleteList: function(){
-    // Launch Modal
-    // Get All Members Of This List
-    // Remove From List Array
-
+    this.props.deleteList()
   },
 
   toggleEdit: function() {

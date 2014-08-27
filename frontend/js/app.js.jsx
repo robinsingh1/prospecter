@@ -2,11 +2,17 @@
 
 /* TODO
  * 
+ * - Rename List Persist
+ * - Delete List Persist
+ * - All count change, when prospect is archived
+ * - When is list is chaanged from all and then returned to All prospects take a long     time to load
+ * - Fix pagination issues
+ * - Add Find Company Employees
+ * - Add Find Similar Companies
+ * - Company Shortcuts 
+ *
  * - Add ability to switch accounts for admins
  * - Add email uneditable email fields
- * - When switch prospects 300th prospect -> Companies
- * - Test Watch lll
- *
  */
 
 var Prospects = require('./prospects.js.min.js');

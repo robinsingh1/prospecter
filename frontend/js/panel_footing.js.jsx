@@ -21,6 +21,7 @@ module.exports = React.createClass({
     });
   },
 
+
   paginate: function(direction) {
     prospectsPerPage = this.props.prospectsPerPage
     if(direction=='previous')
@@ -62,9 +63,25 @@ module.exports = React.createClass({
       }
     });
   },
+  componentDidMount: function() {
+    paginateForward = this.paginateForward
+    paginatePrevious = this.paginatePrevious
+
+    Mousetrap.bind('l', function() { 
+      console.log('new forward')
+      paginateForward()
+    });
+
+    Mousetrap.bind('h', function() { 
+      console.log('new back')
+      paginatePrevious()
+    });
+  },
 
   render: function() {
     // Should be handled by Panle Footing
+
+
     previous = (this.props.currentPage - 1) ? '' : 'disabled'
     forward = (this.props.currentPage == this.props.pages) ? 'disabled' : ''
 
@@ -87,7 +104,7 @@ module.exports = React.createClass({
           </a>
           <a href="javascript:" 
              onClick={this.paginatePrevious} 
-             className={"blue-gradient btn btn-primary btn-xs "+previous} >
+             className={"paginate-back-btn blue-gradient btn btn-primary btn-xs "+previous} >
             <i className="fa fa-chevron-left" />
           </a>
           <span style={{marginLeft:5, marginRight:5}}>
@@ -95,7 +112,7 @@ module.exports = React.createClass({
           </span>
           <a href="javascript:" 
              onClick={this.paginateForward} 
-             className={"blue-gradient btn btn-primary btn-xs "+forward}>
+             className={"paginate-forward-btn blue-gradient btn btn-primary btn-xs "+forward}>
             <i className="fa fa-chevron-right" />
           </a>
           <a href="javascript:" 
