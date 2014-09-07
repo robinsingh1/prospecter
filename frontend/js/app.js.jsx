@@ -2,15 +2,14 @@
 
 /* TODO
  * 
- * - Rename List Persist
- * - Delete List Persist
  * - All count change, when prospect is archived
  * - When is list is chaanged from all and then returned to All prospects take a long     time to load
  * - Fix pagination issues
- * - Add Find Company Employees
- * - Add Find Similar Companies
- * - Company Shortcuts 
  *
+ * - Parallelize Workers
+ * - Scale up google scrape to hundreds of workers (heroku)
+ *
+ * - Company Shortcuts 
  * - Add ability to switch accounts for admins
  * - Add email uneditable email fields
  */
@@ -18,13 +17,15 @@
 var Prospects = require('./prospects.js.min.js');
 var CompanyProspects = require('./company_prospects.js.min.js');
 var MiningJob = require('./mining_job.js.min.js');
-var Emails = require('./email.js.min.js');
+var Campaigns = require('./email.js.min.js');
 var Analytics = require('./analytics.js.min.js');
 var SignUp = require('./signup.js.min.js');
 var Login = require('./login.js.min.js');
 var LandingPage = require('./landing_page.js.min.js');
+var LandingPage = require('./landing_page_concept.js.min.js');
 var FreeTrial = require('./free_trial.js.min.js');
 var Pricing = require('./pricing.js.min.js');
+var Signals = require('./signals.js.min.js');
 var MouseTrap = require('../lib/mousetrap.min.min.js')
 //var checkAuth = require('./auth.min.js')
 
@@ -44,6 +45,7 @@ var Home = React.createClass({
   },
 
   toggleScreen: function(e) {
+    e.preventDefault()
     this.setState({selectedScreen : $(e.target).text().trim()})
   },
 
@@ -130,8 +132,8 @@ var Home = React.createClass({
       case 'Analytics':
         currentScreen = <Analytics />
         break;
-      case 'Emails':
-        currentScreen = <Emails />
+      case 'Campaigns':
+        currentScreen = <Campaigns />
         break;
       case 'Signals':
         currentScreen = <Signals />
@@ -161,42 +163,28 @@ var Home = React.createClass({
         <div className="panel panel-default">
         <div id="navbar" className="panel-heading"> 
 
-          <div className="btn-group col-md-offset-5" data-toggle="buttons" >
-            <label className="choose btn btn-primary active">
-              <input type="radio" name="options" id="option1" 
-                          onClick={this.toggleScreen}> 
-                <i className="fa fa-users" />&nbsp;Prospects
-              </input>
-            </label>
-            <label className="choose btn btn-primary" style={{display:'none'}}
-                  onClick={this.toggleScreen}>
-              <input type="radio" name="options" id="option2" >
-                <i className="fa fa-envelope" />&nbsp;Emails</input>
-            </label>
-            <label className="choose btn btn-primary" style={{display:'none'}}
-                  onClick={this.toggleScreen}>
-              <input type="radio" name="options" id="option2" >
-                <i className="fa fa-bar-chart-o" /> Analytics</input>
-            </label>
-            <label className="choose btn btn-primary" 
+          <div className="btn-group col-md-offset-4" >
+            <a className="choose btn btn-primary " style={{display:'block'}} onClick={this.toggleScreen}> 
+                <i className="fa fa-wifi" />&nbsp;Signals
+            </a>
+            <a className="choose btn btn-primary active" onClick={this.toggleScreen}> 
+                <i className="fa fa-user" />&nbsp;Prospects
+            </a>
+            <a className="choose btn btn-primary" style={{display:'none'}} onClick={this.toggleScreen}>
+                <i className="fa fa-bar-chart-o" /> Analytics
+            </a>
+            <a className="choose btn btn-primary" 
                   style={{width:162,display:'none'}}
                   onClick={this.toggleScreen}>
-              <input type="radio" name="options" id="option2" >
                 <i className="fa fa-tasks" /> Mining Jobs &nbsp;
                 <span className="label label-default">BETA</span>
-              </input>
-            </label>
-            <label className="choose btn btn-primary " style={{display:'none'}}>
-              <input type="radio" name="options" id="option1" 
-                          onClick={this.toggleScreen}> 
-                <i className="fa fa-signal" />&nbsp;Signals
-              </input>
-            </label>
-            <label className="choose btn btn-primary" 
-                  onClick={this.toggleScreen}>
-              <input type="radio" name="options" id="option2" >
-                <i className="fa fa-building" /> Companies</input>
-            </label>
+            </a>
+            <a className="choose btn btn-primary" onClick={this.toggleScreen}>
+                <i className="fa fa-building" /> Companies
+            </a>
+            <a className="choose btn btn-primary" style={{display:'block'}} onClick={this.toggleScreen}>
+                <i className="fa fa-envelope" />&nbsp;Campaigns
+            </a>
           </div>
           <a href="javascript:" 
             style={{marginTop:7, float:'right'}}

@@ -40,7 +40,8 @@ module.exports = React.createClass({
     e.preventDefault()
     //console.log($('#newListName').val())
     newListName = $('#newListName').val()
-    this.props.renameList(newListName)
+    if(newListName.trim() != "")
+      this.props.renameList(newListName)
     // Disable Modal
   },
 

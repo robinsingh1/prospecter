@@ -9,7 +9,7 @@ module.exports = React.createClass({
       url: 'https://api.parse.com/1/classes/Prospects?skip='+(thiss.props.currentPage-2)*thiss.props.prospectsPerPage,
       type:'GET',
       headers: parse_headers,
-      data: 'where={"company":'+company+'}&count=1',
+      data: 'where={"company":'+company+',"archived":true}&count=1',
       success: function(res){
         //thiss.setState({prospects: res.results})
         //thiss.setState({currentPage: this.props.currentPage - 1})
@@ -51,7 +51,7 @@ module.exports = React.createClass({
       url: 'https://api.parse.com/1/classes/Prospects?skip='+thiss.props.currentPage*thiss.props.prospectsPerPage,
       type:'GET',
       headers: parse_headers,
-      data: 'where={"company":'+company+'}&count=1',
+      data: 'where={"company":'+company+',"archived":true}&count=1',
       success: function(res){
         //thiss.setState({prospects: res.results})
         //thiss.setState({currentPage: thiss.props.currentPage + 1})
@@ -107,7 +107,7 @@ module.exports = React.createClass({
              className={"paginate-back-btn blue-gradient btn btn-primary btn-xs "+previous} >
             <i className="fa fa-chevron-left" />
           </a>
-          <span style={{marginLeft:5, marginRight:5}}>
+          <span style={{marginLeft:5, marginRight:5,display:'inline-block',width:115, textAlign:'center'}}>
             {lowerLimit+' - '+upperLimit+' of '+this.props.count}
           </span>
           <a href="javascript:" 

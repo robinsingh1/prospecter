@@ -33,31 +33,57 @@ module.exports = React.createClass({
     this.setState({ lists: lists })
   },
 
-  renameList: function(newName) {
+  renameList: function(newListName) {
+    parseHeaders = {
+      'X-Parse-Application-Id'  : 'N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ', 
+      'X-Parse-REST-API-Key'    : 'VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb',
+      'Content-Type': 'application/json'
+    }
     console.log(this.state.currentListObjectId)
     console.log(this.state.currentList)
-    console.log(newName)
+    console.log(newListName)
 
     // Update Local State
     thiss = this;
     var filtered = _.filter(this.state.lists, function(item) {
       if(item.name == thiss.state.currentList){
-        item.name = newName
+        item.name = newListName
         return item
       }
       return item
     });
 
     this.setState({lists : filtered})
-    this.setState({currentList: newName})
+    this.setState({currentList: newListName})
+
+    $('.modal').click()
+    $('#newListName').val('')
+    $('.modal-backdrop').click()
 
     // Persist / Ajax
+    $.ajax({
+      url:'https://api.parse.com/1/classes/ProspectList/'+this.state.currentListObjectId,
+      headers: parseHeaders,
+      type:'PUT',
+      data:JSON.stringify({'name':newListName}),
+      success: function(res) {
+        console.log(res)
+      },
+      error: function(err) {
+        console.log(err)
+      }
+    });
   },
 
   deleteList: function() {
-    // Launch Modal
+    // TODO 
     // Get All Members Of This List
     // Remove From List Array
+    parseHeaders = {
+      'X-Parse-Application-Id'  : 'N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ', 
+      'X-Parse-REST-API-Key'    : 'VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb',
+      'Content-Type': 'application/json'
+    }
     
     var filtered = _.filter(this.state.lists, function(item) {
       if(item.objectId == thiss.state.currentListObjectId)
@@ -68,8 +94,24 @@ module.exports = React.createClass({
     this.setState({lists: filtered})
     this.setState({currentList: 'All'})
     this.changeList('All', '')
+
     // Remove
+    $('.modal').click()
+    $('#newListName').val('')
+    $('.modal-backdrop').click()
+
     // Persist / Ajax
+    $.ajax({
+      url:'https://api.parse.com/1/classes/ProspectList/'+this.state.currentListObjectId,
+      headers: parseHeaders,
+      type:'DELETE',
+      success: function(res) {
+        console.log(res)
+      },
+      error: function(err) {
+        console.log(err)
+      }
+    });
   },
 
   changeList: function(newListName,objectId) {
@@ -649,8 +691,8 @@ module.exports = React.createClass({
 
   startKeyboardShortcuts: function() {
     /* Keyboard Shortcuts */
-    //Mousetrap.reset()
-    Mousetrap.unbind(['j','k','o'])
+    Mousetrap.reset()
+    //Mousetrap.unbind(['j','k','o'])
     thiss = this;
 
     /* Prospect Table Shortcuts */

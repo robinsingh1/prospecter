@@ -41,7 +41,7 @@ module.exports = React.createClass({
             </a>
             &nbsp; &nbsp;
             <a href="javascript:" className="btn btn-success btn-xs"
-              onClick={this.openLinkedinCompanyProfile}
+              onClick={this.openSimilarCompanies}
               style={{backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%)'}}> 
               <i className="fa fa-copy" /> &nbsp;
               Find Similar Companies
@@ -53,7 +53,13 @@ module.exports = React.createClass({
   },
 
   openLinkedinCompanyProfile: function() {
-    window.open("https://www.linkedin.com/vsearch/p?f_CC="+this.props.prospect.linkedin_key)
+    cid = this.props.prospect.profile.split('?')[0].split('/company/')[1]
+    window.open("https://www.linkedin.com/vsearch/p?f_CC="+cid)
+  },
+
+  openSimilarCompanies: function() {
+    cid = this.props.prospect.profile.split('?')[0].split('/company/')[1]
+    window.open("https://www.linkedin.com/vsearch/c?rsid=526440371409184768175&pivotType=sim&pid="+cid+"&trk=sim_companies_res_sim&trkInfo=VSRPsearchId%3A526440371409184768175%2CVSRPtargetId%3A1025%2CVSRPcmpt%3Aprimary")
   },
 
   deleteProspect: function() {

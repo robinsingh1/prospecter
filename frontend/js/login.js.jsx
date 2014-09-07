@@ -64,7 +64,7 @@ module.exports = React.createClass({
       </div>
 
         <div id="" style={{position:'absolute',zIndex:'-2',top:0,left:0}}>
-          <div className="" style={{marginLeft:34}}>
+          <div className="" style={{marginLeft:34, display:'none'}}>
           {imgs_1}
           {imgs_2}
           </div>

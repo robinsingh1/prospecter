@@ -11,6 +11,13 @@ module.exports = React.createClass({
               pages       : 1,
               count       : "~", }
   },
+  /*
+   *
+    cid = this.props.prospect.profile.split('?')[0].split('/company/')[1]
+    console.log(this.props)
+    window.open("https://www.linkedin.com/vsearch/p?f_CC="+cid)
+  */
+  
   render: function() {
     console.log('company')
     prospects = []

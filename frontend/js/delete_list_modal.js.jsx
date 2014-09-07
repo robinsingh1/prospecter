@@ -64,7 +64,7 @@ module.exports = React.createClass({
                     <i className="fa fa-trash-o" /> &nbsp;Delete List?</h4>
                 </div>
                 <div className="modal-body"> 
-                  <form onSubmit={this.deleteList}>
+                  <form className="deleteForm" onSubmit={this.deleteList}>
                     <a href="javascript:" 
                       onClick={this.deleteList} 
                       className="btn btn-danger" 
