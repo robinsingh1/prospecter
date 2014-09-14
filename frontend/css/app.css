@@ -25,11 +25,29 @@
 body {
   background-color:#f8fbff;
 }
+#network-picture {
+  margin-top:100px;
+  height: 100%;
+  background-image: url('build/img/network_icon_1.png');
+  background-repeat: no-repeat;
+  /* background-attachment: fixed; */
+  background-position: center;
+  background-size: contain;
+  width: 500px;
+  float:right;
+}
+.network-logo {
+  height: 45px !important;
+  width: 45px !important;
+  float: left;
+  margin-left: 5px;
+  margin-top: 12px;
+}
 .login-btn{
 display: block;
 float: right;
 margin-right: 30px;
-margin-top: -38px;
+margin-top: -45px;
 background-color: #1ca3fd;
 border-radius: 3px;
 color:white;
@@ -122,10 +140,11 @@ tr.prospects-tr:hover{
 }
 
 .the-title{
-font-size: 40px;
-font-weight: bold;
-padding: 24px;
-color:#1ca3fd !important;
+  font-size: 40px;
+  font-weight: bold;
+  padding: 24px;
+  color:#1ca3fd !important;
+  padding-left:30px;
 }
 
 .background-image {
@@ -160,6 +179,9 @@ padding-top: 160px;
 /*background-image: linear-gradient(180deg, rgba(33, 48, 123, 0) 0%, #1ca3fd 100%);*/
 background-image: linear-gradient(180deg, rgba(33, 48, 123, 0) 0%, #ffffff 100%);
 /*background-size: 100% 30%;*/
+background-image: linear-gradient(#1f2c65,#85bbcd);
+background-image: linear-gradient(#1f2c65,#1ca3fd);
+opacity:0.7;
 background-position: bottom;
 background-repeat: no-repeat;
 height: 100%;
@@ -169,14 +191,19 @@ width:100%;
 z-index:-1;
 }
 .start-trial{
-display: block;
-margin-right: auto;
-margin-left: auto;
-width: 400px;
-border-radius: 4px;
-margin-top: 150px;
-padding-top: 20px;
-padding-bottom: 20px;
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+  width: 400px;
+  border-radius: 4px;
+  margin-top: 120px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  font-size:24px;
+  font-weight:bold;
+  font-family: Proxima-Nova;
+  font-weight:100;
+  background-image: linear-gradient(#49cb1e,#44bc1c);
 }
 .login-info {
   background-image: linear-gradient(180deg, #ffffff 0%, #f2f6f9 100%);
@@ -495,4 +522,84 @@ font-family: proxima-nova;
   width: 114px;
   right: 154px;
   left:auto;
+}
+.signal-card {
+  background: #ffffff;
+  background-image: -moz-linear-gradient(270deg, #ffffff 0%, #f2f6f9 100%);
+  background-image: -webkit-linear-gradient(270deg, #ffffff 0%, #f2f6f9 100%);
+  background-image: -o-linear-gradient(270deg, #ffffff 0%, #f2f6f9 100%);
+  background-image: linear-gradient(180deg, #ffffff 0%, #f2f6f9 100%);
+  border-radius: 6px;
+  -moz-box-shadow: 0px 0px 0px 1px rgba(14, 41, 57, 0.117647), 0px 2px 5px rgba(14, 41, 57, 0.439216), inset 0px -1px 2px rgba(14, 41, 57, 0.14902);
+  -webkit-box-shadow: 0px 0px 0px 1px rgba(14, 41, 57, 0.117647), 0px 2px 5px rgba(14, 41, 57, 0.439216), inset 0px -1px 2px rgba(14, 41, 57, 0.14902);
+  -o-box-shadow: 0px 0px 0px 1px rgba(14, 41, 57, 0.117647), 0px 2px 5px rgba(14, 41, 57, 0.439216), inset 0px -1px 2px rgba(14, 41, 57, 0.14902);
+  box-shadow: 0px 0px 0px 1px rgba(14, 41, 57, 0.117647), 0px 2px 5px rgba(14, 41, 57, 0.439216), inset 0px -1px 2px rgba(14, 41, 57, 0.14902);
+  padding: 0px;
+  border: none;
+  margin-top: 30px;
+  border-radius: 2px;
+}
+
+.signal-card-background {
+  box-shadow: inset 0px 3px 5px 0px rgba(0, 0, 0, 0.213726);
+  background-color:#ebf1f7;
+  height:100%;
+  width:100%;
+}
+
+.ideal-company-profile {
+  border-left: 10px solid #ddd;
+  padding-right:5px;
+}
+
+.ideal-profile{
+  display:block;
+}
+.profile-signal-name {
+  margin:0;
+  margin-left:5px;
+  display:inline-block;
+}
+
+.profile-signal-value {
+  font-style:italic;
+  font-size:11px;
+}
+
+.day{
+  text-align: center;
+  height: 20px;
+  width: 20px;
+  background-color: #0096ff;
+  border-radius: 10px;
+  margin-left: -7px;
+  margin-top: 10px;
+  font-family: proxima-nova;
+  font-weight: bold;
+  color: white;
+  font-size: 9px;
+  padding-top: 5px;
+  cursor: pointer;
+}
+#editTemplateOverlay{
+  position:absolute;
+  height:100%;
+  width:100%;
+  top:0;
+  left:0;
+  background-color:black;
+  opacity:0.5;
+  z-index:1000000;
+}
+
+#editTemplateView {
+  width:60%;
+  height:100%;
+  border:0;
+  right:0;
+  position: absolute;
+  top: 0;
+  z-index: 100000000;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }

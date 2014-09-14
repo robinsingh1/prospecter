@@ -22,12 +22,36 @@ module.exports = React.createClass({
             <SignalsOptions />
           </div>
           <div className="col-md-9" style={{height:'100%',padding:0}}>
+            <SignalDetailButtons />
             <SignalsFeed />
           </div>
         </div>
         <CreateSignalModal createSignal={this.createSignal}/>
       </div>
     )
+  }
+});
+
+var SignalDetailButtons = React.createClass({
+  render: function() {
+    return (
+      <div>
+        <div id="prospectDetailButtons" style={{height:50}}>
+          <div className="btn-group col-md-offset-4" >
+            <a className="choose btn btn-primary" 
+               style={{display:'block',padding:5}} 
+               onClick={this.toggleScreen}> 
+                <i className="fa fa-user" />&nbsp;People
+            </a>
+            <a className="choose btn btn-primary active" 
+               style={{padding:5}}
+               onClick={this.toggleScreen}> 
+                <i className="fa fa-building" />&nbsp;Companies
+            </a>
+          </div>
+        </div>
+      </div>
+    );
   }
 });
 
@@ -132,7 +156,7 @@ var SignalsFeed = React.createClass({
       signalCards.push(<SignalCard company={this.state.signals[i]}/>)
     }
     return (
-      <div className="container signal-card-background" style={{height:400, overflow:'auto'}}>
+      <div className="container signal-card-background" style={{height:350, overflow:'auto'}}>
         <div className="col-md-8 col-md-offset-2">
           {signalCards}
         </div>

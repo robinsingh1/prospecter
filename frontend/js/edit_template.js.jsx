@@ -1,64 +1,129 @@
 /** @jsx React.DOM */
 
 module.exports = React.createClass({
+  getInitialState: function() {
+    console.log(this.props.initialTemplateValues)
+    return {
+      templateBody: this.props.initialTemplateValues.body,
+      templateSubject: this.props.initialTemplateValues.subject,
+      editMode:false
+    }
+  },
   //EditTemplateView
   componentDidMount: function() {
-    $('.summer').summernote({
-      toolbar: [
-    //[groupname, [button list]]
-     
-    ['style', ['bold', 'italic', 'underline', 'clear']],
-    ['font', ['strikethrough']],
-    ['fontsize', ['fontsize']],
-    ['color', ['color']],
-    ['para', ['ul', 'ol', 'paragraph']],
-    ['height', ['height']],
-  ]
-    })
+    $('.template-body').html(this.state.templateBody)
+  },
 
-    $('.subject').val("Followup - Prospecting SAAS Outreach")
+  clickedOverlay: function() {
+    console.log('clicked overlay')
+    this.props.toggleTemplateEditMenu()
+  },
+
+  changeMode: function() {
+    // Update template html on toggle
+    parse_headers = appConfig.parseHeaders
+    if(this.state.editMode){
+      $('.summer').destroy();
+      this.setState({
+        templateBody: $('.summer').code(),
+        templateSubject: $('.subject').val(),
+        editMode: !this.state.editMode,
+      })
+
+      $.ajax({
+        url:'https://api.parse.com/1/classes/Templates/'+this.props.initialTemplateValues.objectId,
+        type:'PUT',
+        headers:parse_headers,
+        data:JSON.stringify({body: $('.summer').code(),subject: $('.subject').val()}),
+        success: function(res) {
+          console.log(res)
+        },
+        error: function(err) {
+          console.log(err)
+        }
+      });
+    } else {
+      this.setState({ editMode: !this.state.editMode })
+    }
+  },
+
+  componentDidUpdate: function() {
+    /*
+    thiss = this;
+    */
+
+    if(this.state.editMode){
+      // Replace Subject 
+      $('.subject').val(this.state.templateSubject)
+
+      $('.summer').summernote({
+        height: 200,
+        toolbar: [
+          ['style', ['bold', 'italic', 'underline', 'clear']],
+          ['font', ['strikethrough']],
+          ['fontsize', ['fontsize']],
+          ['color', ['color']],
+          ['para', ['ul', 'ol', 'paragraph']],
+          ['height', ['height']],
+        ]
+      })
+
+      // Initialize Editor with html
+      $('.summer').code(this.state.templateBody)
+    }
   },
 
   render: function() {
-    return (
-      <div id="editTemplateView" 
-           className="panel panel-info" 
-           style={{display:'none'}}>
-        <div className="panel-heading" >
-          Template Name 
-          <a href="javascript:" 
+    subjectPlace = (this.state.editMode) ? <input style={{display:'inline',width:480}} className="form-control subject" ></input> : this.state.templateSubject
+
+    if(this.state.editMode){
+       toggleButton = <a href="javascript:" 
+             onClick={this.changeMode}
+             className="btn btn-success btn-xs" 
+             style={{display:'block',float:'right',marginTop:5}}>
+            <i className="fa fa-save" /> &nbsp; Save Template</a>
+    } else {
+       toggleButton = <a href="javascript:" 
              onClick={this.changeMode}
              className="btn btn-primary btn-xs" 
-             style={{display:'block',float:'right',marginTop:'0px'}}>
+             style={{display:'block',float:'right',marginTop:5}}>
             <i className="fa fa-pencil-square" /> &nbsp; Edit Template</a>
+    }
+
+    return (
+      <div>
+      <div onClick={this.clickedOverlay} id="editTemplateOverlay"></div>
+      <div id="editTemplateView" 
+           className="panel panel-info" 
+           style={{display:'block'}}>
+           <div className="panel-heading" style={{height:50}}> 
+             <h6 style={{float:'left'}}>
+               <i className="fa fa-file-text-o" /> 
+               {"  " + this.props.initialTemplateValues.name}
+             </h6>
+          {toggleButton}
         </div>
         <div className="panel-body">
-        <span>Subject: </span><input style={{display:'inline',width:500}} className="form-control subject"></input>
-        <h6 style={{marginBottom:'0'}} className="text-muted">Created by Mark on Jul. 21, 2014</h6>
-        <h6 style={{marginTop:'0'}} className="text-muted">last updated 7 days ago</h6>
+          <div className="editTemplateTitle">
+            <span>Subject: </span>
+            {subjectPlace}
+          </div>
+         <br/>
+         <div className="templateDetails">
+           <h6 style={{marginBottom:'0'}} className="text-muted">
+             Created by Mark on Jul. 21, 2014
+           </h6>
+           <h6 style={{marginTop:'0'}} className="text-muted">
+             last updated 7 days ago
+           </h6>
+         </div>
         <br/>
-        <br/>
-
-        <div className="panel panel-default">
-
-          <div className="panel-body summer">
-          15 minutes to get company_name more customers
-          Hey first_name,
-
-          Would you like to hear an idea for a 15 minute hack that could significantly increase the number of prospects your sales people have access to ?
-           
-          Recently one of our B2B clients saw a huge increase in trial sign ups after working with us. first_name, lets schedule a 15 minute call this week to see if this would be a good fit for both of us.
-           
-          What the best time for you this week ?
-           
-          --
-          Mark 
-          Customero
-          mark@customerohq.com
-
+        <div className="panel panel-default"> 
+          <div className="panel-body summer template-body">
+          </div>
+        </div>
     </div>
-    </div>
-    </div>
+</div>
 </div>
     );
   }
