@@ -63,7 +63,7 @@ module.exports = React.createClass({
     }
 
     return (
-      <div className="" style={{height:'450px'}}>
+      <div className="" style={{height:'550px'}}>
         <div className="container" style={{padding:'0',width:'100%',height:'100%'}}>
             <SideMenu toggleScreen={this.toggleScreen}/>
           <div className="col-md-10" style={{padding:'0',height:'100%'}}>

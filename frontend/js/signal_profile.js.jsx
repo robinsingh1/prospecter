@@ -30,8 +30,8 @@ module.exports = React.createClass({
 
 var ProfileType = React.createClass({
   render: function() {
-    console.log(this.props.profile)
-    console.log(this.props.profile.className)
+    //console.log(this.props.profile)
+    //console.log(this.props.profile.className)
     if(this.props.profile.className == "HiringProfile") {
       signalIcon = <i className="fa fa-suitcase" />
       signalName = "Hiring"

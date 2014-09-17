@@ -6,10 +6,11 @@ module.exports = React.createClass({
     return {
       templateBody: this.props.initialTemplateValues.body,
       templateSubject: this.props.initialTemplateValues.subject,
-      editMode:false
+      editMode: this.props.initialTemplateValues.editMode
     }
   },
-  //EditTemplateView
+
+  // EditTemplateView
   componentDidMount: function() {
     $('.template-body').html(this.state.templateBody)
   },

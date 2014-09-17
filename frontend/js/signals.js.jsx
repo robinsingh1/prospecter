@@ -2,9 +2,15 @@
 
 var CreateSignalModal = require('./create_signal_modal.js.min.js')
 var SignalProfile = require('./signal_profile.js.min.js')
-var SignalCard = require('./signal_card.js.min.js')
+var CompanySignalCard = require('./company_signal_card.js.min.js')
+var PeopleSignalCard = require('./people_signal_card.js.min.js')
 
 module.exports = React.createClass({
+  getInitialState: function() {
+    return {
+      signalType: 'CompanySignal'
+    }
+  },
   render: function() {
     // Signals
     /*
@@ -22,30 +28,44 @@ module.exports = React.createClass({
             <SignalsOptions />
           </div>
           <div className="col-md-9" style={{height:'100%',padding:0}}>
-            <SignalDetailButtons />
-            <SignalsFeed />
+            <SignalDetailButtons signalType={this.state.signalType} 
+                                 setSignalType={this.setSignalType}/>
+            <SignalsFeed signalType={this.state.signalType}/>
           </div>
         </div>
         <CreateSignalModal createSignal={this.createSignal}/>
       </div>
     )
+  },
+  setSignalType: function(labelText) {
+    if(labelText == "People")
+      currentSignal = "PeopleSignal"
+    else if(labelText == "Companies")
+      currentSignal = "CompanySignal"
+    this.setState({signalType: currentSignal})
   }
 });
 
 var SignalDetailButtons = React.createClass({
+  setSignalType: function(e) {
+    this.props.setSignalType($(e.target).text().trim())
+  },
+
   render: function() {
+    ppl = (this.props.signalType == "PeopleSignal") ? "choose btn btn-primary active" : "choose btn btn-primary"
+    cmp = (this.props.signalType == "CompanySignal") ? "choose btn btn-primary active" : "choose btn btn-primary"
     return (
       <div>
         <div id="prospectDetailButtons" style={{height:50}}>
           <div className="btn-group col-md-offset-4" >
-            <a className="choose btn btn-primary" 
+            <a className={ppl}
                style={{display:'block',padding:5}} 
-               onClick={this.toggleScreen}> 
+               onClick={this.setSignalType}> 
                 <i className="fa fa-user" />&nbsp;People
             </a>
-            <a className="choose btn btn-primary active" 
+            <a className={cmp}
                style={{padding:5}}
-               onClick={this.toggleScreen}> 
+               onClick={this.setSignalType}> 
                 <i className="fa fa-building" />&nbsp;Companies
             </a>
           </div>
@@ -124,6 +144,13 @@ var SignalsFeed = React.createClass({
   },
 
   componentDidMount: function() {
+    this.getSignals()
+  },
+  componentDidUpdate: function() {
+    this.getSignals()
+  },
+
+  getSignals: function() {
     currentUser = JSON.parse(localStorage.currentUser)
     user = {
       '__type'    : 'Pointer',
@@ -133,10 +160,12 @@ var SignalsFeed = React.createClass({
     user = JSON.stringify(user)
     company = JSON.stringify(currentUser.company)
     qry = 'where={"company":'+company+',"user":'+user+'}&include=signals'
+    qry = '&include=signals'
   
     thiss = this
     $.ajax({
-      url: 'https://api.parse.com/1/classes/CompanySignal',
+      url: 'https://api.parse.com/1/classes/'+this.props.signalType,
+      //url: 'https://api.parse.com/1/classes/CompanySignal',
       type:'GET',
       data: qry,
       headers:appConfig.parseHeaders,
@@ -153,7 +182,10 @@ var SignalsFeed = React.createClass({
   render: function() {
     signalCards = []
     for(i=0;i< this.state.signals.length;i++) {
-      signalCards.push(<SignalCard company={this.state.signals[i]}/>)
+      if(this.props.signalType == "CompanySignal")
+        signalCards.push(<CompanySignalCard company={this.state.signals[i]}/>)
+      else if(this.props.signalType == "PeopleSignal")
+        signalCards.push(<PeopleSignalCard person={this.state.signals[i]}/>)
     }
     return (
       <div className="container signal-card-background" style={{height:350, overflow:'auto'}}>

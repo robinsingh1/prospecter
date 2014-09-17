@@ -30,20 +30,22 @@ module.exports = React.createClass({
         <i className="fa fa-archive" />&nbsp;&nbsp;
         {'Archived'} <span style={{float:'right',marginTop:'1px', backgroundColor:'#999'}} className="badge badge-default">{this.props.count}</span></button> ]
   
-    for(i=0;i<this.props.lists.length;i++){
-      list = this.props.lists[i]
-      lists.push(
-        <button type="button" onClick={this.props.changeList} data-list={JSON.stringify(list)} className="list-names btn btn-default">{list.name}<span style={{backgroundColor:'#999',float:'right',marginTop:'1px'}}className="badge badge-default">{list.count}</span>      </button>
-      )
-    }
     lists = [<SideMenuListOption list={{name: 'All',count: this.props.totalCount}} 
                 iconType={'users'} 
                 changeList={this.props.changeList} />, <SideMenuListOption list={{name: 'Archived', count: '~'}} iconType={'archive'} changeList={this.props.changeList} hideCount={true}/>]
     for(i=0;i<this.props.lists.length;i++){
       list = this.props.lists[i]
-      lists.push(
-        <SideMenuListOption list={list} changeList={this.props.changeList}/>
-      )
+      if(list.signal_list){
+        lists.push(
+          <SideMenuListOption list={list} 
+                              iconType={'wifi'}
+                              changeList={this.props.changeList}/>
+        )
+      } else {
+        lists.push(
+          <SideMenuListOption list={list} changeList={this.props.changeList}/>
+        )
+      }
     }
 
     

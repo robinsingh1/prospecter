@@ -119,12 +119,18 @@ var Home = React.createClass({
   },
 
   render: function() {
+    prospects = "choose btn btn-primary "
+    companyProspects = "choose btn btn-primary "
+    campaigns = "choose btn btn-primary "
+    signals = "choose btn btn-primary "
     switch (this.state.selectedScreen) {
       case 'Prospects':
         currentScreen = <Prospects prospectType={this.state.selectedScreen} />
+        prospects = "choose btn btn-primary active"
         break;
       case 'Companies':
         currentScreen = <CompanyProspects prospectType={this.state.selectedScreen} />
+        companyProspects = "choose btn btn-primary active"
         break;
       case 'Mining Jobs':
         currentScreen = <MiningJob />
@@ -134,9 +140,11 @@ var Home = React.createClass({
         break;
       case 'Campaigns':
         currentScreen = <Campaigns />
+        campaigns = "choose btn btn-primary active"
         break;
       case 'Signals':
         currentScreen = <Signals />
+        signals = "choose btn btn-primary active"
         break;
       case 'Settings':
         currentScreen = <Settings />
@@ -164,10 +172,10 @@ var Home = React.createClass({
         <div id="navbar" className="panel-heading"> 
 
           <div className="btn-group col-md-offset-4" >
-            <a className="choose btn btn-primary " style={{display:'block'}} onClick={this.toggleScreen}> 
+            <a className={signals} style={{display:'block'}} onClick={this.toggleScreen}> 
                 <i className="fa fa-wifi" />&nbsp;Signals
             </a>
-            <a className="choose btn btn-primary active" onClick={this.toggleScreen}> 
+            <a className={prospects} onClick={this.toggleScreen}> 
                 <i className="fa fa-user" />&nbsp;Prospects
             </a>
             <a className="choose btn btn-primary" style={{display:'none'}} onClick={this.toggleScreen}>
@@ -179,10 +187,10 @@ var Home = React.createClass({
                 <i className="fa fa-tasks" /> Mining Jobs &nbsp;
                 <span className="label label-default">BETA</span>
             </a>
-            <a className="choose btn btn-primary" onClick={this.toggleScreen}>
+            <a className={companyProspects} onClick={this.toggleScreen}>
                 <i className="fa fa-building" /> Companies
             </a>
-            <a className="choose btn btn-primary" style={{display:'block'}} onClick={this.toggleScreen}>
+            <a className={campaigns} style={{display:'block'}} onClick={this.toggleScreen}>
                 <i className="fa fa-envelope" />&nbsp;Campaigns
             </a>
           </div>

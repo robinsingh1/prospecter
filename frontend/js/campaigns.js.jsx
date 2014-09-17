@@ -17,7 +17,7 @@ module.exports = React.createClass({
   componentDidMount: function() {
     thiss = this;
      company = JSON.stringify(JSON.parse(localStorage.currentUser).company)
-     qry = 'where={"company":'+company+'}&include=prospect_list,followups'
+     qry = 'where={"company":'+company+'}&include=prospect_list,followups,followups.template'
      $.ajax({
        url:'https://api.parse.com/1/classes/Campaign',
       headers: appConfig.headers,
@@ -92,6 +92,7 @@ var CampaignRow = React.createClass({
             {this.props.campaign.name}
         </h6> </td>
         <td> <h6>
+            {(this.props.campaign.prospect_list.signal_list) ? <i className="fa fa-wifi" style={{marginRight:5}}/> : ""}
             {this.props.campaign.prospect_list.name}
         </h6> </td>
         <td style={{textAlign:'center',padding:12}}>

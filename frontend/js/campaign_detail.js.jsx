@@ -13,6 +13,8 @@ module.exports = React.createClass({
       followupDay: 0,
       templates:[],
       currentTemplate:'',
+      prospectListCount:'~',
+      prospects:[],
     }
   },
 
@@ -33,21 +35,27 @@ module.exports = React.createClass({
         //console.log(err)
       }
     });
-    /*
+
+    currentList = JSON.stringify({
+      '__type'    : 'Pointer', 
+      'className' : 'ProspectList',
+      'objectId'  : this.props.selectedCampaign.prospect_list.objectId, 
+    })
+    qry = 'where={"lists":'+currentList+'}&limit=1000&count=1'
     $.ajax({
-      url:'https://api.parse.com/1/classes/ProspectList',
+      url: 'https://api.parse.com/1/classes/Prospects',
       headers: appConfig.headers,
       data: qry,
-      success: function(res) {
-        //console.log(res.results)
-        thissss.setState({templates: res.results})
+      success: function (res) {
+        thissss.setState({
+          prospects: res.results,
+          prospectListCount: res.count 
+        })
       },
       error: function(err) {
-        console.log('error')
-        //console.log(err)
+
       }
-    });
-    */
+    })
   },
 
   returnToOverview: function() {
@@ -56,7 +64,6 @@ module.exports = React.createClass({
 
   render: function() {
     //console.log('campaign detail')
-    //console.log(this.props.selectedCampaign)
     thiss = this;
     return (
       <div className="container" 
@@ -70,24 +77,37 @@ module.exports = React.createClass({
           </small>
           {this.props.selectedCampaign.name}
         </h5>
-        <h6 style={{marginLeft:20}}>
+        <h6 style={{marginLeft:20,display:'inline-block',marginRight:15}}>
           <span className="text-muted">Prospect List:</span> &nbsp;
           {this.props.selectedCampaign.prospect_list.name}
         </h6>
+        <span className="badge">{this.state.prospectListCount}</span>
+
+        <h6 style={{marginLeft:20,display:'inline-block',marginRight:15}}>
+          Batches :
+        </h6>
+        <span className="badge">2</span>
+          
+
+
+
         <a href="javascript:" 
-          style={{float: 'right', marginTop: -35, marginRight: 30, display:'none'}}
+           style={{float: 'right', marginTop: -35, marginRight: 30, display:'none'}}
            className="btn btn-success btn-sm">
           <i className="fa fa-envelope" /> Send!
         </a>
         </div>
           <div className="col-md-8 panel panel-default" 
-               style={{height:'363px',paddingLeft:305,paddingTop:50,overflow:'auto',borderRight:0,borderRadius:0}}>
+               style={{height:'443px',paddingLeft:305,paddingTop:50,overflow:'auto',borderRight:0,borderRadius:0}}>
                <FollowupTimeline 
+                  templates={this.state.templates}
+                  prospects={this.state.prospects}
                   currentCampaign={this.props.selectedCampaign}
-                  followups={this.props.selectedCampaign.followups} />
+                  toggleTemplateEditMenu={this.toggleTemplateEditMenu}
+                  initialFollowups={this.props.selectedCampaign.followups} />
           </div>
           <div className="col-md-4" 
-               style={{paddingLeft:0,paddingRight:0,height:363}}>
+               style={{paddingLeft:0,paddingRight:0,height:443}}>
             <TemplatesMenu 
               templates={this.state.templates}
               toggleTemplateEditMenu={this.toggleTemplateEditMenu} />

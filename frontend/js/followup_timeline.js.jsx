@@ -1,26 +1,19 @@
 /** @jsx React.DOM */
+var SendEmailModal = require('./send_email_modal.js.min.js')
 
 module.exports = React.createClass({
   // FollowupTimeline
   getInitialState: function() {
     return {
+      followups: this.props.initialFollowups,
       loading: false,
+      currentTemplate:''
     }
   },
 
   componentDidMount: function() {
     thiss = this;
     $('.day').tooltip()
-    $('.day-popover').popover({
-      html: true,
-      content: '<h6 style="width:130px;display:inline-block;"><i class="fa fa-file-text-o" ></i>&nbsp;&nbsp;Example Template</h6><button class="win-btn btn btn-success btn-xs"><i class="fa fa-paper-plane"></i>&nbsp;Send</button>&nbsp;<button class="win-btn btn btn-default btn-xs"><i class="fa fa-pencil"></i></button>&nbsp;<button class="win-btn btn btn-default btn-xs"><i class="fa fa-trash-o"></i></button>'
-    })
-
-    $('.day-popover').popover('show')
-    $('.win-btn').click(function() {
-      //console.log('clicked win btn')
-    });
-
     // Followups that belong to campaign
      company = JSON.stringify(JSON.parse(localStorage.currentUser).company)
      currentCampaign = {
@@ -47,50 +40,179 @@ module.exports = React.createClass({
   },
   
   render: function() {
-    //console.log(this.props.followups)
+    console.log(this.props.prospects)
+    
+    followupProgression =  _.countBy(this.props.prospects, function(prospect) {
+      return prospect.last_contacted
+    })
+    console.log(followupProgression)
+    console.log(followupProgression[0])
+
     timelineElements = []
     for(i=0;i< 31;i++){
-      for(ii=0;ii< this.props.followups.length; ii++){
-        elementType = i == this.props.followups[ii].day
-        if(elementType)
+      followupProgressionCount = (followupProgression[i]) ? followupProgression[i] : 0
+
+      addTemplateMode = false
+      currentTemplate = false
+      for(ii=0;ii< this.state.followups.length; ii++){
+        // TODO - Replace this with the underscore method
+        elementType = i == this.state.followups[ii].day
+        if(elementType) {
+          addTemplateMode = (this.state.followups[ii].addTemplateMode) ? true: false
+          currentTemplate = this.state.followups[ii].template
           break
+        }
       }
+
       timelineElements.push(<TimelineDayElement 
                               dayCount={i}
+                              templates={this.props.templates}
+                              currentTemplate={currentTemplate}
+                              followupProgressionCount={followupProgressionCount}
+                              addTemplateMode={addTemplateMode}
                               elementType={!elementType}
+                              setCurrentTemplate={this.setCurrentTemplate}
                               toggleTemplateEditMenu={this.toggleTemplateEditMenu}/>)
     }
     return (
       <div>
-          <div className="timeline" 
-               style={{height:'900px',backgroundColor:'rgb(90, 107, 119)',width:5}}>
-               {timelineElements}
-          </div>
+        <div className="timeline" 
+             style={{height:'900px',backgroundColor:'rgb(90, 107, 119)',
+                     width:5,marginTop:-35}}>
+             {timelineElements}
+        </div>
+        <SendEmailModal prospects={this.props.prospects} 
+                        currentTemplate={this.state.currentTemplate}/>
+      </div>
+    );
+  },
+
+  toggleTemplateEditMenu: function(day) {
+    console.log('called template edit menu')
+    //this.props.toggleTemplateEditMenu({name:'', body:'', subject:'', editMode:true})
+    followups = this.state.followups
+    followups.push({addTemplateMode: true, day: day})
+    this.setState({
+      followups: followups
+    })
+  },
+
+  setCurrentTemplate: function(template) {
+    this.setState({currentTemplate: template })
+  }
+});
+
+var TimelineDayElement = React.createClass({
+  // TODO - 
+  // - add prospect list progression
+  // - add scheduled followup
+  toggleTemplateEditMenu: function() {
+    this.props.toggleTemplateEditMenu(this.props.dayCount)
+  },
+
+  render: function() {
+    if(this.props.elementType) {
+      timelineDay = <div>
+                      <div className="day" 
+                           onClick={this.toggleTemplateEditMenu}
+                           data-toggle="tooltip" 
+                           data-placement="right" 
+                           title="+ Add a follow-up">{"D"+this.props.dayCount}
+                       </div>
+                      {(this.props.followupProgressionCount) ? <BatchStage followupProgressionCount={this.props.followupProgressionCount} /> : "" }
+                     </div>
+    } else {
+      timelineDay = <div>
+                      <div className="day"
+                           data-trigger="manual" >{"D"+this.props.dayCount}
+                      </div>
+                      {(this.props.followupProgressionCount) ? <BatchStage followupProgressionCount={this.props.followupProgressionCount} /> : ""}
+                      
+                      {(this.props.addTemplateMode) ? <AddTemplate templates={this.props.templates}/>: <TemplateFollowup currentTemplate={this.props.currentTemplate} setCurrentTemplate={this.props.setCurrentTemplate}/>}
+                    </div>
+    }
+    return (
+      <div> {timelineDay} </div>
+    )
+  },
+  setCurrentTemplate: function(template) {
+    this.props.setCurrentTemplate(template)
+  }
+});
+
+var AddTemplate = React.createClass({
+  // TODO
+  // Add Invisible Div that cover timeline area
+  // Onclick should Cause the addtemplate menu to disappear
+
+  render: function() {
+    options = []
+    for(i=0;i< this.props.templates.length; i++) {
+      options.push( <option>{this.props.templates[i].name}</option>)
+    }
+    return (
+      <div className="followup-placement arrow_box_1 tmp_2"> 
+        <h6 style={{width:55,display:'inline-block'}} 
+            className="text-muted">
+          Choose :
+        </h6>
+        <select className="form-control input-sm" 
+                style={{display:'inline-block',width:127,marginRight:5}}>
+          {options}
+        </select>
+
+        <button className="win-btn btn btn-success btn-xs" 
+                onClick={this.chooseTemplate}
+                style={{marginRight:5}}>
+          <i className="fa fa-check" /></button>
+        <button className="win-btn btn btn-default btn-xs"
+                onClick={this.closeAddTemplate}>
+          <i className="fa fa-times" /></button>
+      </div>
+    )
+  },
+
+  chooseTemplate: function() {
+    
+  },
+
+  closeAddTemplate: function() {
+    
+  },
+});
+
+var TemplateFollowup = React.createClass({
+  setCurrentTemplate: function() {
+    this.props.setCurrentTemplate(this.props.currentTemplate)
+  },
+  render: function() {
+    return (
+      <div className="followup-placement arrow_box_1 tmp_2"> 
+        <h6 style={{width:130,display:'inline-block'}}>
+          <i className="fa fa-file-text-o" />&nbsp;&nbsp;
+          {this.props.currentTemplate.name}
+        </h6>
+        <button className="win-btn btn btn-success btn-xs"
+                data-target=".bs-sendEmail-modal-lg"
+                onClick={this.setCurrentTemplate}
+                data-toggle="modal">
+          <i className="fa fa-paper-plane"/>&nbsp;Send</button>&nbsp;
+        <button className="win-btn btn btn-default btn-xs">
+          <i className="fa fa-pencil" /></button>&nbsp;
+        <button className="win-btn btn btn-default btn-xs">
+          <i className="fa fa-trash-o" /></button>
       </div>
     );
   }
 });
 
-var TimelineDayElement = React.createClass({
+var BatchStage = React.createClass({
   render: function() {
-    timelineDay = "lol"
-    if(this.props.elementType) {
-      timelineDay = <div className="day" 
-                         onClick={this.props.toggleTemplateEditMenu}
-                         data-toggle="tooltip" 
-                         data-placement="right" 
-                         title="+ Add a follow-up">{"D"+this.props.dayCount}</div>
-    } else {
-      timelineDay = <div className="day day-popover" 
-                         onClick={this.props.toggleTemplateEditMenu}
-                         data-toggle="popover"
-                         data-trigger="manual"
-                         data-placement="right">{"D"+this.props.dayCount} </div>
-    }
     return (
-      <div>
-      {timelineDay}
+      <div className="followup-placement arrow_box tmp">
+        <span className="badge">{this.props.followupProgressionCount}</span>&nbsp;
+        <h6 style={{display:'inline-block'}}> prospects in the sales cycle.</h6>
       </div>
-    )
+    );
   }
 });
