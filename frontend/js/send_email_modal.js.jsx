@@ -17,6 +17,7 @@ module.exports = React.createClass({
       //console.log(this.props.prospects[i])
       prospects.push(<UserPlaceHolder prospect={this.props.prospects[i]}/>)
     }
+    email = (prospect.email) ? prospect.email.toLowerCase() : ""
     return (
           <div className="modal fade bs-sendEmail-modal-lg" tabIndex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="sendEmailModal" style={{top:'10px'}}>
             <div className="modal-dialog modal-lg" >
@@ -52,7 +53,7 @@ module.exports = React.createClass({
 <ul className="list-group email-holder">
   <li className="list-group-item">
     <h5 style={{display:'inline-block',marginTop:0,marginBottom:0}}>To:&nbsp;&nbsp;</h5> 
-    {prospect.name + " - " + prospect.email.toLowerCase()}
+    {prospect.name + " - " + email}
   </li>
   <li className="list-group-item">
     <h5 style={{display:'inline-block',marginTop:0,marginBottom:0}}>Subject:&nbsp;&nbsp;</h5> {this.props.currentTemplate.subject}
@@ -77,24 +78,17 @@ module.exports = React.createClass({
   },
 
   parseTemplate: function(templateBody) {
-    vars = []
-    if(templateBody)
-      vars = templateBody.split('{{')
-    variables = []
-    for(i=0;i< vars.length;i++)
-      variables.push(vars[i].split('}}')[0])
-    variables.shift()
-    prospect = this.props.prospects[this.state.currentProspect]
-
-    //first_name = prospect.name.split(' ')[0]
+    first_name = prospect.name.split(' ')[0]
     //hiring_signal = prospect.signals
-    //console.log(prospect)
-    //console.log(eval(variables[0]))
-    //console.log(eval(variables[1]))
-    // Get Variables
-    // Get variable values
-    // replace variables in text
-    // return text
+
+    signals = (prospect.signals) ? prospect.signals[0] : ""
+    templateBody = Mustache.render(templateBody, {
+      hiring_signal: signals,
+      first_name: prospect.name.split(' ')[0]
+    })
+
+    console.log(templateBody)
+      
     return templateBody
   },
 
@@ -102,7 +96,8 @@ module.exports = React.createClass({
     //console.log(this.props.currentTemplate)
     parsedTemplate = this.parseTemplate(this.props.currentTemplate.body)
     
-    $('.body').html(this.props.currentTemplate.body)
+    //$('.body').html(this.props.currentTemplate.body)
+    $('.body').html(parsedTemplate)
   }
 });
 

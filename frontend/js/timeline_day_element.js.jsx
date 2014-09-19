@@ -148,8 +148,7 @@ var EditTemplate = React.createClass({
   },
 
   removeFollowup: function(day) {
-    console.log('remove')
-    this.props.removeFollowup(day)
+    this.props.removeFollowup(this.props.dayCount)
   },
 });
 

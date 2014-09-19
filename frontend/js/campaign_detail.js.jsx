@@ -133,12 +133,51 @@ module.exports = React.createClass({
       template.name = template.name
       template.body = template.body
       templates.push(template)
+
+      $.ajax({
+        url:'https://api.parse.com/1/classes/Templates',
+        headers:appConfig.headers,
+        type:'POST',
+        data:JSON.stringify({
+          name : template.name,
+          subject: template.subject,
+          body: template.body,
+          user:{
+            __type: 'Pointer',
+            className:'_User',
+            objectId:JSON.parse(localStorage.currentUser).objectId,
+          },
+          company:JSON.parse(localStorage.currentUser).company,
+        }),
+        success: function(res) {
+          console.log(res)
+        },
+        error: function() {
+        }
+      })
     } else {
       templates[i].subject = template.subject
       templates[i].body = template.body
+
+      $.ajax({
+        url:'https://api.parse.com/1/classes/Templates/'+templates[i].objectId,
+        type:'PUT',
+        headers:appConfig.headers,
+        data:JSON.stringify({
+          name : template.name,
+          subject: template.subject,
+          body: template.body,
+        }),
+        success: function(res) {
+          console.log(res)
+        },
+        error: function() {
+        }
+      })
     }
 
     this.setState({templates: templates })
+
   },
 
   toggleTemplateEditMenu: function(currentTemplate, editMode) {

@@ -51,12 +51,14 @@ module.exports = React.createClass({
                       function(prospect) { return prospect.last_contacted })
 
     timelineElements = []
-    followups = this.state.followups
+    followups = (this.state.followups) ? this.state.followups : []
+    console.log(followups)
     for(i=0;i< 31;i++){
       batchCount = (batches[i]) ? batches[i] : 0
       
       addTemplateMode = false; 
       currentTemplate = false;
+      elementType = false
       for(ii=0;ii< followups.length; ii++){
         //TODO - Replace with underscore method
         elementType = i == followups[ii].day
@@ -83,7 +85,7 @@ module.exports = React.createClass({
     return (
       <div>
         <div className="timeline" 
-             style={{height:'900px',backgroundColor:'rgb(90, 107, 119)',
+             style={{height:'100%',backgroundColor:'rgb(90, 107, 119)',
                      width:5,marginTop:-35}}>
              {timelineElements}
         </div>
@@ -94,13 +96,7 @@ module.exports = React.createClass({
   },
 
   createFollowup: function() {
-    // needed properties
-    /*
-     * day
-     * campaign
-     * template objectId
-    */
-
+    //
   },         
 
   addFollowup: function(day) {
@@ -126,16 +122,73 @@ module.exports = React.createClass({
   },
 
   saveFollowup: function(day, chosenTemplate) {
-    for(i=0;i< this.state.followups.length; i++){
-      if(this.state.followups[i].day == day){
+    for(i=0;i< this.state.followups.length; i++)
+      if(this.state.followups[i].day == day)
         break
-      }
-    }
+
     new_followups = this.state.followups
     new_followups[i].addTemplateMode = false
     new_followups[i].template = chosenTemplate
 
     this.setState({followups: new_followups})
+
+    // When do you know when to create or when to update
+    console.log(new_followups[i])
+    if(new_followups[i].objectId){
+      url = "/"+new_followups[i].objectId; type="PUT"
+      data = {template:{
+        __type:'Pointer',
+        className:'Templates',
+        objectId: chosenTemplate.objectId
+      }}
+    }else{
+      url = ""; type="POST";
+
+      data = {
+        day: day,
+        campaign: {
+          __type: 'Pointer',
+          className:'Campaign',
+          objectId: this.props.currentCampaign.objectId
+        },
+        template: {
+          __type: 'Pointer',
+          className:'Templates',
+          objectId:chosenTemplate.objectId,
+        }
+      }
+    }
+
+    thiss = this;
+    $.ajax({
+      url:'https://api.parse.com/1/classes/Followup',
+      type:type,
+      data:JSON.stringify(data),
+      headers:appConfig.headers,
+      success: function(res) {
+        console.log(res)
+        $.ajax({
+          url:'https://api.parse.com/1/classes/Campaign/'+thiss.props.currentCampaign.objectId,
+          type:'PUT',
+          data:JSON.stringify({followups: {
+            __op: 'AddUnique',
+            objects:[{
+              __type:'Pointer', 
+              className:'Followup',
+              objectId:res.objectId
+            }]
+          }}),
+          headers:appConfig.headers,
+          success: function() {
+          },
+          error: function() {
+          }
+        })
+      },
+      error: function() {
+
+      },
+    })
   },
 
   removeFollowup: function(day) {
@@ -143,10 +196,48 @@ module.exports = React.createClass({
     for(i=0;i< this.state.followups.length;i++)
       if(this.state.followups[i].day != day)
         followups.push(this.state.followups[i])
-    
-    console.log(followups)
+      
+    for(i=0;i< this.state.followups.length;i++)
+      if(this.state.followups[i].day == day)
+        break
     
     this.setState({followups: followups}) 
+    id = this.state.followups[i]
+
+    thiss = this;
+    if(id) {
+      id = id.objectId
+      $.ajax({
+        url:'https://api.parse.com/1/classes/Followup/'+id,
+        headers:appConfig.headers,
+        type:'DELETE',
+        success: function(res) {
+          console.log(res)
+        }
+      })
+
+     console.log('REMOVE ARRAY')
+      $.ajax({
+        url:'https://api.parse.com/1/classes/Campaign/'+thiss.props.currentCampaign.objectId,
+        headers:appConfig.headers,
+        type:'PUT',
+        data: JSON.stringify({
+          followups: {
+            __op : 'Remove',
+            objects: [{
+              __type: 'Pointer',
+              className: 'Followup',
+              objectId: id
+            }]
+          }
+        }),
+        success: function(res){
+          console.log(res)
+        },
+        error: function() {
+        }
+      })
+    }
   },
 
   setCurrentTemplate: function(template) {

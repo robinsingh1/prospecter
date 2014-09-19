@@ -60,6 +60,8 @@ module.exports = React.createClass({
 
       }
     })
+
+
   },
   
   toggleScreen: function(screen) {
@@ -117,17 +119,78 @@ module.exports = React.createClass({
                 createCampaign={this.createCampaign}
                 prospectLists={this.state.prospectLists}
                 toggleScreen={this.toggleScreen}/>
-          <div className="col-md-10" style={{padding:'0',height:'100%'}}>
+              <div className="col-md-10" 
+                   style={{padding:'0',height:'100%'}}>
             {CurrentScreen}
           </div>
         </div>
       </div>
     );
   },
+
+  persistCampaign: function(newCampaign) {
+    Campaign = {}
+    Campaign.name = newCampaign.name
+    Campaign.company = JSON.parse(localStorage.currentUser).company
+    thiss = this;
+
+    $.ajax({
+      url:'https://api.parse.com/1/classes/Campaign',
+      type:'POST',
+      headers:appConfig.headers,
+      data:JSON.stringify(Campaign),
+      success: function(res) {
+        the_campaign = _.find(thiss.state.campaigns, function(campaign){
+          first = campaign.name == newCampaign.name 
+          second = campaign.prospect_list == newCampaign.prospect_list
+          return first && second
+        })
+        console.log(res)
+        console.log(res.objectId)
+
+        the_campaign.objectId = res.objectId
+        campaigns = _.filter(thiss.state.campaigns, function(campaign){
+          first = campaign.name == newCampaign.name 
+          second = campaign.prospect_list == newCampaign.prospect_list
+          return !(first && second)
+        })
+        campaigns.push(the_campaign)
+        console.log(campaigns)
+
+        thiss.setState({campaigns:  campaigns})
+
+        $.ajax({
+          url:'https://api.parse.com/1/classes/Campaign/'+res.objectId,
+          type:'PUT',
+          data: JSON.stringify({prospect_list:{
+            '__type':'Pointer',
+            'className':'ProspectList',
+            'objectId':newCampaign.prospect_list.objectId,
+          }}),
+          headers:appConfig.headers,
+          success: function(res){
+          },
+          error: function() {
+
+          }
+        })
+      },
+      error: function(err) {
+        console.log(err)
+      }
+    });
+  },
+
   createCampaign: function(newCampaign) {
     campaigns = this.state.campaigns
     campaigns.push(newCampaign)
     this.setState({campaigns: campaigns})
+    console.log(newCampaign)
+
+    $('.modal').click()
+    $('.modal-backdrop').click()
+
+    this.persistCampaign(newCampaign)
   }
 });
 
@@ -192,6 +255,7 @@ var SideMenu = React.createClass({
       </div>
     );
   },
+
   createCampaign: function(newCampaign) {
     this.props.createCampaign(newCampaign)
   }
