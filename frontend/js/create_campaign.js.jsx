@@ -36,18 +36,39 @@ module.exports = React.createClass({
     //$('button.close').click()
   },
 
-  renameList: function(e) {
+  createCampaign: function(e) {
     e.preventDefault()
     //console.log($('#newListName').val())
-    newListName = $('#newListName').val()
-    if(newListName.trim() != "")
-      this.props.renameList(newListName)
+    newCampaignName = $('#newCampaignName').val()
+    prospectListName = $('#prospect_lists').val()
+    thiss = this
+    for(i=0;i< this.props.prospectLists.length; i++){
+      if(this.props.prospectLists[i].name == prospectListName){
+        prospect_list = this.props.prospectLists[i]; 
+        break;
+      }
+    }
+    if(newCampaignName.trim() != "")
+      this.props.createCampaign({
+        name: newCampaignName,
+        prospect_list: prospect_list
+      })
     // Disable Modal
+    $('.modal-backdrop').click()
+    $('.fade').click()
+    $('#newCampaignName').val('')
   },
 
   render: function() {
+    prospect_lists = []
+    for(i=0;i< this.props.prospectLists.length; i++) {
+      prospect_lists.push( <option >{this.props.prospectLists[i].name}</option>)
+    }
+
     return (
-          <div className="modal fade bs-createCampaign-modal-sm" tabIndex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="createListModal" style={{top:'200px'}}>
+      <div className="modal fade bs-createCampaign-modal-sm" 
+           tabIndex="-1" role="dialog" aria-labelledby="mySmallModalLabel" 
+           aria-hidden="true" id="createListModal" style={{top:'200px'}} >
             <div className="modal-dialog modal-sm">
               <div className="modal-content">
                 <div className="modal-header">
@@ -58,23 +79,20 @@ module.exports = React.createClass({
                 </div>
 
                 <div className="modal-body"> 
-                  <form onSubmit={this.renameList}>
+                  <form onSubmit={this.createCampaign}>
                     <input id="newCampaignName" 
                            type="text" 
                            placeholder="Enter Campaign Name..." 
                            className="form-control" />
 
                     <select className="form-control" 
+                            id="prospect_lists"
                             style={{marginTop:20,marginBottom:20}}>
-                      <option>1</option>
-                      <option>2</option>
-                      <option>3</option>
-                      <option>4</option>
-                      <option>5</option>
+                      {prospect_lists}
                     </select>
 
                     <a href="javascript:" 
-                      onClick={this.renameList}
+                      onClick={this.createCampaign}
                       className="btn btn-success" 
                       style={{display:'block', width:'100%'}}>
                       Create Campaign

@@ -5,7 +5,6 @@ module.exports = React.createClass({
   getInitialState: function() {
     return {
       selectedScreen: 'Overview',
-      campaigns: []
     }
   },
 
@@ -14,45 +13,14 @@ module.exports = React.createClass({
     this.props.changeSelectedCampaign('CampaignDetail', campaign)
   },
 
-  componentDidMount: function() {
-    thiss = this;
-     company = JSON.stringify(JSON.parse(localStorage.currentUser).company)
-     qry = 'where={"company":'+company+'}&include=prospect_list,followups,followups.template'
-     $.ajax({
-       url:'https://api.parse.com/1/classes/Campaign',
-      headers: appConfig.headers,
-      data: qry,
-      success: function(res) {
-        console.log(res.results)
-        thiss.setState({campaigns: res.results})
-        // TODO  - Add Get Prospect List Count
-        // Follow Up Feed Feature
-        // - Shows what stages different prospects are at and whether you 
-        //   should send a follow up to them.
-        // How to get the stage of Prospect List
-        // - Where to persist last email sent
-        // - What is stored at the campaign level
-        // - What is stored at the prospect level
-        // - Timeline (General 7 x 7 cadences)
-        //   - 
-        // - Rules (Sankey / Flow View)
-        //   - Shows all or only the ones that havent responded 
-        //   - Show all the ones hthat haven't replied
-      },
-      error: function(err) {
-        console.log('error')
-        console.log(err)
-      }
-     });
-  },
-
   render: function() {
     campaigns = []
-    for(i=0;i< this.state.campaigns.length; i++){ 
+    console.log(this.props)
+    for(i=0;i< this.props.campaigns.length; i++){ 
       campaigns.push(<CampaignRow 
                         toggleScreen={this.toggleScreen}
                         changeSelectedCampaign={this.changeSelectedCampaign}
-                        campaign={this.state.campaigns[i]}/> )
+                        campaign={this.props.campaigns[i]}/> )
     }
     return (
       <div>

@@ -1,11 +1,15 @@
 /** @jsx React.DOM */
 var SendEmailModal = require('./send_email_modal.js.min.js')
+var TimelineDayElement = require('./timeline_day_element.js.min.js')
 
 module.exports = React.createClass({
   // FollowupTimeline
   getInitialState: function() {
+    initialFollowups = this.props.initialFollowups
+    initialFollowups = (initialFollowups) ? initialFollowups : []
+
     return {
-      followups: this.props.initialFollowups,
+      followups: initialFollowups,
       loading: false,
       currentTemplate:''
     }
@@ -13,7 +17,10 @@ module.exports = React.createClass({
 
   componentDidMount: function() {
     thiss = this;
-    $('.day').tooltip()
+    $('.day').tooltip({
+      placement: 'right',
+      title:'+ Add a follow-up'
+    })
     // Followups that belong to campaign
      company = JSON.stringify(JSON.parse(localStorage.currentUser).company)
      currentCampaign = {
@@ -40,26 +47,22 @@ module.exports = React.createClass({
   },
   
   render: function() {
-    console.log(this.props.prospects)
-    
-    followupProgression =  _.countBy(this.props.prospects, function(prospect) {
-      return prospect.last_contacted
-    })
-    console.log(followupProgression)
-    console.log(followupProgression[0])
+    batches =  _.countBy(this.props.prospects, 
+                      function(prospect) { return prospect.last_contacted })
 
     timelineElements = []
+    followups = this.state.followups
     for(i=0;i< 31;i++){
-      followupProgressionCount = (followupProgression[i]) ? followupProgression[i] : 0
-
-      addTemplateMode = false
-      currentTemplate = false
-      for(ii=0;ii< this.state.followups.length; ii++){
-        // TODO - Replace this with the underscore method
-        elementType = i == this.state.followups[ii].day
+      batchCount = (batches[i]) ? batches[i] : 0
+      
+      addTemplateMode = false; 
+      currentTemplate = false;
+      for(ii=0;ii< followups.length; ii++){
+        //TODO - Replace with underscore method
+        elementType = i == followups[ii].day
         if(elementType) {
-          addTemplateMode = (this.state.followups[ii].addTemplateMode) ? true: false
-          currentTemplate = this.state.followups[ii].template
+          addTemplateMode = (followups[ii].addTemplateMode) ? true : false
+          currentTemplate = followups[ii].template
           break
         }
       }
@@ -68,11 +71,14 @@ module.exports = React.createClass({
                               dayCount={i}
                               templates={this.props.templates}
                               currentTemplate={currentTemplate}
-                              followupProgressionCount={followupProgressionCount}
+                              batchCount={batchCount}
                               addTemplateMode={addTemplateMode}
                               elementType={!elementType}
-                              setCurrentTemplate={this.setCurrentTemplate}
-                              toggleTemplateEditMenu={this.toggleTemplateEditMenu}/>)
+                              addFollowup={this.addFollowup}
+                              editFollowup={this.editFollowup}
+                              saveFollowup={this.saveFollowup}
+                              removeFollowup={this.removeFollowup}
+                              setCurrentTemplate={this.setCurrentTemplate} />)
     }
     return (
       <div>
@@ -87,9 +93,18 @@ module.exports = React.createClass({
     );
   },
 
-  toggleTemplateEditMenu: function(day) {
-    console.log('called template edit menu')
-    //this.props.toggleTemplateEditMenu({name:'', body:'', subject:'', editMode:true})
+  createFollowup: function() {
+    // needed properties
+    /*
+     * day
+     * campaign
+     * template objectId
+    */
+
+  },         
+
+  addFollowup: function(day) {
+    //console.log('called template edit menu')
     followups = this.state.followups
     followups.push({addTemplateMode: true, day: day})
     this.setState({
@@ -97,122 +112,46 @@ module.exports = React.createClass({
     })
   },
 
+  editFollowup: function(day) {
+    // find template set editmode is false
+    for(i=0;i< this.state.followups.length; i++){
+      if(this.state.followups[i].day == day){
+        break
+      }
+    }
+
+    followups = this.state.followups
+    followups[i].addTemplateMode = true
+    this.setState({followups: followups})
+  },
+
+  saveFollowup: function(day, chosenTemplate) {
+    for(i=0;i< this.state.followups.length; i++){
+      if(this.state.followups[i].day == day){
+        break
+      }
+    }
+    new_followups = this.state.followups
+    new_followups[i].addTemplateMode = false
+    new_followups[i].template = chosenTemplate
+
+    this.setState({followups: new_followups})
+  },
+
+  removeFollowup: function(day) {
+    followups = []
+    for(i=0;i< this.state.followups.length;i++)
+      if(this.state.followups[i].day != day)
+        followups.push(this.state.followups[i])
+    
+    console.log(followups)
+    
+    this.setState({followups: followups}) 
+  },
+
   setCurrentTemplate: function(template) {
     this.setState({currentTemplate: template })
   }
 });
 
-var TimelineDayElement = React.createClass({
-  // TODO - 
-  // - add prospect list progression
-  // - add scheduled followup
-  toggleTemplateEditMenu: function() {
-    this.props.toggleTemplateEditMenu(this.props.dayCount)
-  },
 
-  render: function() {
-    if(this.props.elementType) {
-      timelineDay = <div>
-                      <div className="day" 
-                           onClick={this.toggleTemplateEditMenu}
-                           data-toggle="tooltip" 
-                           data-placement="right" 
-                           title="+ Add a follow-up">{"D"+this.props.dayCount}
-                       </div>
-                      {(this.props.followupProgressionCount) ? <BatchStage followupProgressionCount={this.props.followupProgressionCount} /> : "" }
-                     </div>
-    } else {
-      timelineDay = <div>
-                      <div className="day"
-                           data-trigger="manual" >{"D"+this.props.dayCount}
-                      </div>
-                      {(this.props.followupProgressionCount) ? <BatchStage followupProgressionCount={this.props.followupProgressionCount} /> : ""}
-                      
-                      {(this.props.addTemplateMode) ? <AddTemplate templates={this.props.templates}/>: <TemplateFollowup currentTemplate={this.props.currentTemplate} setCurrentTemplate={this.props.setCurrentTemplate}/>}
-                    </div>
-    }
-    return (
-      <div> {timelineDay} </div>
-    )
-  },
-  setCurrentTemplate: function(template) {
-    this.props.setCurrentTemplate(template)
-  }
-});
-
-var AddTemplate = React.createClass({
-  // TODO
-  // Add Invisible Div that cover timeline area
-  // Onclick should Cause the addtemplate menu to disappear
-
-  render: function() {
-    options = []
-    for(i=0;i< this.props.templates.length; i++) {
-      options.push( <option>{this.props.templates[i].name}</option>)
-    }
-    return (
-      <div className="followup-placement arrow_box_1 tmp_2"> 
-        <h6 style={{width:55,display:'inline-block'}} 
-            className="text-muted">
-          Choose :
-        </h6>
-        <select className="form-control input-sm" 
-                style={{display:'inline-block',width:127,marginRight:5}}>
-          {options}
-        </select>
-
-        <button className="win-btn btn btn-success btn-xs" 
-                onClick={this.chooseTemplate}
-                style={{marginRight:5}}>
-          <i className="fa fa-check" /></button>
-        <button className="win-btn btn btn-default btn-xs"
-                onClick={this.closeAddTemplate}>
-          <i className="fa fa-times" /></button>
-      </div>
-    )
-  },
-
-  chooseTemplate: function() {
-    
-  },
-
-  closeAddTemplate: function() {
-    
-  },
-});
-
-var TemplateFollowup = React.createClass({
-  setCurrentTemplate: function() {
-    this.props.setCurrentTemplate(this.props.currentTemplate)
-  },
-  render: function() {
-    return (
-      <div className="followup-placement arrow_box_1 tmp_2"> 
-        <h6 style={{width:130,display:'inline-block'}}>
-          <i className="fa fa-file-text-o" />&nbsp;&nbsp;
-          {this.props.currentTemplate.name}
-        </h6>
-        <button className="win-btn btn btn-success btn-xs"
-                data-target=".bs-sendEmail-modal-lg"
-                onClick={this.setCurrentTemplate}
-                data-toggle="modal">
-          <i className="fa fa-paper-plane"/>&nbsp;Send</button>&nbsp;
-        <button className="win-btn btn btn-default btn-xs">
-          <i className="fa fa-pencil" /></button>&nbsp;
-        <button className="win-btn btn btn-default btn-xs">
-          <i className="fa fa-trash-o" /></button>
-      </div>
-    );
-  }
-});
-
-var BatchStage = React.createClass({
-  render: function() {
-    return (
-      <div className="followup-placement arrow_box tmp">
-        <span className="badge">{this.props.followupProgressionCount}</span>&nbsp;
-        <h6 style={{display:'inline-block'}}> prospects in the sales cycle.</h6>
-      </div>
-    );
-  }
-});

@@ -1,6 +1,7 @@
 /** @jsx React.DOM */
 
 module.exports = React.createClass({
+  // SignalProfile
   render: function() {
     signalDetails = []
     for(i=0;i< this.props.profile.profiles.length; i++) {
@@ -8,7 +9,8 @@ module.exports = React.createClass({
     }
     return (
       <div className="list-group-item ideal-company-profile"
-        style={{paddingTop:5}}>
+           onClick={this.setCurrentProfile}
+           style={{paddingTop:5}}>
         <span className="profile-title">
           <h6 className="label label-default"> {this.props.profile.name}</h6>
           <a href="javascript:" className="btn btn-default btn-xs"
@@ -22,9 +24,11 @@ module.exports = React.createClass({
         <div className="profile-body" style={{marginTop:5}}>
           {signalDetails}
         </div>
-        
       </div>
     );
+  },
+  setCurrentProfile: function() {
+    this.props.setCurrentProfile(this.props.profile)
   }
 });
 

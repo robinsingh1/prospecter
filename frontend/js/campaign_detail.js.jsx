@@ -1,6 +1,7 @@
 /** @jsx React.DOM */
 var TemplatesMenu = require('./templates_menu.js.min.js');
 var EditTemplateView = require('./edit_template.js.min.js');
+var CreateTemplateView = require('./create_template.js.min.js');
 var FollowupTimeline = require('./followup_timeline.js.min.js');
 
 module.exports = React.createClass({
@@ -79,6 +80,7 @@ module.exports = React.createClass({
         </h5>
         <h6 style={{marginLeft:20,display:'inline-block',marginRight:15}}>
           <span className="text-muted">Prospect List:</span> &nbsp;
+          {(this.props.selectedCampaign.prospect_list.signal_list) ? <span><i className="fa fa-wifi" />&nbsp;</span> : ""}
           {this.props.selectedCampaign.prospect_list.name}
         </h6>
         <span className="badge">{this.state.prospectListCount}</span>
@@ -87,10 +89,6 @@ module.exports = React.createClass({
           Batches :
         </h6>
         <span className="badge">2</span>
-          
-
-
-
         <a href="javascript:" 
            style={{float: 'right', marginTop: -35, marginRight: 30, display:'none'}}
            className="btn btn-success btn-sm">
@@ -116,16 +114,34 @@ module.exports = React.createClass({
           {(this.state.templateDetailMode) ? <EditTemplateView 
             editMode={this.state.editMode}
             initialTemplateValues={this.state.currentTemplate}
+            saveTemplate={this.saveTemplate}
             toggleTemplateEditMenu={this.toggleTemplateEditMenu}
             followupDay={this.state.followupDay} /> : "" }
       </div>
     );
   },
 
-  toggleTemplateEditMenu: function(currentTemplate) {
-    //console.log(this.getDOMNode())
-    //console.log(currentTemplate)
+  saveTemplate: function(template, newTemplate) {
+    templates = this.state.templates
+    for(i=0;i< this.state.templates.length; i++)
+      if(this.state.templates[i].name == template.name)
+        break
+    
+    console.log(template)
+    if(newTemplate){
+      template.subject = template.templateSubject
+      template.body = template.templateBody
+      templates.push(template)
+    } else {
+      templates[i].subject = template.templateSubject
+      templates[i].body = template.templateBody
+    }
 
+    this.setState({templates: templates })
+  },
+
+  toggleTemplateEditMenu: function(currentTemplate, editMode) {
+    editMode = (editMode) ? true : false
     this.setState({
       currentTemplate: currentTemplate,
       templateDetailMode: !this.state.templateDetailMode,

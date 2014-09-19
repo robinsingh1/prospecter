@@ -13,7 +13,53 @@ module.exports = React.createClass({
     return {
       selectedScreen: 'Campaigns',
       selectedCampaign:'',
+      prospectLists: [],
+      campaigns: []
     }
+  },
+
+  componentDidMount: function() {
+    thiss = this;
+     company = JSON.stringify(JSON.parse(localStorage.currentUser).company)
+     qry = 'where={"company":'+company+'}&include=prospect_list,followups,followups.template'
+     $.ajax({
+       url:'https://api.parse.com/1/classes/Campaign',
+      headers: appConfig.headers,
+      data: qry,
+      success: function(res) {
+        console.log(res.results)
+        thiss.setState({campaigns: res.results})
+        // TODO  - Add Get Prospect List Count
+        // Follow Up Feed Feature
+        // - Shows what stages different prospects are at and whether you 
+        //   should send a follow up to them.
+        // How to get the stage of Prospect List
+        // - Where to persist last email sent
+        // - What is stored at the campaign level
+        // - What is stored at the prospect level
+        // - Timeline (General 7 x 7 cadences)
+        //   - 
+        // - Rules (Sankey / Flow View)
+        //   - Shows all or only the ones that havent responded 
+        //   - Show all the ones hthat haven't replied
+      },
+      error: function(err) {
+        console.log('error')
+        console.log(err)
+      }
+     });
+    $.ajax({
+      url: 'https://api.parse.com/1/classes/ProspectList',
+      headers: appConfig.headers,
+      // TODO
+      // - Company Specific
+      success: function(res) {
+        thiss.setState({prospectLists: res.results})
+      },
+      error: function(err) {
+
+      }
+    })
   },
   
   toggleScreen: function(screen) {
@@ -31,23 +77,25 @@ module.exports = React.createClass({
   render: function() {
     thiss = this
     console.log(this.state.selectedCampaign)
+    console.log(this.state.selectedScreen)
+    console.log(this.state.campaigns)
     switch (this.state.selectedScreen){
       case 'Campaigns':
-        CurrentScreen = <Campaigns 
+        CurrentScreen = <Campaigns campaigns={thiss.state.campaigns}
                             changeSelectedCampaign={thiss.changeSelectedCampaign} 
                             toggleScreen={thiss.toggleScreen}/>
         break;
       case 'CampaignDetail':
         CurrentScreen = <CampaignDetail 
                         selectedCampaign={thiss.state.selectedCampaign}
-                        selectedCampaignObjectId={thiss.state.selectedCampaginObjectId}
+                      selectedCampaignObjectId={thiss.state.selectedCampaginObjectId}
                         toggleScreen={thiss.toggleScreen}/>
         break;
       case 'Templates':
         CurrentScreen = <Templates />
         break;
       case 'Overview':
-        CurrentScreen = <Campaigns 
+        CurrentScreen = <Campaigns campaigns={thiss.state.campaigns}
                             changeSelectedCampaign={thiss.changeSelectedCampaign} 
                             toggleScreen={thiss.toggleScreen}/>
         break;
@@ -65,13 +113,21 @@ module.exports = React.createClass({
     return (
       <div className="" style={{height:'550px'}}>
         <div className="container" style={{padding:'0',width:'100%',height:'100%'}}>
-            <SideMenu toggleScreen={this.toggleScreen}/>
+          <SideMenu 
+                createCampaign={this.createCampaign}
+                prospectLists={this.state.prospectLists}
+                toggleScreen={this.toggleScreen}/>
           <div className="col-md-10" style={{padding:'0',height:'100%'}}>
             {CurrentScreen}
           </div>
         </div>
       </div>
     );
+  },
+  createCampaign: function(newCampaign) {
+    campaigns = this.state.campaigns
+    campaigns.push(newCampaign)
+    this.setState({campaigns: campaigns})
   }
 });
 
@@ -131,8 +187,12 @@ var SideMenu = React.createClass({
             <i className="fa fa-plus-circle" />&nbsp;&nbsp;New Campaign
           </a>
         </div>
-        <CreateCampaignModal createCampaignModal={this.createCampaignModal}/>
+        <CreateCampaignModal prospectLists={this.props.prospectLists}
+                             createCampaign={this.createCampaign}/>
       </div>
     );
+  },
+  createCampaign: function(newCampaign) {
+    this.props.createCampaign(newCampaign)
   }
 });

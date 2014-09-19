@@ -3,29 +3,12 @@
 module.exports = React.createClass({
   getInitialState: function() {
     return {
-      name: this.props.initialTemplateValues.name,
-      templateBody: this.props.initialTemplateValues.body,
-      templateSubject: this.props.initialTemplateValues.subject,
-      editMode: this.props.initialTemplateValues.editMode
+      
     }
   },
 
   componentDidMount: function() {
-    console.log('did mount')
     $('.template-body').html(this.state.templateBody)
-    if(this.state.editMode) {
-      $('.summer').summernote({
-        height: 200,
-        toolbar: [
-          ['style', ['bold', 'italic', 'underline', 'clear']],
-          ['font', ['strikethrough']],
-          ['fontsize', ['fontsize']],
-          ['color', ['color']],
-          ['para', ['ul', 'ol', 'paragraph']],
-          ['height', ['height']],
-        ]
-      })
-    }
   },
 
   clickedOverlay: function() {
@@ -35,30 +18,26 @@ module.exports = React.createClass({
 
   changeMode: function() {
     // Update template html on toggle
+    console.log('EDIT MODE')
+    console.log(this.state.editMode)
     parse_headers = appConfig.parseHeaders
     if(this.state.editMode){
       $('.summer').destroy();
-
       this.props.saveTemplate({
-        name: $('#template-name').val(),
+        name: this.state.name,
         templateBody: $('.summer').code(),
         templateSubject: $('.subject').val(),
-      }, this.props.initialTemplateValues.newTemplate)
-
+      })
       this.setState({
-        name: $('#template-name').val(),
         templateBody: $('.summer').code(),
         templateSubject: $('.subject').val(),
         editMode: !this.state.editMode,
       })
-
-      objId = this.props.initialTemplateValues.objectId
       $.ajax({
-        url:'https://api.parse.com/1/classes/Templates/'+objId,
+        url:'https://api.parse.com/1/classes/Templates/'+this.props.initialTemplateValues.objectId,
         type:'PUT',
         headers:parse_headers,
-        data:JSON.stringify({body: $('.summer').code(),
-                             subject: $('.subject').val()}),
+        data:JSON.stringify({body: $('.summer').code(),subject: $('.subject').val()}),
         success: function(res) {
           console.log(res)
         },
@@ -71,19 +50,14 @@ module.exports = React.createClass({
     }
   },
 
-  componentWillUpdate: function(newProps) {
-    console.log('THE NEW PROPS')
-    console.log(newProps)
-  },
-
   componentDidUpdate: function() {
     /* thiss = this; */
+
     console.log('OTHER')
     if(this.state.editMode){
       console.log('CALLED')
       // Replace Subject 
       $('.subject').val(this.state.templateSubject)
-      $('#template-name').val(this.state.name)
 
       $('.summer').summernote({
         height: 200,
@@ -112,23 +86,12 @@ module.exports = React.createClass({
              className="btn btn-success btn-xs" 
              style={{display:'block',float:'right',marginTop:5}}>
             <i className="fa fa-save" /> &nbsp; Save Template</a>
-
-       if(this.props.initialTemplateValues.newTemplate){
-         the_name = <input className="form-control" 
-                           id="template-name" 
-                           style={{float:'left',width:200}}/>
-       }
     } else {
        toggleButton = <a href="javascript:" 
              onClick={this.changeMode}
              className="btn btn-primary btn-xs" 
              style={{display:'block',float:'right',marginTop:5}}>
             <i className="fa fa-pencil-square" /> &nbsp; Edit Template</a>
-
-       the_name = <h6 style={{float:'left'}}>
-                   <i className="fa fa-file-text-o" />&nbsp;
-                   {this.state.name}
-                  </h6>
     }
 
     return (
@@ -138,7 +101,10 @@ module.exports = React.createClass({
            className="panel panel-info" 
            style={{display:'block'}}>
            <div className="panel-heading" style={{height:50}}> 
-             {the_name}
+             <h6 style={{float:'left'}}>
+               <i className="fa fa-file-text-o" /> 
+               {"  " + this.props.initialTemplateValues.name}
+             </h6>
           {toggleButton}
         </div>
         <div className="panel-body">

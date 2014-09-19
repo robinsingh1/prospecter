@@ -8,10 +8,10 @@ module.exports = React.createClass({
   },
   //SendEmailModal
   render: function() {
-    console.log(this.props.currentTemplate)
+    //console.log(this.props.currentTemplate)
     prospect = this.props.prospects[this.state.currentProspect]
     prospect = (prospect) ? prospect : {'name':'','email':''}
-    console.log(prospect)
+    //console.log(prospect)
     prospects = []
     for(i=0; i< this.props.prospects.length; i++){
       //console.log(this.props.prospects[i])
@@ -77,17 +77,20 @@ module.exports = React.createClass({
   },
 
   parseTemplate: function(templateBody) {
-    vars = templateBody.split('{{')
+    vars = []
+    if(templateBody)
+      vars = templateBody.split('{{')
     variables = []
     for(i=0;i< vars.length;i++)
       variables.push(vars[i].split('}}')[0])
     variables.shift()
     prospect = this.props.prospects[this.state.currentProspect]
-    first_name = prospect.name.split(' ')[0]
-    hiring_signal = prospect.signals
-    console.log(prospect)
-    console.log(eval(variables[0]))
-    console.log(eval(variables[1]))
+
+    //first_name = prospect.name.split(' ')[0]
+    //hiring_signal = prospect.signals
+    //console.log(prospect)
+    //console.log(eval(variables[0]))
+    //console.log(eval(variables[1]))
     // Get Variables
     // Get variable values
     // replace variables in text
