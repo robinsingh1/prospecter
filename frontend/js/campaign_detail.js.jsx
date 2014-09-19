@@ -129,12 +129,13 @@ module.exports = React.createClass({
     
     console.log(template)
     if(newTemplate){
-      template.subject = template.templateSubject
-      template.body = template.templateBody
+      template.subject = template.subject
+      template.name = template.name
+      template.body = template.body
       templates.push(template)
     } else {
-      templates[i].subject = template.templateSubject
-      templates[i].body = template.templateBody
+      templates[i].subject = template.subject
+      templates[i].body = template.body
     }
 
     this.setState({templates: templates })

@@ -4,15 +4,15 @@ module.exports = React.createClass({
   getInitialState: function() {
     return {
       name: this.props.initialTemplateValues.name,
-      templateBody: this.props.initialTemplateValues.body,
-      templateSubject: this.props.initialTemplateValues.subject,
+      body: this.props.initialTemplateValues.body,
+      subject: this.props.initialTemplateValues.subject,
       editMode: this.props.initialTemplateValues.editMode
     }
   },
 
   componentDidMount: function() {
     console.log('did mount')
-    $('.template-body').html(this.state.templateBody)
+    $('.template-body').html(this.state.body)
     if(this.state.editMode) {
       $('.summer').summernote({
         height: 200,
@@ -39,16 +39,19 @@ module.exports = React.createClass({
     if(this.state.editMode){
       $('.summer').destroy();
 
+      console.log('look at this')
+      console.log(name)
+      name = (this.props.initialTemplateValues.newTemplate) ? $('#template-name').val() : this.state.name
       this.props.saveTemplate({
-        name: $('#template-name').val(),
-        templateBody: $('.summer').code(),
-        templateSubject: $('.subject').val(),
+        name: name,
+        body: $('.summer').code(),
+        subject: $('.subject').val(),
       }, this.props.initialTemplateValues.newTemplate)
 
       this.setState({
         name: $('#template-name').val(),
-        templateBody: $('.summer').code(),
-        templateSubject: $('.subject').val(),
+        body: $('.summer').code(),
+        subject: $('.subject').val(),
         editMode: !this.state.editMode,
       })
 
@@ -82,7 +85,7 @@ module.exports = React.createClass({
     if(this.state.editMode){
       console.log('CALLED')
       // Replace Subject 
-      $('.subject').val(this.state.templateSubject)
+      $('.subject').val(this.state.subject)
       $('#template-name').val(this.state.name)
 
       $('.summer').summernote({
@@ -98,13 +101,13 @@ module.exports = React.createClass({
       })
 
       // Initialize Editor with html
-      $('.summer').code(this.state.templateBody)
+      $('.summer').code(this.state.body)
     }
   },
 
 
   render: function() {
-    subjectPlace = (this.state.editMode) ? <input style={{display:'inline',width:480}} className="form-control subject" ></input> : this.state.templateSubject
+    subjectPlace = (this.state.editMode) ? <input style={{display:'inline',width:480}} className="form-control subject" ></input> : this.state.subject
 
     if(this.state.editMode){
        toggleButton = <a href="javascript:" 
