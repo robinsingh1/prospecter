@@ -31,12 +31,14 @@ module.exports = React.createClass({
      currentCampaign = JSON.stringify(currentCampaign)
      //qry = 'where={"company":'+company+',"campaign":'+currentCampaign+'}&include=template'
      qry = 'where={"campaign":'+currentCampaign+'}&include=template'
+     //qry = 'where={"campaign":'+currentCampaign+'}'
      $.ajax({
        url:'https://api.parse.com/1/classes/Followup',
        type:'GET',
        headers: appConfig.headers,
        data: qry,
        success: function(res) {
+         console.log('followup timeline')
          console.log(res.results)
        },
        error: function(err) {
@@ -60,7 +62,9 @@ module.exports = React.createClass({
       currentTemplate = false;
       elementType = false
       for(ii=0;ii< followups.length; ii++){
-        //TODO - Replace with underscore method
+        // TODO - Replace with underscore method
+        //console.log('FOLLOWUPS ERROR')
+        //console.log(followups)
         elementType = i == followups[ii].day
         if(elementType) {
           addTemplateMode = (followups[ii].addTemplateMode) ? true : false
@@ -122,26 +126,21 @@ module.exports = React.createClass({
   },
 
   saveFollowup: function(day, chosenTemplate) {
-    for(i=0;i< this.state.followups.length; i++)
-      if(this.state.followups[i].day == day)
-        break
-
     new_followups = this.state.followups
-    new_followups[i].addTemplateMode = false
-    new_followups[i].template = chosenTemplate
+    new_followups[day].addTemplateMode = false
+    new_followups[day].template = chosenTemplate
 
     this.setState({followups: new_followups})
 
-    // When do you know when to create or when to update
-    console.log(new_followups[i])
-    if(new_followups[i].objectId){
+    if(new_followups[day].objectId){
       url = "/"+new_followups[i].objectId; type="PUT"
+
       data = {template:{
         __type:'Pointer',
-        className:'Templates',
+        className:'Template',
         objectId: chosenTemplate.objectId
       }}
-    }else{
+    } else {
       url = ""; type="POST";
 
       data = {
@@ -153,7 +152,7 @@ module.exports = React.createClass({
         },
         template: {
           __type: 'Pointer',
-          className:'Templates',
+          className:'Template',
           objectId:chosenTemplate.objectId,
         }
       }
@@ -166,6 +165,10 @@ module.exports = React.createClass({
       data:JSON.stringify(data),
       headers:appConfig.headers,
       success: function(res) {
+        
+        new_followups[day].objectId = res.objectId
+        thiss.setState({followups: new_followups})
+
         console.log(res)
         $.ajax({
           url:'https://api.parse.com/1/classes/Campaign/'+thiss.props.currentCampaign.objectId,

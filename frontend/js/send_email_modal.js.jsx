@@ -28,6 +28,8 @@ module.exports = React.createClass({
         <button type="button" 
                 style={{float:'right'}}
                 className="btn btn-primary">Send Email</button>
+        <button type="button" style={{marginRight:10, float:'right'}}
+                className="btn btn-default" data-dismiss="modal">Close</button>
                   <h4 className="modal-title" id="myModalLabel">
                     <i className="fa fa-envelope" /> &nbsp;Send Email
                     &nbsp;&nbsp;
@@ -65,7 +67,7 @@ module.exports = React.createClass({
 
                 </div>
 
-      <div className="modal-footer">
+      <div className="modal-footer" style={{display:'none'}}>
         <button type="button" 
                 className="btn btn-default" data-dismiss="modal">Close</button>
         <button type="button" 

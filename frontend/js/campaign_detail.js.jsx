@@ -24,17 +24,11 @@ module.exports = React.createClass({
      company = JSON.stringify(JSON.parse(localStorage.currentUser).company)
      qry = 'where={"company":'+company+'}'
     $.ajax({
-      url:'https://api.parse.com/1/classes/Templates',
+      url:'https://api.parse.com/1/classes/Template',
       headers: appConfig.headers,
       data: qry,
-      success: function(res) {
-        //console.log(res.results)
-        thissss.setState({templates: res.results})
-      },
-      error: function(err) {
-        console.log('error')
-        //console.log(err)
-      }
+      success: function(res) { thissss.setState({templates: res.results}) },
+      error: function(err) { console.log('error') }
     });
 
     currentList = JSON.stringify({
@@ -44,7 +38,7 @@ module.exports = React.createClass({
     })
     qry = 'where={"lists":'+currentList+'}&limit=1000&count=1'
     $.ajax({
-      url: 'https://api.parse.com/1/classes/Prospects',
+      url: 'https://api.parse.com/1/classes/Prospect',
       headers: appConfig.headers,
       data: qry,
       success: function (res) {
@@ -53,9 +47,7 @@ module.exports = React.createClass({
           prospectListCount: res.count 
         })
       },
-      error: function(err) {
-
-      }
+      error: function(err) { }
     })
   },
 
@@ -69,7 +61,7 @@ module.exports = React.createClass({
     return (
       <div className="container" 
            style={{width:'100%',height:'100%',paddingLeft:0,paddingRight:0}}>
-        <div style={{marginBottom:30}}>
+        <div style={{marginBottom:30}} id="campaign-top-detail">
         <h5 style={{marginTop:20,marginLeft:20}}>
           <a href="javascript:" onClick={this.returnToOverview} >Campaigns </a>
           <small>
@@ -115,6 +107,7 @@ module.exports = React.createClass({
             editMode={this.state.editMode}
             initialTemplateValues={this.state.currentTemplate}
             saveTemplate={this.saveTemplate}
+            prospect={this.state.prospects[0]}
             toggleTemplateEditMenu={this.toggleTemplateEditMenu}
             followupDay={this.state.followupDay} /> : "" }
       </div>
@@ -135,7 +128,7 @@ module.exports = React.createClass({
       templates.push(template)
 
       $.ajax({
-        url:'https://api.parse.com/1/classes/Templates',
+        url:'https://api.parse.com/1/classes/Template',
         headers:appConfig.headers,
         type:'POST',
         data:JSON.stringify({
@@ -160,7 +153,7 @@ module.exports = React.createClass({
       templates[i].body = template.body
 
       $.ajax({
-        url:'https://api.parse.com/1/classes/Templates/'+templates[i].objectId,
+        url:'https://api.parse.com/1/classes/Template/'+templates[i].objectId,
         type:'PUT',
         headers:appConfig.headers,
         data:JSON.stringify({

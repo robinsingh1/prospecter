@@ -21,7 +21,7 @@ module.exports = React.createClass({
   componentDidMount: function() {
     thiss = this;
      company = JSON.stringify(JSON.parse(localStorage.currentUser).company)
-     qry = 'where={"company":'+company+'}&include=prospect_list,followups,followups.template'
+     qry = 'where={"company":'+company+'}&include=prospect_list,followups,followups.template&order=-createdAt'
      $.ajax({
        url:'https://api.parse.com/1/classes/Campaign',
       headers: appConfig.headers,

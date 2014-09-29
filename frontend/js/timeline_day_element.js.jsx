@@ -57,7 +57,7 @@ var TemplateFollowup = React.createClass({
       <div className="followup-placement arrow_box_1 tmp_2"> 
         <h6 style={{width:130,display:'inline-block'}}>
           <i className="fa fa-file-text-o" />&nbsp;&nbsp;
-          {this.props.currentTemplate.name}
+          {(this.props.currentTemplate) ? this.props.currentTemplate.name : ""}
         </h6>
         <button className="win-btn btn btn-success btn-xs"
                 data-target=".bs-sendEmail-modal-lg"

@@ -126,11 +126,11 @@ var Home = React.createClass({
     switch (this.state.selectedScreen) {
       case 'Prospects':
         currentScreen = <Prospects prospectType={this.state.selectedScreen} />
-        prospects = "choose btn btn-primary active"
+        prospects = "choose btn btn-primary app-active"
         break;
       case 'Companies':
         currentScreen = <CompanyProspects prospectType={this.state.selectedScreen} />
-        companyProspects = "choose btn btn-primary active"
+        companyProspects = "choose btn btn-primary app-active"
         break;
       case 'Mining Jobs':
         currentScreen = <MiningJob />
@@ -140,11 +140,11 @@ var Home = React.createClass({
         break;
       case 'Campaigns':
         currentScreen = <Campaigns />
-        campaigns = "choose btn btn-primary active"
+        campaigns = "choose btn btn-primary app-active"
         break;
       case 'Signals':
         currentScreen = <Signals />
-        signals = "choose btn btn-primary active"
+        signals = "choose btn btn-primary app-active"
         break;
       case 'Settings':
         currentScreen = <Settings />
@@ -156,7 +156,13 @@ var Home = React.createClass({
       <br/>
       <br/>
       <div className="container">
-      <h1 style={{fontWeight:'bold',display:'inline',fontWeight:'100',color:'#1ca3fd'}}>Customero </h1>
+        <h1 style={{fontWeight:'bold',display:'inline',fontWeight:'100',color:'#1ca3fd'}}>
+          <img src="build/img/network.png" 
+            style={{ height:32, marginTop:-9,
+              marginRight:5, }}
+          />
+          Customero 
+        </h1>
       <span style={{float:'right'}}>
         <img src="build/img/user.png" style={{height:'40px',width:'40px',padding:'2px',marginTop:'5px',borderRadius:'23px',display:'inline'}} className="thumbnail"/>&nbsp;&nbsp;&nbsp; 
         <h6 style={{marginTop:'20px',float:'right',display:'inline'}}>Welcome</h6>
@@ -172,25 +178,25 @@ var Home = React.createClass({
         <div id="navbar" className="panel-heading"> 
 
           <div className="btn-group col-md-offset-4" >
-            <a className={signals} style={{display:'block'}} onClick={this.toggleScreen}> 
+            <a href="javascript:" className={signals} style={{display:'block'}} onClick={this.toggleScreen}> 
                 <i className="fa fa-wifi" />&nbsp;Signals
             </a>
-            <a className={prospects} onClick={this.toggleScreen}> 
+            <a href="javascript:" className={prospects} onClick={this.toggleScreen}> 
                 <i className="fa fa-user" />&nbsp;Prospects
             </a>
-            <a className="choose btn btn-primary" style={{display:'none'}} onClick={this.toggleScreen}>
+            <a href="javascript:" className="choose btn btn-primary" style={{display:'none'}} onClick={this.toggleScreen}>
                 <i className="fa fa-bar-chart-o" /> Analytics
             </a>
-            <a className="choose btn btn-primary" 
+            <a href="javascript:" className="choose btn btn-primary" 
                   style={{width:162,display:'none'}}
                   onClick={this.toggleScreen}>
                 <i className="fa fa-tasks" /> Mining Jobs &nbsp;
                 <span className="label label-default">BETA</span>
             </a>
-            <a className={companyProspects} onClick={this.toggleScreen}>
+            <a href="javascript:" className={companyProspects} onClick={this.toggleScreen}>
                 <i className="fa fa-building" /> Companies
             </a>
-            <a className={campaigns} style={{display:'block'}} onClick={this.toggleScreen}>
+            <a href="javascript:" className={campaigns} style={{display:'block'}} onClick={this.toggleScreen}>
                 <i className="fa fa-envelope" />&nbsp;Campaigns
             </a>
           </div>

@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 
 module.exports = React.createClass({
-  // createSignalModal
+  // CreateHiringSignalModal
   createSignal: function() {
     console.log('Create SIgnal Called')
     // Get Name
@@ -159,13 +159,13 @@ module.exports = React.createClass({
 
   render: function() {
     return (
-      <div className="modal fade bs-createSignal-modal-md" tabIndex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="createListModal" 
+      <div className="modal fade bs-createSignal-modal-md" tabIndex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="createHiringSignalModal" 
            style={{top:'50px',overflow:'hidden'}}>
             <div className="modal-dialog modal-sm" style={{width:650}}>
               <div className="modal-content">
                 <div className="modal-header">
                   <h4 className="modal-title" id="myModalLabel">
-                    {this.props.chosenSignal}
+                    Create Hiring Signal
                   </h4>
                   <a href="javascript:" className="btn btn-success btn-sm" 
                      onClick={this.createSignal}

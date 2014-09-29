@@ -26,6 +26,96 @@ module.exports = React.createClass({
         ]
       })
     }
+
+    /*
+    var example = {
+        "glossary": {
+            "title": "example glossary",
+            "GlossDiv": {
+                "title": "S",
+                "GlossList": {
+                    "GlossEntry": {
+                        "ID": "SGML",
+                        "SortAs": "SGML",
+                        "GlossTerm": "Standard Generalized Markup Language",
+                        "Acronym": "SGML",
+                        "Abbrev": "ISO 8879:1986",
+                        "GlossDef": {
+                            "para": "A meta-markup language, used to create markup languages such as DocBook.",
+                            "GlossSeeAlso": ["GML", "XML"]
+                        },
+                        "GlossSee": "markup"
+                    }
+                }
+            },
+        "glossary": {
+            "title": "example glossary",
+            "GlossDiv": {
+                "title": "S",
+                "GlossList": {
+                    "GlossEntry": {
+                        "ID": "SGML",
+                        "SortAs": "SGML",
+                        "GlossTerm": "Standard Generalized Markup Language",
+                        "Acronym": "SGML",
+                        "Abbrev": "ISO 8879:1986",
+                        "GlossDef": {
+                            "para": "A meta-markup language, used to create markup languages such as DocBook.",
+                            "GlossSeeAlso": ["GML", "XML"]
+                        },
+                        "GlossSee": "markup"
+                    }
+                }
+            }
+        }
+        },
+    };
+    */
+    renderjson.set_show_to_level('all')
+    prospect = _.pick(this.props.prospect, 
+      'company_name', 'name', 'pos'
+    )
+    prospect.first_name = prospect.name.split(' ')[0]
+    prospect.last_name = _.last(prospect.name.split(' '))
+    prospect = _.omit(prospect, 'name')
+
+    document.getElementById("editTemplate").appendChild(renderjson(prospect));
+    $('#editTemplateOverlay').html()
+    thiss = this;
+    $('.renderjson').click(function() {
+      thiss.props.toggleTemplateEditMenu()
+    })
+
+    $('.renderjson').css({
+      'position': 'absolute',
+      'z-index': '1000000000',
+      'background-color':'rgba(0,0,0,0)',
+      'border':'0',
+      'color':'white',
+      'margin-top':'-100px',
+      'height': '542px',
+      'overflow':'auto',
+      'width':'380px'
+    })
+
+    $('.key').css({
+      'cursor':'pointer'
+    })
+
+    $('.timeline').css({
+      '-webkit-filter': 'blur(10px)',
+    })
+    $('#campaign-top-detail').css({
+      '-webkit-filter': 'blur(10px)',
+    })
+  },
+  componentWillUnmount:function() {
+    $('.timeline').css({
+      '-webkit-filter': '',
+    })
+    $('#campaign-top-detail').css({
+      '-webkit-filter': '',
+    })
   },
 
   clickedOverlay: function() {
@@ -38,6 +128,9 @@ module.exports = React.createClass({
     parse_headers = appConfig.parseHeaders
     if(this.state.editMode){
       $('.summer').destroy();
+      $('.timeline').css({
+        '-webkit-filter': 'blur(20px)',
+      })
 
       console.log('look at this')
       console.log(name)
@@ -71,6 +164,9 @@ module.exports = React.createClass({
       });
     } else {
       this.setState({ editMode: !this.state.editMode })
+      $('.timeline').css({
+        '-webkit-filter': 'blur(20px)',
+      })
     }
   },
 
@@ -135,10 +231,10 @@ module.exports = React.createClass({
     }
 
     return (
-      <div>
+      <div id="editTemplate">
       <div onClick={this.clickedOverlay} id="editTemplateOverlay"></div>
       <div id="editTemplateView" 
-           className="panel panel-info" 
+           className="panel panel-default" 
            style={{display:'block'}}>
            <div className="panel-heading" style={{height:50}}> 
              {the_name}

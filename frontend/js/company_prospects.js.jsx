@@ -2,6 +2,7 @@
 
 var CompanyProspect = require('./company.js.min.js');
 var LoadingSpinner = require('./loading_spinner.js.min.js')
+var SideMenuProspects = require('./side_menu_user_prospects.js.min.js');
 
 module.exports = React.createClass({
   getInitialState: function() {
@@ -106,7 +107,7 @@ module.exports = React.createClass({
       type:'GET',
       headers: parse_headers,
       async: true,
-      data: 'where={"company":'+company+'}&count=1',
+      data: 'where={"company":'+company+'}&count=1&order=-createdAt',
       success: function(res){
         thisss.setState({prospects: res.results})
         thisss.setState({count: res.count})

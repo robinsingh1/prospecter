@@ -1,10 +1,43 @@
 /** @jsx React.DOM */
 
 module.exports = React.createClass({
-  // createSignalModal
-  createSignal: function() {
+  // createProspectProfileModal
+  render: function() {
+    return (
+      <div className="modal fade bs-createSignal-modal-md" tabIndex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" 
+           id="createProspectProfileModal" 
+           style={{top:'50px',overflow:'hidden'}}>
+            <div className="modal-dialog modal-sm" style={{width:650}}>
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h4 className="modal-title" id="myModalLabel">
+                    Create Prospect Profile
+                  </h4>
+                  <a href="javascript:" className="btn btn-success btn-sm" 
+                     onClick={this.createCompanyProfile}
+                     style={{float:'right',marginTop:-28,marginRight:-5}}>
+                    Create Profile
+                  </a>
+                </div>
+                <div className="modal-body">
+                  <CreateHiringSignal />
+                </div>
+              <div className="modal-footer" style={{display:'none'}}>
+                <button type="button" className="btn btn-default">
+                  Close
+                </button>
+                <button type="button" className="btn btn-primary">
+                  Send Email
+                </button>
+              </div>
+              </div>
+            </div>
+          </div>
+    );
+  },
+
+  createProspectProfile: function() {
     console.log('Create SIgnal Called')
-    // Get Name
     profileName = $('.hiring-profile-name').val()
 
     hiringProfile = {
@@ -12,14 +45,12 @@ module.exports = React.createClass({
       'roles'    : $('.hiring-role').tagsinput('items').reverse()
     }
 
-    autoProspect = $('.autoprospect > .active').text() ==  " Yes"
-    
+    autoProspect = $('.autoprospect > .active').text() ==  " Yes" 
     revenueProfile = {'className':'RevenueProfile', 
                       'revenues': _.map($('#revenueBtns').find('.active'), 
                                             function(revBtn){
                                               return $(revBtn).text().trim() 
-                                            }).reverse()}
-
+                                            }).reverse()} 
     employeeProfile = {'className':'EmployeeProfile', 
                        'employees': _.map($('#employeeBtns').find('.active'), 
                                           function(empBtn){ 
@@ -156,39 +187,6 @@ module.exports = React.createClass({
     */
 
   },
-
-  render: function() {
-    return (
-      <div className="modal fade bs-createSignal-modal-md" tabIndex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="createListModal" 
-           style={{top:'50px',overflow:'hidden'}}>
-            <div className="modal-dialog modal-sm" style={{width:650}}>
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h4 className="modal-title" id="myModalLabel">
-                    {this.props.chosenSignal}
-                  </h4>
-                  <a href="javascript:" className="btn btn-success btn-sm" 
-                     onClick={this.createSignal}
-                     style={{float:'right',marginTop:-28,marginRight:-5}}>
-                    Create Signal
-                  </a>
-                </div>
-                <div className="modal-body">
-                  <CreateHiringSignal />
-                </div>
-              <div className="modal-footer" style={{display:'none'}}>
-                <button type="button" className="btn btn-default">
-                  Close
-                </button>
-                <button type="button" className="btn btn-primary">
-                  Send Email
-                </button>
-              </div>
-              </div>
-            </div>
-          </div>
-    );
-  }
 });
 
 var CreateHiringSignal = React.createClass({
@@ -223,6 +221,7 @@ var CreateHiringSignal = React.createClass({
 
   componentDidMount: function() {
     $(this.getDOMNode()).find('.hiring-role').tagsinput()
+    _.map($('.hiring-role'),function(input){$(input).tagsinput()})
     $('.bootstrap-tagsinput').width(400)
   },
 
@@ -240,10 +239,13 @@ var CreateHiringSignal = React.createClass({
                                           <i className="fa fa-plus" />&nbsp;
                                           Add Prospect Details
                                         </a> : <ProspectProfile hideProspectDetails={this.state.hideProspectDetails}/>
-    addCompanyStyle = (!this.state.addCompany) ? {display:'block',textAlign:'center'} : {}
-    addProspectStyle = (!this.state.addProspect) ? {display:'block',textAlign:'center'} : {}
+    addCompany = this.state.addCompany
+    addProspectStyle = this.state.addProspect
 
-    closeCompanyBtns = (!this.state.addCompany) ? "" : <span><a href="javascript:" className="btn btn-xs btn-default"
+    addCompanyStyle = (!addCompany) ? {display:'block',textAlign:'center'} : {}
+    addProspectStyle = (!addProspect) ? {display:'block',textAlign:'center'} : {}
+
+    closeCompanyBtns = (!addCompany) ? "" : <span><a href="javascript:" className="btn btn-xs btn-default"
                onClick={this.toggleCompany}
                style={{float:'right',marginTop:-5}}>
                <i className="fa fa-times" /></a>
@@ -253,7 +255,7 @@ var CreateHiringSignal = React.createClass({
               <i className={(this.state.hideCompanyDetails) ? "fa fa-plus" :"fa fa-minus"} />
           </a></span>
 
-    closeProspectBtns = (!this.state.addProspect) ? "" : <span><a href="javascript:" className="btn btn-xs btn-default"
+    closeProspectBtns = (!addProspect) ? "" : <span><a href="javascript:" className="btn btn-xs btn-default"
                onClick={this.toggleProspect}
                style={{float:'right',marginTop:-5}}>
                <i className="fa fa-times" /></a>
@@ -263,26 +265,24 @@ var CreateHiringSignal = React.createClass({
               <i className={(this.state.hideProspectDetails) ? "fa fa-plus" :"fa fa-minus"} />
           </a></span>
 
-    companyHeading = (!this.state.addCompany) ? "" : <h5><i className="fa fa-building" />&nbsp; Company Details</h5>
-    prospectHeading = (!this.state.addProspect) ? "" : <h5><i className="fa fa-user" />&nbsp; Prospect Details</h5>
     return (
       <div>
         <form className="createSignal" onSubmit={this.createSignal}>
           <span> 
             <h6 style={{width:140,display:'inline-block',marginBottom:20}}>
-              Hiring Profile Name: &nbsp;</h6>
+              Company Profile Name: &nbsp;</h6>
             <input type="text" 
-                   style={{display:'inline-block',width:'413px'}} 
+                   style={{display:'inline-block',width:'73.1%'}}
                    className="form-control hiring-profile-name" 
-                   placeholder="Hiring Profile Name ..."/>
+                   placeholder="Company Profile Name ..."/>
           </span>
           <br/>
-          <span> 
+          <span style={{display:'block',marginBottom:-10}}> 
             <h6 style={{width:140,display:'inline-block'}}>
-              Hiring Role Name: &nbsp;
+              Industries: &nbsp;
             </h6>
             <input type="text" 
-                   style={{display:'inline-block',width:'50%',marginRight:10}} 
+                   style={{display:'inline-block',width:'73.1%',marginRight:10}} 
                    data-role="tagsinput"
                    className="form-control hiring-role" />
 
@@ -291,22 +291,33 @@ var CreateHiringSignal = React.createClass({
                   <i className="fa fa-plus" />
                 </a>
           </span>
-          <div style={{marginTop:10}}>
-          <h6 style={{width:140,display:'inline-block'}}>Auto Prospect: &nbsp;</h6>
-          <div className="btn-group autoprospect" data-toggle="buttons" >
-            <label className="btn btn-sm btn-default active">
-              <input type="radio"/> Yes
-            </label>
-            <label className="btn btn-sm btn-default">
-              <input type="radio"/> No
-            </label> 
-          </div>
-          </div>
-          <hr/> {closeCompanyBtns} {companyHeading}     
-          <div style={addCompanyStyle}> {addCompany} </div>
+          <br/>
+          <span style={{display:'block',marginBottom:-10}}> 
+            <h6 style={{width:140,display:'inline-block'}}>
+              Location: &nbsp;
+            </h6>
+            <input type="text" 
+                   style={{display:'inline-block',width:'73.1%',marginRight:10}} 
+                   data-role="tagsinput"
+                   className="form-control hiring-role" />
 
-          <hr/> {closeProspectBtns} {prospectHeading}     
-          <div style={addProspectStyle}> {addProspect} </div>
+                <a href="javascript:" 
+                   className="btn btn-xs btn-success" style={{display:'none'}}>
+                  <i className="fa fa-plus" />
+                </a>
+          </span>
+          <CompanyProfile />
+          <div style={{marginTop:10}}>
+            <h6 style={{width:140,display:'inline-block'}}>Auto Prospect: &nbsp;</h6>
+            <div className="btn-group autoprospect" data-toggle="buttons" >
+              <label className="btn btn-sm btn-default active">
+                <input type="radio"/> Yes
+              </label>
+              <label className="btn btn-sm btn-default">
+                <input type="radio"/> No
+              </label> 
+            </div>
+          </div>
         </form>
       </div>
     )
@@ -338,33 +349,33 @@ var CompanyProfile = React.createClass({
           <h6 style={{display:'inline-block',margin:0,
                       width:140,marginBottom:20}}>Company Size </h6>
             <div className="btn-group" data-toggle="buttons" id="employeeBtns">
-              <label className="btn btn-sm btn-default active">
+              <label className="btn btn-sm btn-default active employeeBtn">
                 <input type="checkbox"/> 1 - 50
               </label>
-              <label className="btn btn-sm btn-default">
+              <label className="btn btn-sm btn-default employeeBtn">
                 <input type="checkbox"/> 50 - 250
               </label>
-              <label className="btn btn-sm btn-default">
+              <label className="btn btn-sm btn-default employeeBtn">
                 <input type="checkbox"/> 250 - 1000
               </label>
-              <label className="btn btn-sm btn-default">
+              <label className="btn btn-sm btn-default employeeBtn">
                 <input type="checkbox"/> 1000 +
               </label>
             </div>
 
             <br/> <h6 style={{display:'inline-block',margin:0,width:140}}>
-              Revenue Amount </h6>
+              Approx. Revenue  </h6>
             <div className="btn-group" data-toggle="buttons" id="revenueBtns">
-              <label className="btn btn-sm btn-default active">
+              <label className="btn btn-sm btn-default active revenueBtn">
                 <input type="checkbox"/> {'< $1M'}
               </label>
-              <label className="btn btn-sm btn-default">
+              <label className="btn btn-sm btn-default revenueBtn">
                 <input type="checkbox"/> $1M - $5M
               </label>
-              <label className="btn btn-sm btn-default">
+              <label className="btn btn-sm btn-default revenueBtn">
                 <input type="checkbox"/> $5M - $25M
               </label>
-              <label className="btn btn-sm btn-default">
+              <label className="btn btn-sm btn-default revenueBtn">
                 <input type="checkbox"/> $25M +
               </label>
             </div>
@@ -381,7 +392,6 @@ var ProspectProfile = React.createClass({
     $('.prospectRoleKeywords').tagsinput({
       maxTags: 5,
     })
-
     $('.bootstrap-tagsinput').width(400)
   },
 
@@ -399,67 +409,9 @@ var ProspectProfile = React.createClass({
                    style={{width:'400px !important'}}
                    className="form-control prospectRoleKeywords" 
                    placeholder="" />
-          </span>
-
+          </span> 
         </form>
       </div>
-    )
-  }
-})
-
-/*
-  Funding Profile
-  - Amount Raised
-  - Stage
-
-  People Profile
-  - Locale
-  - Title
-
-  Company Profile
-  - Industries
-  - Revenue
-  - Locale
-  - # of Employees
-*/
-
-var GeneralForm = React.createClass({
-
-  render: function() {
-    return (
-        <form className="createSignal" onSubmit={this.createSignal}>
-          <span> <i className="fa fa-suitcase"/> &nbsp;
-            <input type="text" style={{display:'inline-block',width:'90%'}} 
-                  className="form-control" placeholder="Find Companies Hiring For ..."/>
-          </span>
-          <br/> <br/>
-          <span> <i className="fa fa-users"/> &nbsp;
-            <input type="text" style={{display:'inline-block',width:'90%'}} 
-                  className="form-control" placeholder="Number of Employees ..."/>
-          </span>
-          <br/> <br/>
-          <span> <i className="fa fa-institution"/> &nbsp;
-            <input type="text" style={{display:'inline-block',width:'90%'}} 
-                  className="form-control" placeholder="Amount of Funding ..."/>
-          </span>
-          <br/> <br/>
-          <span> <i className="fa fa-money"/> &nbsp;
-            <input type="text" style={{display:'inline-block',width:'90%'}} 
-                  className="form-control" placeholder="Revenue Amount ..."/>
-          </span>
-          <br/> <br/>
-          <span> <i className="fa fa-wrench"/> &nbsp;
-            <input type="text" style={{display:'inline-block',width:'90%'}} 
-                  className="form-control" placeholder="Using Technologies Such As..."/>
-          </span>
-          <br/> <br/>
-          <a href="javascript:" 
-            onClick={this.createSignal} 
-            className="btn btn-default btn-success" 
-            style={{display:'block', width:'100%'}}>
-            Create Signal
-          </a>
-        </form>
     )
   }
 })

@@ -1,8 +1,10 @@
 /** @jsx React.DOM */
 
+//TODO - abstract lists
+var SideMenuProspects = require('./side_menu_user_prospects.js.min.js');
+
 var UserProspect = require('./user_prospect.js.min.js');
 var UserProspectHeader = require('./user_prospect_header.js.min.js');
-var SideMenuProspects = require('./side_menu_user_prospects.js.min.js');
 var SideMenuListOption = require('./user_side_menu_list.js.min.js');
 var LoadingSpinner = require('./loading_spinner.js.min.js')
 var PanelFooting = require('./panel_footing.js.min.js')
@@ -149,7 +151,7 @@ module.exports = React.createClass({
     console.log(qry)
 
     $.ajax({
-      url: 'https://api.parse.com/1/classes/Prospects',
+      url: 'https://api.parse.com/1/classes/Prospect',
       type:'GET',
       headers: parse_headers,
       async: true,
@@ -366,7 +368,7 @@ module.exports = React.createClass({
 
     for(i=0;i< Math.ceil(this.state.count/1000); i++){
       $.ajax({
-        url: 'https://api.parse.com/1/classes/Prospects?limit=1000&skip='+i,
+        url: 'https://api.parse.com/1/classes/Prospect?limit=1000&skip='+i,
         type:'GET',
         headers: parse_headers,
         downloadFile: 'download_'+i,
@@ -433,7 +435,7 @@ module.exports = React.createClass({
       if(this.state.currentList != 'All'){
         tmp = {
           method:'PUT',
-          path:'/1/classes/Prospects/'+selectedProspects[i],
+          path:'/1/classes/Prospect/'+selectedProspects[i],
           body: {
             lists: {
               '__op'    : 'Remove',
@@ -448,7 +450,7 @@ module.exports = React.createClass({
       }else{
         tmp = {
           method:'PUT',
-          path:'/1/classes/Prospects/'+selectedProspects[i],
+          path:'/1/classes/Prospect/'+selectedProspects[i],
           body: {
             archived:false,
           }
@@ -515,7 +517,7 @@ module.exports = React.createClass({
     for(i=0;i< selectedProspects.length;i++){
       tmp = {
         method:'PUT',
-        path:'/1/classes/Prospects/'+selectedProspects[i],
+        path:'/1/classes/Prospect/'+selectedProspects[i],
         body: {
           lists: {
             '__op'    : 'Remove',
@@ -534,7 +536,7 @@ module.exports = React.createClass({
     for(i=0;i< selectedProspects.length;i++){
       tmp = {
         method:'PUT',
-        path:'/1/classes/Prospects/'+selectedProspects[i],
+        path:'/1/classes/Prospect/'+selectedProspects[i],
         body: {
           lists: {
             '__op'    : 'AddUnique',
@@ -609,7 +611,7 @@ module.exports = React.createClass({
     for(i=0;i< selectedProspects.length;i++){
       tmp = {
         method:'PUT',
-        path:'/1/classes/Prospects/'+selectedProspects[i],
+        path:'/1/classes/Prospect/'+selectedProspects[i],
         body: {
           lists: {
             '__op'    : 'AddUnique',
@@ -823,7 +825,7 @@ module.exports = React.createClass({
 
     $.ajax({
       //url: 'https://api.parse.com/1/classes/Prospects?limit=50',
-      url: 'https://api.parse.com/1/classes/Prospects?limit='+thisss.state.prospectsPerPage,
+      url: 'https://api.parse.com/1/classes/Prospect?limit='+thisss.state.prospectsPerPage,
       type:'GET',
       headers: parse_headers,
       cache: true,
@@ -858,7 +860,7 @@ module.exports = React.createClass({
       url: 'https://api.parse.com/1/classes/ProspectList',
       type: 'GET',
       headers: parse_headers,
-      data: 'where={"user":'+JSON.stringify(currentUser)+"}&count=1",
+      data: 'where={"user":'+JSON.stringify(currentUser)+"}&count=1&order=-createdAt",
       success: function(res) {
         console.log(res)
         results = res.results
@@ -879,7 +881,7 @@ module.exports = React.createClass({
           }
 
           $.ajax({
-            url:'https://api.parse.com/1/classes/Prospects',
+            url:'https://api.parse.com/1/classes/Prospect',
             type:'GET',
             headers:parse_headers,
             listObjectId: res.results[i].objectId,

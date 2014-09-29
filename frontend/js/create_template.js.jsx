@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+/** @jsx react.dom */
 
 module.exports = React.createClass({
   getInitialState: function() {

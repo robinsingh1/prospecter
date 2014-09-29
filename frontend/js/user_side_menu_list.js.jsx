@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 
-//SideMenuListOption
 module.exports = React.createClass({
+  //SideMenuListOption
   getInitialState: function() {
     return {count: '~'}
   },
