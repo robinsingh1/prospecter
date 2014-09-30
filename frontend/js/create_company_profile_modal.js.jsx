@@ -37,155 +37,6 @@ module.exports = React.createClass({
   },
 
   createCompanyProfile: function() {
-    console.log('Create SIgnal Called')
-    profileName = $('.hiring-profile-name').val()
-
-    hiringProfile = {
-      'className': 'HiringProfile',
-      'roles'    : $('.hiring-role').tagsinput('items').reverse()
-    }
-
-    autoProspect = $('.autoprospect > .active').text() ==  " Yes" 
-    revenueProfile = {'className':'RevenueProfile', 
-                      'revenues': _.map($('#revenueBtns').find('.active'), 
-                                            function(revBtn){
-                                              return $(revBtn).text().trim() 
-                                            }).reverse()} 
-    employeeProfile = {'className':'EmployeeProfile', 
-                       'employees': _.map($('#employeeBtns').find('.active'), 
-                                          function(empBtn){ 
-                                            return $(empBtn).text().trim() 
-                                          }).reverse()}
-
-    prospectProfile = {
-      'className':'ProspectTitleProfile',
-      'title_keywords' : $('.prospectRoleKeywords').tagsinput('items').reverse()
-    }
-
-    $.ajax({
-      url:'https://api.parse.com/1/classes/ProspectProfile',
-      headers:appConfig.headers,
-      type:'POST',
-      data:JSON.stringify({name:profileName, autoProspect:autoProspect,
-                          user:{
-                            __type:'Pointer',
-                            className:'_User',
-                            objectId:JSON.parse(localStorage.currentUser).objectId
-                          },
-                          company: JSON.parse(localStorage.currentUser).company
-      }),
-      success:function(ress) {
-        // Add Signal List
-
-        $.ajax({
-          url:'https://api.parse.com/1/classes/HiringProfile',
-          headers:appConfig.headers,
-          type:'POST',
-          data:JSON.stringify({roles: hiringProfile.roles}),
-          success:function(res) {
-            $.ajax({
-              url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
-              type:'PUT',
-              headers:appConfig.headers,
-              data:JSON.stringify({profiles:{
-                __op: 'AddUnique',
-                objects:[{
-                  __type:'Pointer',
-                  className:'HiringProfile',
-                  objectId:res.objectId
-                }]}
-              }),
-            })
-          },
-        })
-        //Create Prospect Profile
-        $.ajax({
-          url:'https://api.parse.com/1/classes/RevenueProfile',
-          headers:appConfig.headers,
-          type:'POST',
-          data:JSON.stringify({revenues: revenueProfile.revenues}),
-          success:function(res) {
-            $.ajax({
-              url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
-              type:'PUT',
-              headers:appConfig.headers,
-              data:JSON.stringify({profiles:{
-                __op: 'AddUnique',
-                objects:[{
-                  __type:'Pointer',
-                  className:'RevenueProfile',
-                  objectId:res.objectId
-                }]}
-              }),
-            })
-          },
-        })
-        //Create Employee Profile
-        $.ajax({
-          url:'https://api.parse.com/1/classes/EmployeeProfile',
-          headers:appConfig.headers,
-          type:'POST',
-          data:JSON.stringify({employees: employeeProfile.employees}),
-          success:function(res) {
-            $.ajax({
-              url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
-              type:'PUT',
-              headers:appConfig.headers,
-              data:JSON.stringify({profiles:{
-                __op: 'AddUnique',
-                objects:[{
-                  __type:'Pointer',
-                  className:'EmployeeProfile',
-                  objectId:res.objectId
-                }]}
-              }),
-            })
-          },
-        })
-        //Create Revenue Profile
-        $.ajax({
-          url:'https://api.parse.com/1/classes/ProspectTitleProfile',
-          type:'POST',
-          headers:appConfig.headers,
-          data:JSON.stringify({title_keywords: prospectProfile.title_keywords}),
-          success:function(res) {
-            $.ajax({
-              url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
-              type:'PUT',
-              headers:appConfig.headers,
-              data:JSON.stringify({profiles:{
-                __op: 'AddUnique',
-                objects:[{
-                  __type:'Pointer',
-                  className:'ProspectTitleProfile',
-                  objectId:res.objectId
-                }]}
-              }),
-            })
-          },
-        })
-      },
-    })
-
-    newProfile = {
-      name: profileName,
-      autoProspect: autoProspect,
-      profiles: [
-        prospectProfile,
-        revenueProfile,
-        employeeProfile,
-        hiringProfile
-      ]
-    }
-    console.log(newProfile)
-
-    this.props.addProfile(newProfile)
-    /*
-    $('#createListModal').modal('hide')
-    $('body').removeClass('modal-open');
-    $('.modal-backdrop').remove();
-    */
-
   },
 });
 
@@ -226,45 +77,6 @@ var CreateHiringSignal = React.createClass({
   },
 
   render: function(){
-    addCompany = (!this.state.addCompany) ? <a href="javascript:" 
-                                           onClick={this.toggleCompany}
-                                           className="btn btn-sm btn-default">
-                                          <i className="fa fa-plus" />&nbsp;
-                                          Add Company Details
-                                        </a> : <CompanyProfile hideCompanyDetails={this.state.hideCompanyDetails}/>
-
-    addProspect = (!this.state.addProspect) ? <a href="javascript:" 
-                                           onClick={this.toggleProspect}
-                                           className="btn btn-sm btn-default">
-                                          <i className="fa fa-plus" />&nbsp;
-                                          Add Prospect Details
-                                        </a> : <ProspectProfile hideProspectDetails={this.state.hideProspectDetails}/>
-    addCompany = this.state.addCompany
-    addProspectStyle = this.state.addProspect
-
-    addCompanyStyle = (!addCompany) ? {display:'block',textAlign:'center'} : {}
-    addProspectStyle = (!addProspect) ? {display:'block',textAlign:'center'} : {}
-
-    closeCompanyBtns = (!addCompany) ? "" : <span><a href="javascript:" className="btn btn-xs btn-default"
-               onClick={this.toggleCompany}
-               style={{float:'right',marginTop:-5}}>
-               <i className="fa fa-times" /></a>
-               <a href="javascript:" className="btn btn-xs btn-default"
-                  onClick={this.toggleCompanyDetails}
-                  style={{float:'right',marginTop:-5,marginRight:5}}>
-              <i className={(this.state.hideCompanyDetails) ? "fa fa-plus" :"fa fa-minus"} />
-          </a></span>
-
-    closeProspectBtns = (!addProspect) ? "" : <span><a href="javascript:" className="btn btn-xs btn-default"
-               onClick={this.toggleProspect}
-               style={{float:'right',marginTop:-5}}>
-               <i className="fa fa-times" /></a>
-               <a href="javascript:" className="btn btn-xs btn-default"
-               onClick={this.toggleProspectDetails}
-               style={{float:'right',marginTop:-5,marginRight:5}}>
-              <i className={(this.state.hideProspectDetails) ? "fa fa-plus" :"fa fa-minus"} />
-          </a></span>
-
     return (
       <div>
         <form className="createSignal" onSubmit={this.createSignal}>
@@ -301,12 +113,13 @@ var CreateHiringSignal = React.createClass({
                    data-role="tagsinput"
                    className="form-control hiring-role" />
 
-                <a href="javascript:" 
-                   className="btn btn-xs btn-success" style={{display:'none'}}>
-                  <i className="fa fa-plus" />
-                </a>
+            <a href="javascript:" 
+               className="btn btn-xs btn-success" style={{display:'none'}}>
+              <i className="fa fa-plus" />
+            </a>
           </span>
           <CompanyProfile />
+
           <div style={{marginTop:10}}>
             <h6 style={{width:140,display:'inline-block'}}>Auto Prospect: &nbsp;</h6>
             <div className="btn-group autoprospect" data-toggle="buttons" >
@@ -341,10 +154,8 @@ var CompanyProfile = React.createClass({
   },
 
   render: function() {
-    showDetails = (this.props.hideCompanyDetails) ? {display: 'none'} : {display:'block'}
     return (
-      <div style={showDetails}>
-        <form className="createSignal" onSubmit={this.companyFormSubmit}>
+      <div >
           <br/> 
           <h6 style={{display:'inline-block',margin:0,
                       width:140,marginBottom:20}}>Company Size </h6>
@@ -379,7 +190,6 @@ var CompanyProfile = React.createClass({
                 <input type="checkbox"/> $25M +
               </label>
             </div>
-        </form>
       </div>
     )
   }

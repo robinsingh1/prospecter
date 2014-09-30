@@ -149,15 +149,16 @@ module.exports = React.createClass({
     console.log(newProfile)
 
     this.props.addProfile(newProfile)
-    /* $('#createListModal').modal('hide')
-    $('body').removeClass('modal-open');
-    $('.modal-backdrop').remove(); */
   },
 
   updateDate: function(e) {
-    $(e.target).addClass('list-group-item-success')
-    $(e.target).addClass('no-hover')
-    $(e.target).append('<span class="label label-success" style="float:right;">Downloading...</span>')
+    if(!$(e.target).hasClass('no-hover')){
+      $(e.target).addClass('list-group-item-success')
+      $(e.target).addClass('no-hover')
+      $(e.target).append('<span class="label label-success" style="float:right;">Downloading...</span>')
+
+      //setTimeout($('.modal').click(), 500)
+    }
   },
 
   render: function() {
@@ -196,12 +197,11 @@ module.exports = React.createClass({
             </div>
             <div className="modal-body">
 
-              <ul className="list-group" 
+              <ul className="list-group date-download-prospects" 
                   style={{height:400,overflow:'auto',
                   borderBottom:'solid 1px #ddd',
                   cursor:'pointer',
-                  borderTop:'solid 1px #ddd',
-                  borderRight:'solid 1px #ddd'}}>
+                  borderTop:'solid 1px #ddd'}}>
                 <h6 style={{margin:0}}>{dates}</h6>
               </ul>
 

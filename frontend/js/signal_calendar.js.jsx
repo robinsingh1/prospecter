@@ -8,8 +8,7 @@ module.exports = React.createClass({
     }
   },
 
-  componentDidMount: function() {
-
+  getSignalReport: function() {
     thissss = this;
     
     console.log('CALENDAR PROPS')
@@ -33,6 +32,14 @@ module.exports = React.createClass({
         console.log(err)
       }
     });
+  },
+
+  componentDidMount: function() {
+    this.getSignalReport()
+  },
+
+  componentDidUpdate: function() {
+    this.getSignalReport()
   },
 
   setCurrentView: function() {

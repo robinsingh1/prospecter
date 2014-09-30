@@ -20,8 +20,8 @@ module.exports = React.createClass({
       currentProfile: '',
       currentProfileObjectId: {},
       signals: [],
-      chosenSignal:'HiringSignal',
       currentView: 'Feed',
+      profiles: [],
     }
   },
 
@@ -50,13 +50,15 @@ module.exports = React.createClass({
     } else if(this.state.currentView == "MiningJobCalendar"){
       signalView = <MiningJobCalendar setCurrentView={this.setCurrentView}/>
     }
+
    return (
       <div style={{height:400}}>
         <div className="container" style={{padding:0, width:'100%', height:'100%'}}>
           <div className="col-md-3 signal-list" 
                style={{ height:'102.8%', padding:0}}>
-            <SignalsOptions setNewChosenSignal={this.setNewChosenSignal}
-                            chosenSignal={this.state.chosenSignal}
+            <SignalsOptions profiles={this.state.profiles}
+                            addProfile={this.addProfile}
+                            removeProfile={this.removeProfile}
                             setCurrentView={this.setCurrentView}
                             setCurrentProfile={this.setCurrentProfile}/>
           </div>
@@ -65,26 +67,71 @@ module.exports = React.createClass({
           </div>
         </div>
         <CreateMiningJobModal />
-        <CreateHiringSignalModal chosenSignal={this.state.chosenSignal} 
-                                 addProfile={this.addProfile}/>
+        <CreateHiringSignalModal addProfile={this.addProfile}/>
         <CreateFundingSignalModal addProfile={this.addProfile}/>
-        <CreateProspectProfileModal addProfile={this.addProfile}/>
         <CreateCompanyProfileModal addProfile={this.addProfile}/>
       </div>
     )
   },
 
-  setNewChosenSignal: function(newSignal) {
-    this.setState({chosenSignal: newSignal})
+  addProfile: function(newProfile) {
+    profiles = this.state.profiles
+    profiles.push(newProfile)
+    this.setState({profiles: profiles})
+  },
+
+  removeProfile: function(oldProfile) {
+    this.setState({profiles: _.reject(this.state.profiles, function(profile) {
+      return _.isEqual(oldProfile, profile)
+    })})
+    if(oldProfile.objectId){
+      $.ajax({
+        url:'https://api.parse.com/1/classes/ProspectProfile/'+oldProfile.objectId,
+        headers:appConfig.headers,
+        type:'DELETE',
+      })
+    }
   },
 
   setCurrentProfile: function(currentProfile) {
+    console.log('CURRENT PROFILE')
+    console.log(this.state.currentProfile)
+    console.log('NEW PROFILE')
+    console.log(currentProfile)
+
     this.setState({currentProfile: currentProfile })
     this.getSignals('PeopleSignal', currentProfile)
   },
 
   componentDidMount: function() {
     this.getSignals(this.state.signalType)
+
+    currentUser = JSON.parse(localStorage.currentUser)
+    user = {
+      '__type'    : 'Pointer',
+      'className' : '_User',
+      'objectId'  : currentUser.objectId
+    }
+    user = JSON.stringify(user)
+    company = JSON.stringify(currentUser.company)
+    qry = 'where={"company":'+company+',"user":'+user+'}&include=profiles,prospect_list'
+  
+    thisss = this
+    $.ajax({
+      url: 'https://api.parse.com/1/classes/ProspectProfile',
+      type:'GET',
+      data: qry,
+      headers:appConfig.parseHeaders,
+      success: function(res) {
+        console.log('Prospect Profile')
+        console.log(res.results)
+        thisss.setCurrentProfile(res.results[0])
+        thisss.setState({profiles: res.results})
+      },
+      error: function(err) {
+        console.log(err)
+      }
+    });
   },
 
   setSignalType: function(labelText) {
@@ -168,16 +215,8 @@ var SignalDetailButtons = React.createClass({
 });
 
 var SignalsOptions = React.createClass({
-  getInitialState: function() {
-    return {
-      profiles: []
-    }
-  },
-
   addProfile: function(newProfile) {
-    profiles = this.state.profiles
-    profiles.push(newProfile)
-    this.setState({profiles: profiles})
+    this.props.addProfile(newProfile)
   },
 
   setCurrentProfile: function(currentProfile) {
@@ -186,49 +225,10 @@ var SignalsOptions = React.createClass({
   },
 
   removeProfile: function(oldProfile) {
-    this.setState({profiles: _.reject(this.state.profiles, function(profile) {
-      return _.isEqual(oldProfile, profile)
-    })})
-    if(oldProfile.objectId){
-      $.ajax({
-        url:'https://api.parse.com/1/classes/ProspectProfile/'+oldProfile.objectId,
-        headers:appConfig.headers,
-        type:'DELETE',
-      })
-    }
+    this.props.removeProfile(oldProfile)
   },
 
   componentDidMount: function() {
-    currentUser = JSON.parse(localStorage.currentUser)
-    user = {
-      '__type'    : 'Pointer',
-      'className' : '_User',
-      'objectId'  : currentUser.objectId
-    }
-    user = JSON.stringify(user)
-    company = JSON.stringify(currentUser.company)
-    qry = 'where={"company":'+company+',"user":'+user+'}&include=profiles,prospect_list'
-  
-    thisss = this
-    $.ajax({
-      url: 'https://api.parse.com/1/classes/ProspectProfile',
-      type:'GET',
-      data: qry,
-      headers:appConfig.parseHeaders,
-      success: function(res) {
-        console.log('Prospect Profile')
-        console.log(res.results)
-        thisss.setCurrentProfile(res.results[0])
-        thisss.setState({profiles: res.results})
-      },
-      error: function(err) {
-        console.log(err)
-      }
-    });
-  },
-
-  createSignal: function() {
-    console.log('create signal')
   },
 
   setCurrentView: function(newView) {
@@ -238,11 +238,11 @@ var SignalsOptions = React.createClass({
 
   render: function() {
     profs = []
-    for(i=0; i< this.state.profiles.length;i++) {
+    for(i=0; i< this.props.profiles.length;i++) {
       profs.push(<SignalProfile setCurrentProfile={this.setCurrentProfile} 
                                 setCurrentView={this.setCurrentView}
                                 removeProfile={this.removeProfile}
-                                profile={this.state.profiles[i]} />)
+                                profile={this.props.profiles[i]} />)
     }
 
     return (
@@ -316,7 +316,6 @@ var SignalsOptions = React.createClass({
 
   launchModal: function(e) {
     console.log($(e.target).text())
-    this.props.setNewChosenSignal({chosenSignal: $(e.target).text()})
     if($(e.target).text().trim() == 'Create Hiring Signal')
       $('#createHiringSignalModal').modal()
     else if($(e.target).text().trim() == 'Create Funding Signal')

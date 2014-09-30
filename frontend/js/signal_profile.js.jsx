@@ -7,6 +7,17 @@ module.exports = React.createClass({
       this.props.setCurrentView('Calendar')
     else
       this.props.setCurrentView('MiningJobCalendar')
+    //e.stopPropagation()
+  },
+
+  calendarClick:function(e) {
+    this.props.setCurrentProfile(this.props.profile)
+
+    if(!this.props.profile.mining_job)
+      this.props.setCurrentView('Calendar')
+    else
+      this.props.setCurrentView('MiningJobCalendar')
+
     e.stopPropagation()
   },
 
@@ -47,10 +58,12 @@ module.exports = React.createClass({
              className="btn btn-primary btn-xs signal-detail-btn"
              onClick={this.removeProfile}>
             <i className="fa fa-trash" /></a>
-          <a href="javascript:" className="btn btn-primary btn-xs signal-detail-btn">
+          <a href="javascript:" 
+            style={{display:'none'}}
+            className="btn btn-primary btn-xs signal-detail-btn">
             <i className="fa fa-cog" /></a>
           <a href="javascript:" className="btn btn-primary btn-xs signal-detail-btn"
-             onClick={this.setCurrentView}>
+             onClick={this.calendarClick}>
             <i className="fa fa-calendar" /></a>
           <a href="javascript:" 
              onClick={this.launchModal}

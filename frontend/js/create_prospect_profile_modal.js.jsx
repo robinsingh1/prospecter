@@ -1,17 +1,17 @@
 /** @jsx React.DOM */
 
 module.exports = React.createClass({
-  // createProspectProfileModal
+  // createCompanyProfileModal
   render: function() {
     return (
       <div className="modal fade bs-createSignal-modal-md" tabIndex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" 
-           id="createProspectProfileModal" 
+           id="createCompanyProfileModal" 
            style={{top:'50px',overflow:'hidden'}}>
             <div className="modal-dialog modal-sm" style={{width:650}}>
               <div className="modal-content">
                 <div className="modal-header">
                   <h4 className="modal-title" id="myModalLabel">
-                    Create Prospect Profile
+                    Create Company Profile
                   </h4>
                   <a href="javascript:" className="btn btn-success btn-sm" 
                      onClick={this.createCompanyProfile}
@@ -36,7 +36,7 @@ module.exports = React.createClass({
     );
   },
 
-  createProspectProfile: function() {
+  createCompanyProfile: function() {
     console.log('Create SIgnal Called')
     profileName = $('.hiring-profile-name').val()
 
@@ -220,8 +220,8 @@ var CreateHiringSignal = React.createClass({
   },
 
   componentDidMount: function() {
-    $(this.getDOMNode()).find('.hiring-role').tagsinput()
     _.map($('.hiring-role'),function(input){$(input).tagsinput()})
+    $(this.getDOMNode()).find('.hiring-role').tagsinput()
     $('.bootstrap-tagsinput').width(400)
   },
 
