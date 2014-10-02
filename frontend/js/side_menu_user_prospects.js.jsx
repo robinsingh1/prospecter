@@ -9,13 +9,16 @@ module.exports = React.createClass({
     return {
       /*
       createList: 
+      renameList:
+      deleteList:
       changeList:
-      currentList
-      totalCount
-      lists
+      currentList:
+      totalCount:
+      lists:
       */
     }
   },
+
   createList: function (data) {
     this.props.createList(data)
   },

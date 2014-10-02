@@ -37,43 +37,113 @@ module.exports = React.createClass({
   },
 
   createCompanyProfile: function() {
-  },
-});
+    profileName = $(".company-profile-name").val()
+    industryProfile = {
+      'className': 'IndustryProfile',
+      'industries' : $('.company-profile-industries').tagsinput('items').reverse()
+    }
 
-var CreateHiringSignal = React.createClass({
-  getInitialState: function() {
-    return {
-      addCompany: false,
-      addProspect: false,
-      hideCompanyDetails: false,
-      hideProspectDetails: false,
+    locationProfile = {
+      'className': 'LocationProfile',
+      'locale'    : $('.company-profile-location').tagsinput('items').reverse()
+    }
+
+    employeeProfile = {
+      'className':'EmployeeProfile', 
+      'employees': _.map($('#company-profile-employeeBtns').find('.active'), 
+                        function(revBtn){ return $(revBtn).text().trim() }).reverse()
+    }
+
+    revenueProfile = {
+      'className':'RevenueProfile', 
+      'revenues': _.map($('#company-profile-companyRevenueBtns').find('.active'), 
+                        function(revBtn){ return $(revBtn).text().trim() }).reverse()
+    }
+
+    console.log(locationProfile)
+    
+    profiles = [industryProfile, locationProfile,
+                employeeProfile, revenueProfile]
+
+    nonemptyProfiles = _.filter(profiles, function(profile) {
+      if(_.values(profile)[1]){ return _.values(profile)[1].length }
+    });
+
+    newProfile = {
+      name: profileName,
+      profiles: nonemptyProfiles,
+      mining_job:true,
+      user:{
+        __type:'Pointer',
+        className:'_User',
+        objectId:JSON.parse(localStorage.currentUser).objectId
+      },
+      company: JSON.parse(localStorage.currentUser).company
+    }
+
+    if(nonemptyProfiles.length) {
+      this.persistSignal(nonemptyProfiles, 
+                         _.omit(newProfile,'profiles'))
+      this.props.addProfile(newProfile)
+      $('.modal').click()
     }
   },
 
-  componentDidMount: function() {
+  persistSignal: function(nonemptyProfiles, newProfile) {
+    console.log('NEW PROFILE')
+    console.log(newProfile)
+    $.ajax({
+      url:'https://api.parse.com/1/classes/ProspectProfile',
+      headers:appConfig.headers,
+      type:'POST',
+      data:JSON.stringify(newProfile),
+      success:function(ress) {
+        // Add Signal List
+        _.map(nonemptyProfiles, function(profile) {
+          $.ajax({
+            url:'https://api.parse.com/1/classes/'+_.values(profile)[0],
+            headers:appConfig.headers,
+            type:'POST',
+            data:JSON.stringify( _.pick(profile, _.keys(profile)[1]) ),
+            success:function(res) {
+              $.ajax({
+                url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
+                type:'PUT',
+                headers:appConfig.headers,
+                data:JSON.stringify({profiles:{
+                  __op: 'AddUnique',
+                  objects:[{
+                    __type:'Pointer',
+                    className: _.values(profile)[0],
+                    objectId:res.objectId
+                  }]}
+                }),
+              })
+            },
+          })
+        });
 
-  },
-  
-  toggleCompany : function() {
-    this.setState({addCompany: !this.state.addCompany})
+      },
+    })
   },
 
-  toggleProspect : function() {
-    this.setState({addProspect: !this.state.addProspect})
-  },
+});
 
-  toggleCompanyDetails: function() {
-    this.setState({hideCompanyDetails: !this.state.hideCompanyDetails})
-  },
-
-  toggleProspectDetails: function() {
-    this.setState({hideProspectDetails: !this.state.hideProspectDetails})
-  },
-
+var CreateHiringSignal = React.createClass({
   componentDidMount: function() {
     _.map($('.hiring-role'),function(input){$(input).tagsinput()})
     $(this.getDOMNode()).find('.hiring-role').tagsinput()
     $('.bootstrap-tagsinput').width(400)
+
+    $(this.getDOMNode()).find('.btn-default').click(function(e) {
+
+      if($(e.target).parent('label').hasClass('active'))
+        $(e.target).parent('label').removeClass('active')
+      else
+        $(e.target).parent('label').addClass('active')
+
+      console.log($(e.target).parent('label'))
+    });
   },
 
   render: function(){
@@ -85,7 +155,7 @@ var CreateHiringSignal = React.createClass({
               Company Profile Name: &nbsp;</h6>
             <input type="text" 
                    style={{display:'inline-block',width:'73.1%'}}
-                   className="form-control hiring-profile-name" 
+                   className="form-control company-profile-name" 
                    placeholder="Company Profile Name ..."/>
           </span>
           <br/>
@@ -96,7 +166,7 @@ var CreateHiringSignal = React.createClass({
             <input type="text" 
                    style={{display:'inline-block',width:'73.1%',marginRight:10}} 
                    data-role="tagsinput"
-                   className="form-control hiring-role" />
+                   className="form-control hiring-role company-profile-industries" />
 
                 <a href="javascript:" 
                    className="btn btn-xs btn-success" style={{display:'none'}}>
@@ -111,14 +181,49 @@ var CreateHiringSignal = React.createClass({
             <input type="text" 
                    style={{display:'inline-block',width:'73.1%',marginRight:10}} 
                    data-role="tagsinput"
-                   className="form-control hiring-role" />
+                   className="form-control hiring-role company-profile-location" />
 
             <a href="javascript:" 
                className="btn btn-xs btn-success" style={{display:'none'}}>
               <i className="fa fa-plus" />
             </a>
           </span>
-          <CompanyProfile />
+        <div >
+            <br/> 
+            <h6 style={{display:'inline-block',margin:0,
+                        width:140,marginBottom:20}}>Company Size </h6>
+              <div className="btn-group" data-toggle="buttons" id="company-profile-employeeBtns">
+                <label className="btn btn-sm btn-default employeeBtn">
+                  <input type="checkbox"/> 1 - 50
+                </label>
+                <label className="btn btn-sm btn-default employeeBtn">
+                  <input type="checkbox"/> 50 - 250
+                </label>
+                <label className="btn btn-sm btn-default employeeBtn">
+                  <input type="checkbox"/> 250 - 1000
+                </label>
+                <label className="btn btn-sm btn-default employeeBtn">
+                  <input type="checkbox"/> 1000 +
+                </label>
+              </div>
+
+              <br/> <h6 style={{display:'inline-block',margin:0,width:140}}>
+                Approx. Revenue  </h6>
+              <div className="btn-group" data-toggle="buttons" id="company-profile-companyRevenueBtns">
+                <label className="btn btn-sm btn-default revenueBtn">
+                  <input type="checkbox"/> {'< $1M'}
+                </label>
+                <label className="btn btn-sm btn-default revenueBtn">
+                  <input type="checkbox"/> $1M - $5M
+                </label>
+                <label className="btn btn-sm btn-default revenueBtn">
+                  <input type="checkbox"/> $5M - $25M
+                </label>
+                <label className="btn btn-sm btn-default revenueBtn">
+                  <input type="checkbox"/> $25M +
+                </label>
+              </div>
+        </div>
 
           <div style={{marginTop:10}}>
             <h6 style={{width:140,display:'inline-block'}}>Auto Prospect: &nbsp;</h6>
@@ -135,93 +240,4 @@ var CreateHiringSignal = React.createClass({
       </div>
     )
   },
-  createSignal: function(e) { e.preventDefault() }
 });
-
-var CompanyProfile = React.createClass({
-  companyFormSubmit: function(e) { e.preventDefault() },
-
-  componentDidMount: function() {
-    $(this.getDOMNode()).find('.btn-default').click(function(e) {
-
-      if($(e.target).parent('label').hasClass('active'))
-        $(e.target).parent('label').removeClass('active')
-      else
-        $(e.target).parent('label').addClass('active')
-
-      console.log($(e.target).parent('label'))
-    });
-  },
-
-  render: function() {
-    return (
-      <div >
-          <br/> 
-          <h6 style={{display:'inline-block',margin:0,
-                      width:140,marginBottom:20}}>Company Size </h6>
-            <div className="btn-group" data-toggle="buttons" id="employeeBtns">
-              <label className="btn btn-sm btn-default active employeeBtn">
-                <input type="checkbox"/> 1 - 50
-              </label>
-              <label className="btn btn-sm btn-default employeeBtn">
-                <input type="checkbox"/> 50 - 250
-              </label>
-              <label className="btn btn-sm btn-default employeeBtn">
-                <input type="checkbox"/> 250 - 1000
-              </label>
-              <label className="btn btn-sm btn-default employeeBtn">
-                <input type="checkbox"/> 1000 +
-              </label>
-            </div>
-
-            <br/> <h6 style={{display:'inline-block',margin:0,width:140}}>
-              Approx. Revenue  </h6>
-            <div className="btn-group" data-toggle="buttons" id="revenueBtns">
-              <label className="btn btn-sm btn-default active revenueBtn">
-                <input type="checkbox"/> {'< $1M'}
-              </label>
-              <label className="btn btn-sm btn-default revenueBtn">
-                <input type="checkbox"/> $1M - $5M
-              </label>
-              <label className="btn btn-sm btn-default revenueBtn">
-                <input type="checkbox"/> $5M - $25M
-              </label>
-              <label className="btn btn-sm btn-default revenueBtn">
-                <input type="checkbox"/> $25M +
-              </label>
-            </div>
-      </div>
-    )
-  }
-});
-
-var ProspectProfile = React.createClass({
-  prospectFormSubmit: function(e) { e.preventDefault() },
-
-  componentDidMount: function() {
-    $('.prospectRoleKeywords').tagsinput({
-      maxTags: 5,
-    })
-    $('.bootstrap-tagsinput').width(400)
-  },
-
-  render: function() {
-    showDetails = (this.props.hideProspectDetails) ? {display: 'none'} : {display:'block'}
-    return (
-      <div style={showDetails}>
-        <form className="createSignal" onSubmit={this.prospectFormSubmit}>
-          <span> 
-            <span style={{width:140,display:'inline-block'}}>
-              <h6>Job Title Keyword: &nbsp;</h6>
-            </span>
-            <input type="text" 
-                   data-role="tagsinput"
-                   style={{width:'400px !important'}}
-                   className="form-control prospectRoleKeywords" 
-                   placeholder="" />
-          </span> 
-        </form>
-      </div>
-    )
-  }
-})

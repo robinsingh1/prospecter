@@ -27,11 +27,11 @@ module.exports = React.createClass({
           </td>
           <td><h6 style={{margin:'0px'}}>{moment(prospect.createdAt,'YYYY-MM-DDTh:mm:ss').fromNow()}</h6></td>
           <td><h6 style={{margin:'0px'}}>{prospect.industry}</h6></td>
-          <td>
+          <td style={{textAlign:'center',width:137}}>
             <span className="label label-primary" style={{display: 'block', width: 'auto', marginRight: 'auto', marginLeft: 'auto', width: '25px'}}>0</span>
           </td>
           <td><span className="label label-info">Hiring</span></td>
-          <td>
+          <td style={{width:320}}>
             &nbsp; &nbsp;
             <a href="javascript:" className="btn btn-success btn-xs"
               onClick={this.openLinkedinCompanyProfile}

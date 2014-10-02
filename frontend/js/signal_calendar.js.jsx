@@ -11,8 +11,8 @@ module.exports = React.createClass({
   getSignalReport: function() {
     thissss = this;
     
-    console.log('CALENDAR PROPS')
-    console.log(this.props.currentProfile)
+    //console.log('CALENDAR PROPS')
+    //console.log(this.props.currentProfile)
     qry = 'where='+JSON.stringify({profile:{
       __type:'Pointer',
       className:'ProspectProfile',
@@ -25,7 +25,7 @@ module.exports = React.createClass({
       data: qry,
       headers:appConfig.parseHeaders,
       success: function(res) {
-        console.log(res.results)
+        //console.log(res.results)
         thissss.setState({reports: res.results})
       },
       error: function(err) {

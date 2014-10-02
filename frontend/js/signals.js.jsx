@@ -70,20 +70,21 @@ module.exports = React.createClass({
         <CreateHiringSignalModal addProfile={this.addProfile}/>
         <CreateFundingSignalModal addProfile={this.addProfile}/>
         <CreateCompanyProfileModal addProfile={this.addProfile}/>
+        <CreateProspectProfileModal addProfile={this.addProfile}/>
       </div>
     )
   },
 
   addProfile: function(newProfile) {
     profiles = this.state.profiles
-    profiles.push(newProfile)
-    this.setState({profiles: profiles})
+    this.setState({profiles: [newProfile].concat(profiles)})
   },
 
   removeProfile: function(oldProfile) {
     this.setState({profiles: _.reject(this.state.profiles, function(profile) {
       return _.isEqual(oldProfile, profile)
     })})
+
     if(oldProfile.objectId){
       $.ajax({
         url:'https://api.parse.com/1/classes/ProspectProfile/'+oldProfile.objectId,
@@ -114,7 +115,7 @@ module.exports = React.createClass({
     }
     user = JSON.stringify(user)
     company = JSON.stringify(currentUser.company)
-    qry = 'where={"company":'+company+',"user":'+user+'}&include=profiles,prospect_list'
+    qry = 'where={"company":'+company+',"user":'+user+'}&include=profiles,prospect_list&order=-createdAt'
   
     thisss = this
     $.ajax({
@@ -191,12 +192,12 @@ var SignalDetailButtons = React.createClass({
     return (
       <div>
         <div id="signalDetailButtons" style={{height:44}}>
-          <h4 style={{display:'inline-block',float:'left',width:200,
-                      fontWeight:200,marginTop:6,paddingLeft:20}}>
+          <h4 style={{display:'inline-block',float:'left',width:300,
+                      fontWeight:200,marginTop:4,paddingLeft:20}}>
             <i className="fa fa-newspaper-o" />&nbsp; 
             {(this.props.currentProfile.name != "") ? this.props.currentProfile.name : 'All'}
           </h4>
-          <div className="btn-group" style={{marginLeft:'13%'}}>
+          <div className="btn-group" style={{marginLeft:'2%'}}>
             <a className={ppl}
                style={{display:'block',padding:2}} 
                onClick={this.setSignalType}> 
@@ -245,6 +246,7 @@ var SignalsOptions = React.createClass({
                                 profile={this.props.profiles[i]} />)
     }
 
+    profiles_num = (this.props.profiles.length) ? this.props.profiles.length : "~"
     return (
       <div>
       <div className="list-group" >
@@ -253,7 +255,7 @@ var SignalsOptions = React.createClass({
                     backgroundColor:'#e0e6ea',
                     backgroundImage:'linear-gradient(#f5f7f8,#e0e6ea);'}}>
             <h4 style={{margin:0,textAlign:'center',fontWeight:200,
-                        float:'left',marginTop:2}}>Profiles</h4> 
+                        float:'left',marginTop:2}}>Profiles ({profiles_num})</h4> 
           <a href="javascript:" 
              className="btn btn-xs btn-primary create-profile-dropdown" 
              data-toggle="dropdown"
@@ -315,7 +317,7 @@ var SignalsOptions = React.createClass({
   },
 
   launchModal: function(e) {
-    console.log($(e.target).text())
+    console.log($(e.target).text().trim())
     if($(e.target).text().trim() == 'Create Hiring Signal')
       $('#createHiringSignalModal').modal()
     else if($(e.target).text().trim() == 'Create Funding Signal')

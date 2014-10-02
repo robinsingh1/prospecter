@@ -102,8 +102,11 @@ var ProfileType = React.createClass({
         return role + ", "+ result
       }, "");
     } else if (this.props.profile.className  == "FundingProfile") {
-      signalIcon = <i className="fa fa-institutions" />
+      signalIcon = <i className="fa fa-institution" />
       signalName = "Funding"
+      signalValue = _.reduce(this.props.profile.revenues, function(result, role) {
+        return role + ", "+ result
+      }, "");
     } else if (this.props.profile.className  == "RevenueProfile") {
       signalIcon = <i className="fa fa-money" />
       signalName = "Revenue"
@@ -111,6 +114,21 @@ var ProfileType = React.createClass({
         return role + ", "+ result
       }, "");
     } else if (this.props.profile.className  == "TechnologyProfile") {
+      signalIcon = <i className="fa fa-wrench" />
+      signalName = "Technology"
+    } else if (this.props.profile.className  == "LocationProfile") {
+      signalIcon = <i className="fa fa-map-marker" />
+      signalName = "Locale"
+      signalValue = _.reduce(this.props.profile.locale, function(result, role) {
+        return role + ", "+ result
+      }, "");
+    } else if (this.props.profile.className  == "IndustryProfile") {
+      signalIcon = <i className="fa fa-building" />
+      signalName = "Industries"
+      signalValue = _.reduce(this.props.profile.industries, function(result, role) {
+        return role + ", "+ result
+      }, "");
+    } else if (this.props.profile.className  == "CompanySizeProfile") {
       signalIcon = <i className="fa fa-wrench" />
       signalName = "Technology"
     } else if (this.props.profile.className  == "ProspectTitleProfile") {

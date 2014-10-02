@@ -3,158 +3,95 @@
 module.exports = React.createClass({
   // CreateHiringSignalModal
   createSignal: function() {
-    console.log('Create SIgnal Called')
-    // Get Name
     profileName = $('.hiring-profile-name').val()
+    autoProspect = $('.autoprospect > .active').text() ==  " Yes"
 
     hiringProfile = {
       'className': 'HiringProfile',
-      'roles'    : $('.hiring-role').tagsinput('items').reverse()
+      'roles'    : $('.hiring-roles').tagsinput('items')
     }
 
-    autoProspect = $('.autoprospect > .active').text() ==  " Yes"
-    
-    revenueProfile = {'className':'RevenueProfile', 
-                      'revenues': _.map($('#revenueBtns').find('.active'), 
-                                            function(revBtn){
-                                              return $(revBtn).text().trim() 
-                                            }).reverse()}
+    revenueProfile = {
+      'className':'RevenueProfile', 
+      'revenues': _.map($('#hiring-revenueBtns').find('.active'), 
+                        function(revBtn){ return $(revBtn).text().trim() })
+    }
 
-    employeeProfile = {'className':'EmployeeProfile', 
-                       'employees': _.map($('#employeeBtns').find('.active'), 
-                                          function(empBtn){ 
-                                            return $(empBtn).text().trim() 
-                                          }).reverse()}
+    employeeProfile = {
+      'className':'EmployeeProfile', 
+      'employees': _.map($('#hiring-employeeBtns').find('.active'), 
+                         function(empBtn){ return $(empBtn).text().trim() })
+    }
 
     prospectProfile = {
       'className':'ProspectTitleProfile',
-      'title_keywords' : $('.prospectRoleKeywords').tagsinput('items').reverse()
+      'title_keywords' : $('.prospectRoleKeywords').tagsinput('items')
     }
 
-    $.ajax({
-      url:'https://api.parse.com/1/classes/ProspectProfile',
-      headers:appConfig.headers,
-      type:'POST',
-      data:JSON.stringify({name:profileName, autoProspect:autoProspect,
-                          user:{
-                            __type:'Pointer',
-                            className:'_User',
-                            objectId:JSON.parse(localStorage.currentUser).objectId
-                          },
-                          company: JSON.parse(localStorage.currentUser).company
-      }),
-      success:function(ress) {
-        // Add Signal List
+    profiles = [hiringProfile, revenueProfile, 
+                employeeProfile, prospectProfile]
 
-        $.ajax({
-          url:'https://api.parse.com/1/classes/HiringProfile',
-          headers:appConfig.headers,
-          type:'POST',
-          data:JSON.stringify({roles: hiringProfile.roles}),
-          success:function(res) {
-            $.ajax({
-              url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
-              type:'PUT',
-              headers:appConfig.headers,
-              data:JSON.stringify({profiles:{
-                __op: 'AddUnique',
-                objects:[{
-                  __type:'Pointer',
-                  className:'HiringProfile',
-                  objectId:res.objectId
-                }]}
-              }),
-            })
-          },
-        })
-        //Create Prospect Profile
-        $.ajax({
-          url:'https://api.parse.com/1/classes/RevenueProfile',
-          headers:appConfig.headers,
-          type:'POST',
-          data:JSON.stringify({revenues: revenueProfile.revenues}),
-          success:function(res) {
-            $.ajax({
-              url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
-              type:'PUT',
-              headers:appConfig.headers,
-              data:JSON.stringify({profiles:{
-                __op: 'AddUnique',
-                objects:[{
-                  __type:'Pointer',
-                  className:'RevenueProfile',
-                  objectId:res.objectId
-                }]}
-              }),
-            })
-          },
-        })
-        //Create Employee Profile
-        $.ajax({
-          url:'https://api.parse.com/1/classes/EmployeeProfile',
-          headers:appConfig.headers,
-          type:'POST',
-          data:JSON.stringify({employees: employeeProfile.employees}),
-          success:function(res) {
-            $.ajax({
-              url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
-              type:'PUT',
-              headers:appConfig.headers,
-              data:JSON.stringify({profiles:{
-                __op: 'AddUnique',
-                objects:[{
-                  __type:'Pointer',
-                  className:'EmployeeProfile',
-                  objectId:res.objectId
-                }]}
-              }),
-            })
-          },
-        })
-        //Create Revenue Profile
-        $.ajax({
-          url:'https://api.parse.com/1/classes/ProspectTitleProfile',
-          type:'POST',
-          headers:appConfig.headers,
-          data:JSON.stringify({title_keywords: prospectProfile.title_keywords}),
-          success:function(res) {
-            $.ajax({
-              url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
-              type:'PUT',
-              headers:appConfig.headers,
-              data:JSON.stringify({profiles:{
-                __op: 'AddUnique',
-                objects:[{
-                  __type:'Pointer',
-                  className:'ProspectTitleProfile',
-                  objectId:res.objectId
-                }]}
-              }),
-            })
-          },
-        })
-      },
-    })
+    nonemptyProfiles = _.filter(profiles, function(profile) {
+      if(_.values(profile)[1]){ return _.values(profile)[1].length }
+    });
+
 
     newProfile = {
       name: profileName,
       autoProspect: autoProspect,
-      profiles: [
-        prospectProfile,
-        revenueProfile,
-        employeeProfile,
-        hiringProfile
-      ]
+      profiles: nonemptyProfiles,
+      user:{
+        __type:'Pointer',
+        className:'_User',
+        objectId:JSON.parse(localStorage.currentUser).objectId
+      },
+      company: JSON.parse(localStorage.currentUser).company
     }
+
+    if(nonemptyProfiles.length) {
+      this.persistSignal(nonemptyProfiles, 
+                         _.omit(newProfile,'profiles'))
+      this.props.addProfile(newProfile)
+      $('.modal').click()
+    }
+  },
+
+  persistSignal: function(nonemptyProfiles, newProfile) {
+    console.log('NEW PROFILE')
     console.log(newProfile)
+    $.ajax({
+      url:'https://api.parse.com/1/classes/ProspectProfile',
+      headers:appConfig.headers,
+      type:'POST',
+      data:JSON.stringify(newProfile),
+      success:function(ress) {
+        // Add Signal List
+        _.map(nonemptyProfiles, function(profile) {
+          $.ajax({
+            url:'https://api.parse.com/1/classes/'+_.values(profile)[0],
+            headers:appConfig.headers,
+            type:'POST',
+            data:JSON.stringify( _.pick(profile, _.keys(profile)[1]) ),
+            success:function(res) {
+              $.ajax({
+                url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
+                type:'PUT',
+                headers:appConfig.headers,
+                data:JSON.stringify({profiles:{
+                  __op: 'AddUnique',
+                  objects:[{
+                    __type:'Pointer',
+                    className: _.values(profile)[0],
+                    objectId:res.objectId
+                  }]}
+                }),
+              })
+            },
+          })
+        });
 
-    this.props.addProfile(newProfile)
-    /*
-    $('#createListModal').modal('hide')
-    $('body').removeClass('modal-open');
-    $('.modal-backdrop').remove();
-    */
-
+      },
+    })
   },
 
   render: function() {
@@ -284,7 +221,7 @@ var CreateHiringSignal = React.createClass({
             <input type="text" 
                    style={{display:'inline-block',width:'50%',marginRight:10}} 
                    data-role="tagsinput"
-                   className="form-control hiring-role" />
+                   className="form-control hiring-role hiring-roles" />
 
                 <a href="javascript:" 
                    className="btn btn-xs btn-success" style={{display:'none'}}>
@@ -337,8 +274,8 @@ var CompanyProfile = React.createClass({
           <br/> 
           <h6 style={{display:'inline-block',margin:0,
                       width:140,marginBottom:20}}>Company Size </h6>
-            <div className="btn-group" data-toggle="buttons" id="employeeBtns">
-              <label className="btn btn-sm btn-default active">
+            <div className="btn-group" data-toggle="buttons" id="hiring-employeeBtns">
+              <label className="btn btn-sm btn-default">
                 <input type="checkbox"/> 1 - 50
               </label>
               <label className="btn btn-sm btn-default">
@@ -354,8 +291,8 @@ var CompanyProfile = React.createClass({
 
             <br/> <h6 style={{display:'inline-block',margin:0,width:140}}>
               Revenue Amount </h6>
-            <div className="btn-group" data-toggle="buttons" id="revenueBtns">
-              <label className="btn btn-sm btn-default active">
+            <div className="btn-group" data-toggle="buttons" id="hiring-revenueBtns">
+              <label className="btn btn-sm btn-default">
                 <input type="checkbox"/> {'< $1M'}
               </label>
               <label className="btn btn-sm btn-default">
