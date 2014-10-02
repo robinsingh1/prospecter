@@ -74,7 +74,8 @@ module.exports = React.createClass({
               style={{ backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%)'}}>
           <i className="fa fa-plus-circle" />&nbsp;&nbsp;New List
         </a>
-        <createListModal createList={this.createList} /> <br/>
+        <createListModal createList={this.createList} 
+                         listClassName={this.props.listClassName}/> <br/>
       </div>
     );
   },

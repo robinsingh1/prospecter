@@ -12,8 +12,10 @@ module.exports = React.createClass({
                       'objectId':'xWESiw5Smd' },
     }
 
+    thiss = this;
+    listClassName = (this.props.listClassName) ? this.props.listClassName : 'ProspectList'
     $.ajax({
-      url:'https://api.parse.com/1/classes/ProspectList',
+      url:'https://api.parse.com/1/classes/'+listClassName,
       type:'POST',
       headers: appConfig.parseHeaders,
       data: JSON.stringify(data),

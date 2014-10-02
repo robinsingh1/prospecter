@@ -11,11 +11,13 @@
   -->
   <script src="//www.parsecdn.com/js/parse-1.2.18.min.js"></script>
   <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/0.8.1/mustache.js"></script>
   <script type="text/javascript" src="//use.typekit.net/vgk5fzq.js"></script>
   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.min.css" />
   <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/ofcalkjbogaiipekcocdefjenclioeci">
+  
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
   <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
@@ -28,10 +30,13 @@
   <script src="build/js/lib/summernote.min.min.js"></script>
   <script src="build/js/lib/FileSaver.min.js"></script>
   <script src="build/js/lib/auth.min.js"></script>
+  <script src="build/js/lib/bootstrap-tagsinput.min.js"></script>
+  <script src="build/js/lib/renderjson.min.js"></script>
 
   <link rel="stylesheet" href="build/css/app.css" />
   <link rel="stylesheet" href="build/css/main.css" />
   <link rel="stylesheet" href="build/css/summernote.css" />
+  <link rel="stylesheet" href="build/css/bootstrap-tagsinput.css" />
 </head>
 
 <style>
@@ -113,6 +118,7 @@
     appConfig.headers = {
       'X-Parse-Application-Id'  : 'N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ', 
       'X-Parse-REST-API-Key'    : 'VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb',
+      'Content-Type' : 'application/json'
     }
 
   </script>

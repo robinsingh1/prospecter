@@ -4,6 +4,8 @@
 var SideMenuProspects = require('./side_menu_user_prospects.js.min.js');
 
 var UserProspect = require('./user_prospect.js.min.js');
+var DataRow = require('./data_row.js.min.js');
+
 var UserProspectHeader = require('./user_prospect_header.js.min.js');
 var SideMenuListOption = require('./user_side_menu_list.js.min.js');
 var LoadingSpinner = require('./loading_spinner.js.min.js')
@@ -11,22 +13,24 @@ var PanelFooting = require('./panel_footing.js.min.js')
 var Messenger = require('./messenger.js.min.js')
 var DeleteListModal = require('./delete_list_modal.js.min.js')
 var RenameListModal = require('./rename_list_modal.js.min.js')
+var CompanyProspect = require('./company.js.min.js');
 
 module.exports = React.createClass({
   getInitialState: function() {
-    return {  prospects   : [],
-              currentPage : 1,
-              className: 'Prospect',
-              listClassName: 'ProspectList',
+    return {  currentPage : 1,
+              className: this.props.className,  
+              listClassName: this.props.listClassName,
+              customRow: this.props.tableRow,
               pages       : 1,
               currentList : 'All',
               currentListObjectId : '',
               loading: true,
-              prospectsPerPage: 50,
               lists : [],
               masterCheckboxChecked: false,
-              keyboardActiveProspect: 0, //first
-              selectedProspects: [],
+              prospectsPerPage: 50,         //classNames per page
+              keyboardActiveProspect: 0,    //first
+              selectedProspects: [],        //selectedClassName
+              prospects   : [],             //className
               totalCount  : "~", 
               count       : "~", }
   },
@@ -65,8 +69,9 @@ module.exports = React.createClass({
     $('.modal-backdrop').click()
 
     // Persist / Ajax
+    listClassName = this.state.listClassName
     $.ajax({
-      url:'https://api.parse.com/1/classes/ProspectList/'+this.state.currentListObjectId,
+      url:'https://api.parse.com/1/classes/'+listClassName+'/'+this.state.currentListObjectId,
       headers: parseHeaders,
       type:'PUT',
       data:JSON.stringify({'name':newListName}),
@@ -105,8 +110,10 @@ module.exports = React.createClass({
     $('.modal-backdrop').click()
 
     // Persist / Ajax
+    listClassName = this.state.listClassName
+
     $.ajax({
-      url:'https://api.parse.com/1/classes/ProspectList/'+this.state.currentListObjectId,
+      url:'https://api.parse.com/1/classes/'+listClassName+'/'+this.state.currentListObjectId,
       headers: parseHeaders,
       type:'DELETE',
       success: function(res) {
@@ -141,7 +148,7 @@ module.exports = React.createClass({
       currentList = JSON.stringify({
         'objectId'  : objectId, 
         '__type'    : 'Pointer', 
-        'className' : 'ProspectList' 
+        'className' : this.state.listClassName
       })
 
       company = JSON.stringify(JSON.parse(localStorage.currentUser).company)
@@ -152,8 +159,10 @@ module.exports = React.createClass({
     }
     console.log(qry)
 
+    className = this.state.className
+
     $.ajax({
-      url: 'https://api.parse.com/1/classes/Prospect',
+      url: 'https://api.parse.com/1/classes/'+className,
       type:'GET',
       headers: parse_headers,
       async: true,
@@ -200,11 +209,13 @@ module.exports = React.createClass({
   },
 
   render: function() {
+
+
     this.startKeyboardShortcuts()
     $('body').css({overflow:'auto'})
 
     prospects = []
-    for(i=0;i<this.state.prospects.length;i++) {
+    for(i=0;i< this.state.prospects.length;i++) {
       url = this.state.prospects[i].url
       prospect = this.state.prospects[i]
 
@@ -215,8 +226,8 @@ module.exports = React.createClass({
         the_link = ""
       }
 
-      profile = this.state.prospects[i].linkedin_url.replace('http://','')
-      profile = this.state.prospects[i].linkedin_url.replace('https://','')
+      //profile = this.state.prospects[i].linkedin_url.replace('http://','')
+      //profile = this.state.prospects[i].linkedin_url.replace('https://','')
       li = <a href={'http://'+profile} className="linkedin_link"><i className="fa fa-linkedin-square" /></a>
 
       keyboardSelected = (i == this.state.keyboardActiveProspect)
@@ -230,15 +241,15 @@ module.exports = React.createClass({
         //console.log(alreadyChecked)
 
       prospects.push(
-        <UserProspect deleteProspect={this.deleteProspect} 
-                      prospect={this.state.prospects[i]} 
-                      masterCheckboxChecked={this.state.masterCheckboxChecked}
-                      key={this.generate_id()}
-                      link={the_link} 
-                      keyboardSelected={keyboardSelected}
-                      checkboxAction={this.checkboxAction}
-                      alreadyChecked={alreadyChecked}
-                      li={li} />)
+        <DataRow deleteProspect={this.deleteProspect} 
+                 prospect={this.state.prospects[i]} 
+                 masterCheckboxChecked={this.state.masterCheckboxChecked}
+                 key={this.generate_id()}
+                 link={the_link} 
+                 keyboardSelected={keyboardSelected}
+                 checkboxAction={this.checkboxAction}
+                 alreadyChecked={alreadyChecked}
+                 li={li} />)
     }
 
     listType = (this.state.currentList == "All") ? {display:'none'} : {float:'left'}
@@ -253,6 +264,7 @@ module.exports = React.createClass({
                            count={this.state.count} 
                            totalCount={this.state.totalCount} 
                            changeList={this.changeList} 
+                           listClassName={this.state.listClassName}
                            createList={this.createList}
                            lists={this.state.lists}/>
 
@@ -313,7 +325,7 @@ module.exports = React.createClass({
           <div id="autoscroll" style={{height:'400px',overflow:'auto'}}>
             <table className="prospects-table table table-striped" style={{marginBottom:'0px'}}>
               <thead style={{backgroundColor:'white'}}>
-                <UserProspectHeader masterCheckboxChanged={this.masterCheckboxChanged}/>
+                <CompanyProspectHeader masterCheckboxChanged={this.masterCheckboxChanged}/>
               </thead>
               <tbody>
                 {prospects}
@@ -353,7 +365,7 @@ module.exports = React.createClass({
     // Get List Count
     list = JSON.stringify({
       '__type'   :  'Pointer',
-      'className':  'ProspectList',
+      'className':  this.state.listClassName,
       'objectId' :  this.state.currentListObjectId
     })
     console.log(list)
@@ -368,9 +380,11 @@ module.exports = React.createClass({
     else
       qry = 'where={"lists":'+list+'}&count=1'
 
+    className = this.state.className
+
     for(i=0;i< Math.ceil(this.state.count/1000); i++){
       $.ajax({
-        url: 'https://api.parse.com/1/classes/Prospect?limit=1000&skip='+i,
+        url: 'https://api.parse.com/1/classes/'+className+'?limit=1000&skip='+i,
         type:'GET',
         headers: parse_headers,
         downloadFile: 'download_'+i,
@@ -436,13 +450,13 @@ module.exports = React.createClass({
       if(this.state.currentList != 'All'){
         tmp = {
           method:'PUT',
-          path:'/1/classes/Prospect/'+selectedProspects[i],
+          path:'/1/classes/'+this.state.className+'/'+selectedProspects[i],
           body: {
             lists: {
               '__op'    : 'Remove',
               "objects" : [{ 
                   '__type':'Pointer',
-                  'className':'ProspectList',
+                  'className':this.state.listClassName,
                   'objectId':this.state.currentListObjectId
               }]
             }
@@ -451,7 +465,7 @@ module.exports = React.createClass({
       }else{
         tmp = {
           method:'PUT',
-          path:'/1/classes/Prospect/'+selectedProspects[i],
+          path:'/1/classes/'+this.state.className+'/'+selectedProspects[i],
           body: {
             archived:false,
           }
@@ -518,13 +532,13 @@ module.exports = React.createClass({
     for(i=0;i< selectedProspects.length;i++){
       tmp = {
         method:'PUT',
-        path:'/1/classes/Prospect/'+selectedProspects[i],
+        path:'/1/classes/'+this.state.className+'/'+selectedProspects[i],
         body: {
           lists: {
             '__op'    : 'Remove',
             "objects" : [{ 
                 '__type':'Pointer',
-                'className':'ProspectList',
+                'className':this.state.listClassName,
                 'objectId':this.state.currentListObjectId
             }]
           }
@@ -537,13 +551,13 @@ module.exports = React.createClass({
     for(i=0;i< selectedProspects.length;i++){
       tmp = {
         method:'PUT',
-        path:'/1/classes/Prospect/'+selectedProspects[i],
+        path:'/1/classes/'+this.state.className+'/'+selectedProspects[i],
         body: {
           lists: {
             '__op'    : 'AddUnique',
             "objects" : [{ 
                 '__type':'Pointer',
-                'className':'ProspectList',
+                'className':this.state.listClassName,
                 'objectId':listObjectId
             }]
           }
@@ -612,13 +626,13 @@ module.exports = React.createClass({
     for(i=0;i< selectedProspects.length;i++){
       tmp = {
         method:'PUT',
-        path:'/1/classes/Prospect/'+selectedProspects[i],
+        path:'/1/classes/'+this.state.className+'/'+selectedProspects[i],
         body: {
           lists: {
             '__op'    : 'AddUnique',
             "objects" : [{ 
                 '__type':'Pointer',
-                'className':'ProspectList',
+                'className':this.state.listClassName,
                 'objectId':listObjectId
             }]
           }
@@ -804,7 +818,7 @@ module.exports = React.createClass({
     archiveList = JSON.stringify({ //hardCode
       'objectId':'SerPQjckve',
       '__type':'Pointer', 
-      'className' : 'ProspectList' 
+      'className' : this.state.listClassName
     })
 
     qry = 'where={"company":'+company+',"archived":true}&count=1&order=-createdAt'
@@ -813,7 +827,7 @@ module.exports = React.createClass({
       currentList = {
         'objectId':this.state.currentListObjectId, 
         '__type':'Pointer', 
-        'className' : 'ProspectList' 
+        'className' : this.state.listClassName
       }
       currentList = JSON.stringify(currentList)
       user = JSON.stringify({'__type':'Pointer',
@@ -824,15 +838,17 @@ module.exports = React.createClass({
       qry = 'where={"company":'+company+',"lists":'+currentList+'}&count=1'
     }
 
+    className = this.state.className
     $.ajax({
-      //url: 'https://api.parse.com/1/classes/Prospects?limit=50',
-      url: 'https://api.parse.com/1/classes/Prospect?limit='+thisss.state.prospectsPerPage,
+      url: 'https://api.parse.com/1/classes/'+className+'?limit='+thisss.state.prospectsPerPage,
       type:'GET',
       headers: parse_headers,
       cache: true,
       data: qry,
       success: function(res){
-        console.log(res)
+        console.log('COMPANY RESULTS')
+        console.log(res.results)
+        console.log(res.results.length)
         thisss.setState({prospects: res.results})
         thisss.setState({count: res.count})
         thisss.setState({totalCount: res.count})
@@ -857,8 +873,9 @@ module.exports = React.createClass({
     }
 
     thiss = this;
+    listClassName = this.state.listClassName
     $.ajax({
-      url: 'https://api.parse.com/1/classes/ProspectList',
+      url: 'https://api.parse.com/1/classes/'+listClassName,
       type: 'GET',
       headers: parse_headers,
       data: 'where={"user":'+JSON.stringify(currentUser)+"}&count=1&order=-createdAt",
@@ -878,11 +895,12 @@ module.exports = React.createClass({
           list = {
             '__type'    : 'Pointer',
             'objectId'  : res.results[i].objectId,
-            'className' : 'ProspectList', 
+            'className' : thiss.state.listClassName,
           }
 
+          className = thiss.state.className
           $.ajax({
-            url:'https://api.parse.com/1/classes/Prospect',
+            url:'https://api.parse.com/1/classes/'+className,
             type:'GET',
             headers:parse_headers,
             listObjectId: res.results[i].objectId,
@@ -1066,3 +1084,20 @@ var ListDetailButtons = React.createClass({
   }
 });
 
+var CompanyProspectHeader = React.createClass({
+  render: function() {
+    return (
+      <tr>
+        <th></th>
+        <th style={{width:300}}>Name</th>
+        <th style={{width:100}}>Added On</th>
+        <th>Industry</th>
+        <th style={{width:137,display:'none'}}># of Prospects</th>
+        <th style={{display:'none'}}>Signals</th>
+        <th style={{width:600}}>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+      </tr>
+    );
+  }
+});

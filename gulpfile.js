@@ -1,4 +1,5 @@
 var gulp       = require('gulp');
+var watchify   = require('watchify');
 var gutil      = require('gulp-util');
 var uglify     = require('gulp-uglify');
 var concat     = require('gulp-concat');
@@ -8,6 +9,7 @@ var uglify     = require('gulp-uglify');
 var rename     = require('gulp-rename');
 var nodemon    = require('gulp-nodemon');
 var browserify = require('gulp-browserify');
+var reactify   = require('reactify')
 
 //Parse and compress JS and JSX files
 //TODO -- Add Watchify
@@ -25,7 +27,6 @@ gulp.task('react-jsx -> js', function() {
 gulp.task('javascript', function() {
   // Listen to every JS file in ./frontend/javascript
   return gulp.src('frontend/js/**/*.js')
-    //.pipe(browserify({transform: ['envify']})) //.pipe(uglify())
     .pipe(rename(function (path) {
         path.extname = ".min.js";
     }))
@@ -94,6 +95,8 @@ gulp.task('parse-clean', function() {
 });
 
 gulp.task('watch', ['clean'], function() {
+  gulp.run('default')
+
   gulp.watch('frontend/**/*', function() {
     gulp.run('javascript');
     gulp.run('react-jsx -> js');

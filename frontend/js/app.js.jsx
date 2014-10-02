@@ -15,7 +15,9 @@
  */
 
 var Prospects = require('./prospects.js.min.js');
+var CompanyProspect = require('./company.js.min.js');
 var CompanyProspects = require('./company_prospects.js.min.js');
+var DataTable = require('./data_table.js.min.js');
 var MiningJob = require('./mining_job.js.min.js');
 var Campaigns = require('./email.js.min.js');
 var Analytics = require('./analytics.js.min.js');
@@ -125,11 +127,16 @@ var Home = React.createClass({
     signals = "choose btn btn-primary "
     switch (this.state.selectedScreen) {
       case 'Prospects':
-        currentScreen = <Prospects prospectType={this.state.selectedScreen} />
+        currentScreen = <Prospects />
         prospects = "choose btn btn-primary app-active"
         break;
       case 'Companies':
-        currentScreen = <CompanyProspects prospectType={this.state.selectedScreen} />
+        currentScreen = <CompanyProspects  />
+        currentScreen = <DataTable listClassName={'CompanyProspectList'}
+                                   tableHeader={['Name','Added On','Industry',
+                                                 '# of Prospects','Signals',
+                                                 '','' ]}
+                                   className={'CompanyProspect'} />
         companyProspects = "choose btn btn-primary app-active"
         break;
       case 'Mining Jobs':
