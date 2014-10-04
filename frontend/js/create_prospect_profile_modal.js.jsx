@@ -40,6 +40,7 @@ module.exports = React.createClass({
       name: profileName,
       //autoProspect: autoProspect,
       profiles: nonemptyProfiles,
+      type: 'prospect_profile',
       mining_job:true,
       user:{
         __type:'Pointer',
@@ -67,6 +68,24 @@ module.exports = React.createClass({
       data:JSON.stringify(newProfile),
       success:function(ress) {
         // Add Signal List
+
+        // Start Mining Job
+        if(newProfile.type == 'prospect_profile') {
+          $.ajax({
+            //url:'http://nameless-retreat-3525.herokuapp.com/title_mining_job',
+            url:'http://127.0.0.1:5000/title_mining_job',
+            headers: appConfig.headers,
+            data: {prospect_profile: ress.objectId},
+            success: function(res) {
+              console.log(res)
+            },
+            error: function(err) {
+              console.log(err)
+            }
+          })
+        }
+
+        // Create Profiles
         _.map(nonemptyProfiles, function(profile) {
           $.ajax({
             url:'https://api.parse.com/1/classes/'+_.values(profile)[0],
@@ -265,8 +284,9 @@ var CompanyProfile = React.createClass({
           <br/> 
           <h6 style={{display:'inline-block',margin:0,
                       width:140,marginBottom:20}}>Company Size </h6>
-            <div className="btn-group" data-toggle="buttons" id="prospect-profile-companySizeBtns">
-              <label className="btn btn-sm btn-default active employeeBtn">
+                    <div className="btn-group" data-toggle="buttons" 
+                      style={{width:'73.5%'}} id="prospect-profile-companySizeBtns">
+              <label className="btn btn-sm btn-default employeeBtn">
                 <input type="checkbox"/> 1 - 50
               </label>
               <label className="btn btn-sm btn-default employeeBtn">
@@ -282,8 +302,9 @@ var CompanyProfile = React.createClass({
 
             <br/> <h6 style={{display:'inline-block',margin:0,width:140}}>
               Approx. Revenue  </h6>
-            <div className="btn-group" data-toggle="buttons" id="prospect-profile-companyRevenueBtns">
-              <label className="btn btn-sm btn-default active revenueBtn">
+            <div className="btn-group" data-toggle="buttons" 
+              style={{width:'73.5%'}} id="prospect-profile-companyRevenueBtns">
+              <label className="btn btn-sm btn-default revenueBtn">
                 <input type="checkbox"/> {'< $1M'}
               </label>
               <label className="btn btn-sm btn-default revenueBtn">

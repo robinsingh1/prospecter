@@ -3,7 +3,7 @@
 var SignalProfile = require('./signal_profile.js.min.js')
 var CompanySignalCard = require('./company_signal_card.js.min.js')
 var PeopleSignalCard = require('./people_signal_card.js.min.js')
-var SignalsCalendar = require('./signal_calendar.js.min.js')
+var SignalCalendar = require('./signal_calendar.js.min.js')
 var MiningJobCalendar = require('./mining_job_calendar.js.min.js')
 var SignalsDetail = require('./signal_detail.js.min.js')
 
@@ -17,12 +17,23 @@ module.exports = React.createClass({
   getInitialState: function() {
     return {
       signalType: 'CompanySignal',
-      currentProfile: '',
+      currentProfile: {name:'All'},
       currentProfileObjectId: {},
+      currentProfileReport: {},
       signals: [],
       currentView: 'Feed',
       profiles: [],
     }
+  },
+
+  setCurrentReport: function(newProfileReport) {
+    console.log('NEW REPORT')
+    console.log(newProfileReport)
+
+    this.setState({ 
+      currentView:'Detail',
+      currentProfileReport: newProfileReport 
+    })
   },
 
   setCurrentView: function(newSignalView) {
@@ -42,13 +53,20 @@ module.exports = React.createClass({
                   signals={this.state.signals}/>
           </div>
     } else if(this.state.currentView == "Calendar"){
-      signalView = <SignalsCalendar 
+      signalView = <SignalCalendar 
                         currentProfile={this.state.currentProfile}
-                        setCurrentView={this.setCurrentView}/>
+                        setCurrentReport={this.setCurrentReport}
+                        setCurrentView={this.setCurrentView} />
     } else if(this.state.currentView == "Detail"){
-      signalView = <SignalsDetail setCurrentView={this.setCurrentView}/>
+      signalView = <SignalsDetail 
+                        currentProfile={this.state.currentProfile}
+                        currentProfileReport={this.state.currentProfileReport}
+                        setCurrentView={this.setCurrentView}/>
     } else if(this.state.currentView == "MiningJobCalendar"){
-      signalView = <MiningJobCalendar setCurrentView={this.setCurrentView}/>
+      signalView = <MiningJobCalendar 
+                        currentProfile={this.state.currentProfile}
+                        setCurrentReport={this.setCurrentReport}
+                        setCurrentView={this.setCurrentView}/>
     }
 
    return (
@@ -94,14 +112,24 @@ module.exports = React.createClass({
     }
   },
 
-  setCurrentProfile: function(currentProfile) {
-    console.log('CURRENT PROFILE')
-    console.log(this.state.currentProfile)
-    console.log('NEW PROFILE')
-    console.log(currentProfile)
+  setCurrentProfile: function(newProfile) {
+    console.log(newProfile)
 
-    this.setState({currentProfile: currentProfile })
-    this.getSignals('PeopleSignal', currentProfile)
+    if(newProfile.only_people) {
+      this.getSignals('PeopleSignal', 
+                      JSON.stringify({
+                         __type: 'Pointer',
+                         className: 'ProspectProfile', 
+                         objectId: newProfile.objectId}))
+      this.setState({
+        signalType: 'PeopleSignal',
+        currentProfile: newProfile 
+      })
+    } else {
+      this.setState({currentProfile: newProfile })
+    }
+
+    this.getSignals('PeopleSignal', newProfile)
   },
 
   componentDidMount: function() {
@@ -144,8 +172,10 @@ module.exports = React.createClass({
     this.setState({signalType: currentSignal})
   },
 
+  componentDidUpdate: function(nextProps, nextState) {
+  },
+
   getSignals: function(signalType, currentProfile) {
-    
     currentUser = JSON.parse(localStorage.currentUser)
     user = {
       '__type'    : 'Pointer',
@@ -158,9 +188,19 @@ module.exports = React.createClass({
     profiles = this.state.currentProfile.profiles
 
     if(profiles){
-      qry = 'where={"company":'+company+',"user":'+user
-      qry = qry + ',"profiles":{"$all":'+JSON.stringify(profiles)+'}}'
-      qry = qry + '&include=signals,company'
+      //qry = 'where={"company":'+company+',"user":'+user+',"profile":'+currentProfile+'}'
+      profile = JSON.stringify({
+        __type:'Pointer',
+        className:'ProspectProfile',
+        objectId:currentProfile.objectId
+      })
+      qry = 'where={"profile":'+profile+'}'
+      //qry = qry + ',"profiles":{"$all":'+JSON.stringify(profiles)+'}}'
+      if(signalType == 'PeopleSignal')
+        qry = qry + '&include=signals'
+      else
+        qry = qry + '&include=signals,company'
+
     } else {
       qry = {'include':['signals','company']}
     }
@@ -189,6 +229,9 @@ var SignalDetailButtons = React.createClass({
   render: function() {
     ppl = (this.props.signalType == "PeopleSignal") ? "choose btn btn-primary app-active" : "choose btn btn-primary"
     cmp = (this.props.signalType == "CompanySignal") ? "choose btn btn-primary app-active" : "choose btn btn-primary"
+
+    cmp = (this.props.currentProfile.only_people)  ? cmp + " disabled" : cmp
+
     return (
       <div>
         <div id="signalDetailButtons" style={{height:44}}>
@@ -199,7 +242,7 @@ var SignalDetailButtons = React.createClass({
           </h4>
           <div className="btn-group" style={{marginLeft:'2%'}}>
             <a className={ppl}
-               style={{display:'block',padding:2}} 
+               style={{padding:2}} 
                onClick={this.setSignalType}> 
                 <i className="fa fa-user" />&nbsp;People
             </a>
@@ -223,6 +266,7 @@ var SignalsOptions = React.createClass({
   setCurrentProfile: function(currentProfile) {
     // Set Current Profile
     this.props.setCurrentProfile(currentProfile)
+    // Update Request To New Profile
   },
 
   removeProfile: function(oldProfile) {
@@ -278,7 +322,7 @@ var SignalsOptions = React.createClass({
                 </h6>
               </a>
             </li>
-            <li role="presentation">
+            <li role="presentation" style={{display:'none'}}>
               <a role="menuitem" tabindex="-1" 
                  onClick={this.launchModal}
                  style={{paddingLeft:5}} href="#">
@@ -296,7 +340,7 @@ var SignalsOptions = React.createClass({
                 </h6>
               </a>
             </li>
-            <li role="presentation">
+            <li role="presentation" style={{display:'none'}}>
               <a role="menuitem" tabindex="-1" 
                  onClick={this.launchModal}
                  style={{paddingLeft:5,paddingRight:2}} href="#">

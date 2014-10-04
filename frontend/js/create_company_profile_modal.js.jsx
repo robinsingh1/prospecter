@@ -192,7 +192,9 @@ var CreateHiringSignal = React.createClass({
             <br/> 
             <h6 style={{display:'inline-block',margin:0,
                         width:140,marginBottom:20}}>Company Size </h6>
-              <div className="btn-group" data-toggle="buttons" id="company-profile-employeeBtns">
+              <div className="btn-group" data-toggle="buttons" 
+                style={{width:'73.5%'}}
+                id="company-profile-employeeBtns">
                 <label className="btn btn-sm btn-default employeeBtn">
                   <input type="checkbox"/> 1 - 50
                 </label>
@@ -207,9 +209,11 @@ var CreateHiringSignal = React.createClass({
                 </label>
               </div>
 
-              <br/> <h6 style={{display:'inline-block',margin:0,width:140}}>
+              <br/> <h6 style={{display:'none',margin:0,width:140}}>
                 Approx. Revenue  </h6>
-              <div className="btn-group" data-toggle="buttons" id="company-profile-companyRevenueBtns">
+              <div className="btn-group" data-toggle="buttons" 
+                style={{display:'none'}}
+                id="company-profile-companyRevenueBtns">
                 <label className="btn btn-sm btn-default revenueBtn">
                   <input type="checkbox"/> {'< $1M'}
                 </label>

@@ -76,11 +76,12 @@ module.exports = React.createClass({
       },
       error: function(err) { }
     })
-    
   },
 
   render: function() {
     person = this.props.person
+    signal = (person.signals) ? person.signals[0] : {}
+    
     return (
       <div className="panel panel-default signal-card">
         <div className="panel-body" style={{paddingLeft:25, paddingRight:25}}>
@@ -92,12 +93,15 @@ module.exports = React.createClass({
                 overflow: 'hidden', textOverflow: 'ellipsis'}}>
               {person.link_text}</span>
           </h6>
+        <div id="signal-stuff" 
+            style={(_.isEqual(signal, {})) ? {display:'none'} : {display:'block'}}>
           <h6> <i className="fa fa-building" />
-            &nbsp; {person.signals[0].company}</h6>
+            &nbsp; {signal.company}</h6>
           <h6> <i className="fa fa-map-marker" />
-            &nbsp; {person.signals[0].location}</h6>
+            &nbsp; {signal.location}</h6>
           <h6> <i className="fa fa-suitcase" />
-            &nbsp;{person.signals[0].job_title} </h6>
+            &nbsp;{signal.job_title} </h6>
+        </div>
 
           <a href="javascript:" className="btn btn-success"
             onClick={this.prospectPerson}

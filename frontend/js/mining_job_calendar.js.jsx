@@ -8,14 +8,24 @@ module.exports = React.createClass({
     }
   },
 
-  componentDidMount: function() {
+  getSignalReport: function() {
     thissss = this;
+    
+    //console.log('CALENDAR PROPS')
+    //console.log(this.props.currentProfile)
+    qry = 'where='+JSON.stringify({profile:{
+      __type:'Pointer',
+      className:'ProspectProfile',
+      objectId:this.props.currentProfile.objectId
+    }})
+    // Get Signal Reports Of Current Profile
     $.ajax({
       url: 'https://api.parse.com/1/classes/SignalReport?order=-createdAt',
       type:'GET',
+      data: qry,
       headers:appConfig.parseHeaders,
       success: function(res) {
-        console.log(res.results)
+        //console.log(res.results)
         thissss.setState({reports: res.results})
       },
       error: function(err) {
@@ -24,14 +34,25 @@ module.exports = React.createClass({
     });
   },
 
-  setCurrentView: function() {
-    this.props.setCurrentView('Detail')
+  componentDidMount: function() {
+    this.getSignalReport()
+  },
+
+  componentDidUpdate: function() {
+    this.getSignalReport()
+  },
+
+  setCurrentReport: function(newReport) {
+    console.log('CURRENT REPORT')
+    console.log(newReport)
+    this.props.setCurrentReport(newReport)
   },
 
   render: function() {
     reports = []
     for(i=0;i< this.state.reports.length; i++)
-      reports.push(<SignalReportRow setCurrentView={this.setCurrentView}
+      reports.push(<SignalReportRow setCurrentReport={this.setCurrentReport}
+                                    setCurrentView={this.setCurrentView}
                                     report={this.state.reports[i]} />)
 
     return (
@@ -39,12 +60,10 @@ module.exports = React.createClass({
                                          paddingRight:0,width:'100%'}}>
         <div style={{height:44,borderBottom:'solid 1px rgb(221, 221, 221)'}}>
           <h4 onClick={this.returnToCalendarView}
-              className="text-primary"
-              style={{float:'left',cursor:'pointer',marginTop:7,
-                      paddingLeft:20,paddingTop:5,display:'inline-block'}}>
-              <span className="label label-default">
+              style={{float:'left',cursor:'pointer',marginTop:7,fontWeight:200,
+                paddingLeft:20,paddingTop:5, display:'inline-block'}}>
                 <i className="fa fa-calendar" style={{marginRight:5}}/> 
-                sdf</span>
+                {this.props.currentProfile.name}
           </h4>
         </div>
         <div className="col-md-12" style={{paddingLeft:0,paddingRight:0,
@@ -73,9 +92,13 @@ module.exports = React.createClass({
 });
 
 var SignalReportRow = React.createClass({
+  rowClick: function() {
+    this.props.setCurrentReport(this.props.report)
+  },
+
   render: function() {
     return (
-      <tr onClick={this.props.setCurrentView} style={{cursor:'pointer'}}>
+      <tr onClick={this.rowClick} style={{cursor:'pointer'}}>
         <td></td>
         <td style={{textAlign:'right',paddingTop:15}}>
           <i className="fa fa-cloud-download" style={{color:'#555'}}/>
@@ -97,7 +120,7 @@ var SignalReportRow = React.createClass({
           <a href="javascript:" 
              style={{fontWeight:'bold',marginTop:5}}
              className="btn btn-xs btn-success">
-            Prospect Now
+            Prospect All
           </a>
         </td>
       </tr>

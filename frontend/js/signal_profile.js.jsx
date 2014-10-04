@@ -78,8 +78,9 @@ module.exports = React.createClass({
       </div>
     );
   },
-  launchModal: function() {
+  launchModal: function(e) {
     $('#createMiningJobModal').modal()
+    e.stopPropogation()
   }
 });
 

@@ -42,28 +42,25 @@ module.exports = React.createClass({
     this.getSignalReport()
   },
 
-  setCurrentView: function() {
-    this.props.setCurrentView('Detail')
-  },
-
   render: function() {
     reports = []
-    for(i=0;i< this.state.reports.length; i++)
-      reports.push(<SignalReportRow setCurrentView={this.setCurrentView}
-                                    report={this.state.reports[i]} />)
+    for(i=0;i< this.state.reports.length; i++) {
+      reports.push(<SignalReportRow setCurrentReport={this.setCurrentReport}
+                                      setCurrentView={this.setCurrentView}
+                                      report={this.state.reports[i]} />)
+    }
 
     return (
       <div className="container" style={{paddingLeft:0,
                                          paddingRight:0,width:'100%'}}>
         <div style={{height:44,borderBottom:'solid 1px rgb(221, 221, 221)'}}>
           <h4 onClick={this.returnToCalendarView}
-              className="text-primary"
-              style={{float:'left',cursor:'pointer',marginTop:7,
-                      paddingLeft:20,paddingTop:5,display:'inline-block'}}>
-              <span className="label label-default">
+              style={{fontWeight:200, float:'left',cursor:'pointer',marginTop:7,
+                      paddingLeft:20,paddingTop:5, display:'inline-block'}}>
                 <i className="fa fa-calendar" style={{marginRight:5}}/> 
-                first</span>
+                {this.props.currentProfile.name}
           </h4>
+          
 
         </div>
         <div className="col-md-12" style={{paddingLeft:0,paddingRight:0,
@@ -87,18 +84,26 @@ module.exports = React.createClass({
         </div>
       </div>
     );
+  },
+
+  setCurrentReport: function(newReport) {
+    this.props.setCurrentReport(newReport)
   }
 });
 
 var SignalReportRow = React.createClass({
-  render: function() {
+  rowClick: function() {
+    this.props.setCurrentReport(this.props.report)
+  },
 
+  render: function() {
     if(!this.props.report.mining_job)
       icon = <i className="fa fa-wifi" />
     else
       icon = <i className="fa fa-cloud-download" style={{color:'#555'}}/>
+
     return (
-      <tr onClick={this.props.setCurrentView} style={{cursor:'pointer'}}>
+      <tr onClick={this.rowClick} style={{cursor:'pointer'}}>
         <td style={{textAlign:'right',paddingTop:15}}>
           {icon}     
         </td>

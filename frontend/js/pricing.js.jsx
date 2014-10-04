@@ -32,57 +32,74 @@ var PricingTables = React.createClass({
     <div className="container" style={{marginTop:150}}>
         <div className="row flat">
             <div className="col-lg-3 col-md-3 col-xs-6">
-                <ul className="plan plan1">
-                    <li className="plan-name"> Basic </li>
-                    <li className="plan-price"> <strong>$29</strong> / month </li>
-                    <li> <strong>5GB</strong> Storage </li>
-                    <li> <strong>1GB</strong> RAM </li>
-                    <li> <strong>400GB</strong> Bandwidth </li>
-                    <li> <strong>10</strong> Email Address </li>
-                    <li> <strong>Forum</strong> Support </li>
-                    <li className=""> <a href="#" className="btn btn-danger btn-lg">Signup</a> </li>
-                </ul>
-            </div>
+                <ul className="signal-card plan plan2">
+                    <li className="plan-name"> Startup </li>
+                    <li className="plan-price"> 
+                      <h1 style={{fontWeight:'bold',color:'#0294f5'}}>$499&nbsp;<small>/ month</small></h1>
+                    </li>
 
-            <div className="col-lg-3 col-md-3 col-xs-6">
-                <ul className="plan plan2 featured">
-                    <li className="plan-name"> Standard </li>
-                    <li className="plan-price"> <strong>$39</strong> / month </li>
-                    <li> <strong>5GB</strong> Storage </li>
-                    <li> <strong>1GB</strong> RAM </li>
-                    <li> <strong>400GB</strong> Bandwidth </li>
-                    <li> <strong>10</strong> Email Address </li>
-                    <li> <strong>Forum</strong> Support </li>
-                    <li className="">
-                 </li>
+                  <li> <strong>Up to 1000 Email Credits</strong> </li>
+                  <li> <strong>Up to 10 Team Members</strong></li>
+                  <li style={{padding:0}}> <strong></strong> Includes: </li>
+                  <li> <strong>{'Emails & Phone Numbers'}</strong></li>
+                  <li> <strong>Quick Start Package</strong></li>
+                  <li> <strong>Signals</strong></li>
+                  <li className="" style={{paddingBottom:0}}> 
+                    <a href="#" className="btn btn-primary btn-md cool-btn">Sign Up</a> 
+                  </li>
              </ul>
          </div>
 
          <div className="col-lg-3 col-md-3 col-xs-6">
-            <ul className="plan plan3">
-                <li className="plan-name"> Advanced </li>
-                <li className="plan-price"> <strong>$199</strong> / month </li>
-                <li> <strong>50GB</strong> Storage </li>
-                <li> <strong>8GB</strong> RAM </li>
-                <li> <strong>1024GB</strong> Bandwidth </li>
-                <li> <strong>Unlimited</strong> Email Address </li>
-                <li> <strong>Forum</strong> Support </li>
-                <li className="plan-action">  </li>
+            <ul className="signal-card plan plan3 featured">
+                <li className="plan-name"> Growth </li>
+                <li className="plan-price"> 
+                  <h1 style={{fontWeight:'bold',color:'#0294f5'}}>$1299&nbsp;<small>/ month</small></h1>
+                </li>
+
+            <li> <strong>Up to 2500 Email Credits</strong> </li>
+            <li> <strong>Up to 25 Team Members</strong></li>
+            <li style={{padding:0}}> <strong></strong> Includes: </li>
+            <li> <strong>All Startup Features </strong></li>
+            <li style={{padding:0}}> <i className="fa fa-plus" /></li>
+            <li> <strong>Bulk Salesforce Integration</strong></li>
+            <li> <strong>Mining Jobs</strong></li>
+            <li className="" style={{paddingBottom:0}}> 
+              <a href="#" className="btn btn-primary btn-md cool-btn">Sign Up</a> 
+            </li>
          </ul>
      </div>
 
      <div className="col-lg-3 col-md-3 col-xs-6">
-        <ul className="plan plan4">
-            <li className="plan-name"> Mighty </li>
-            <li className="plan-price"> <strong>$999</strong> / month </li>
-            <li> <strong>50GB</strong> Storage </li>
-            <li> <strong>8GB</strong> RAM </li>
-            <li> <strong>1024GB</strong> Bandwidth </li>
-            <li> <strong>Unlimited</strong> Email Address </li>
-            <li> <strong>Forum</strong> Support </li>
-            <li className="plan-action"> <a href="#" className="btn btn-danger btn-lg">Signup</a> </li>
-     </ul>
- </div>
+        <ul className="signal-card plan plan4">
+            <li className="plan-name"> Premium </li>
+            <li className="plan-price"> 
+              <h1 style={{fontWeight:'bold',color:'#0294f5'}}>$2999&nbsp;<small>/ month</small></h1>
+            </li>
+            <li> <strong>Up to 7500 Email Credits</strong> </li>
+            <li> <strong>Up to 50 Team Members</strong></li>
+            <li style={{padding:0}}> <strong></strong> Includes: </li>
+            <li> <strong>All Growth Features </strong></li>
+            <li style={{padding:0}}> <i className="fa fa-plus" /></li>
+            <li> <strong>Dedicated Happiness Officer</strong></li>
+            <li> <strong>Improved territory planning</strong></li>
+            <li className="" style={{paddingBottom:0}}> 
+              <a href="#" className="btn btn-primary btn-md cool-btn">Sign Up</a> 
+            </li>
+         </ul>
+       </div>
+            <div className="col-lg-3 col-md-3 col-xs-6">
+                <ul className="signal-card plan plan1">
+                    <li className="plan-name"> Enterprise </li>
+                    <li className=""> </li>
+                    <li> <strong></strong> </li>
+                    <li> <strong></strong> </li>
+                    <li style={{fontSize:22}}> <strong>Contact Us</strong> </li>
+                    <li> <strong></strong> </li>
+                    <li> <strong></strong>  </li>
+                </ul>
+            </div>
+
 </div>
 
 </div> 

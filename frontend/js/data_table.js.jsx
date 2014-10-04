@@ -371,8 +371,8 @@ module.exports = React.createClass({
     console.log(list)
     // Add Support For More than 1000
     // num_of_requests
+    //this.props.paginate(res.results, this.props.currentPage + 1)
     localStorage.download_total = Math.ceil(this.state.count/1000)
-        this.props.paginate(res.results, this.props.currentPage + 1)
     localStorage.downloads      = 0
 
     if(this.state.currentList == "All")

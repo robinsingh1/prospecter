@@ -35,7 +35,9 @@ module.exports = React.createClass({
       url:'https://api.parse.com/1/classes/ProspectProfile',
       headers:appConfig.headers,
       type:'POST',
-      data:JSON.stringify({name:profileName, autoProspect:autoProspect,
+      data:JSON.stringify({name:profileName, 
+                          only_people:true,
+                          autoProspect:autoProspect,
                           user:{
                             __type:'Pointer',
                             className:'_User',

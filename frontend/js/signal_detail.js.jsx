@@ -10,11 +10,19 @@ module.exports = React.createClass({
 
   componentDidMount: function() {
     thissss = this;
+    currentProfileReport = JSON.stringify({
+      __type: 'Pointer',
+      className: 'SignalReport',
+      objectId: this.props.currentProfileReport.objectId
+    })
+
+    qry = 'where={"signal_report":'+currentProfileReport+'}&include=company_signal,company_signal.signals&order=-createdAt'
     $.ajax({
-      url: 'https://api.parse.com/1/classes/PeopleSignal?include=company_signal,company_signal.signals&order=-createdAt',
+      url: 'https://api.parse.com/1/classes/PeopleSignal?'+qry,
       type:'GET',
       headers:appConfig.parseHeaders,
       success: function(res) {
+        console.log('SIGNAL DETAIL')
         console.log(res.results)
         thissss.setState({signals: res.results})
       },
@@ -33,22 +41,22 @@ module.exports = React.createClass({
     for(i=0;i< this.state.signals.length; i++)
       signals.push(<SignalRow signal={this.state.signals[i]} />)
 
+    currentProfileReport = this.props.currentProfileReport
     return (
       <div className="container" style={{height:356,paddingLeft:0,
                                          paddingRight:0,width:'100%'}}>
         <div style={{height:44,borderBottom:'solid 1px rgb(221, 221, 221)'}}>
           <h4 onClick={this.returnToCalendarView}
-              className="text-primary"
-              style={{float:'left',cursor:'pointer',marginTop:7,
+              style={{float:'left',cursor:'pointer',marginTop:7,fontWeight:200,
                       paddingLeft:20,paddingTop:5,display:'inline-block'}}>
-              <span className="label label-default">
+              
                 <i className="fa fa-calendar" style={{marginRight:5}}/> 
-                first</span>
+                {this.props.currentProfile.name}
           </h4>
           <h6 style={{fontSize:13,paddingLeft:5,paddingTop:5,display:'inline-block'}}>
             <i className="fa fa-chevron-right" style={{fontSize:9}}/> &nbsp;
             <i className="fa fa-clock-o" /> &nbsp;
-            12 hours ago &nbsp;
+            {moment(currentProfileReport.createdAt).fromNow()} &nbsp;
           </h6>
 
           <a href="javascript:" style={{fontWeight:'bold',float:'right',
@@ -100,7 +108,7 @@ module.exports = React.createClass({
 
 var SignalRow = React.createClass({
   render: function() {
-    company = this.props.signal.company_signal
+    company = (this.props.signal.company_signal) ? this.props.signal.company_signal : {}
     return (
       <tr>
         <td style={{textAlign:'center'}}>
