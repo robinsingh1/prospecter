@@ -4,11 +4,13 @@ module.exports = React.createClass({
   // createCompanyProfileModal
   createProfile: function() {
     profileName = $(".profileName").val()
+
     titleProfile = {
       'className': 'ProspectTitleProfile',
       'title_keywords'    : $('.prospect-profile-title').tagsinput('items').reverse()
     }
 
+    /*
     locationProfile = {
       'className': 'LocationProfile',
       'locale'    : $('.prospect-location-profile').tagsinput('items').reverse()
@@ -26,11 +28,10 @@ module.exports = React.createClass({
                         function(revBtn){ return $(revBtn).text().trim() }).reverse()
     }
 
-    console.log(titleProfile)
-    console.log(locationProfile)
-    
     profiles = [titleProfile, locationProfile,
                 companySizeProfile, revenueProfile]
+    */
+    profiles = [titleProfile]
 
     nonemptyProfiles = _.filter(profiles, function(profile) {
       if(_.values(profile)[1]){ return _.values(profile)[1].length }
@@ -55,6 +56,7 @@ module.exports = React.createClass({
                          _.omit(newProfile,'profiles'))
       this.props.addProfile(newProfile)
       $('.modal').click()
+      $('.prospect-profile-title').val('')
     }
   },
 
@@ -67,21 +69,45 @@ module.exports = React.createClass({
       type:'POST',
       data:JSON.stringify(newProfile),
       success:function(ress) {
-        // Add Signal List
+        // Create Signal List ->  Update Prospect Profile
+        newProfile.user = {
+          __type: 'Pointer',
+          className:'_User',
+          objectId: JSON.parse(localStorage.currentUser).objectId
+        }
+        newProfile.company = JSON.parse(localStorage.currentUser).company
+        if(newProfile.type == 'prospect_profile')
+          newProfile.mining_job_list = true
+
+        $.ajax({
+          url: 'https://api.parse.com/1/classes/ProspectList',
+          type: 'POST',
+          headers: appConfig.headers,
+          data:JSON.stringify(_.pick(newProfile, 'name','user',
+                                     'company','mining_job_list')),
+          success: function(res) {
+            $.ajax({
+              url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
+              type:'PUT',
+              headers: appConfig.headers,
+              data: JSON.stringify({ 'prospect_list':{ __type:'Pointer',
+                                    className:'ProspectList',objectId:res.objectId } }),
+              success: function(res){ console.log(res) },
+              error: function(err){ console.log(err) }
+            })
+          },
+          error: function() { }
+        })
 
         // Start Mining Job
         if(newProfile.type == 'prospect_profile') {
           $.ajax({
-            //url:'http://nameless-retreat-3525.herokuapp.com/title_mining_job',
-            url:'http://127.0.0.1:5000/title_mining_job',
-            headers: appConfig.headers,
+            url:'https://nameless-retreat-3525.herokuapp.com/title_mining_job',
+            //url:'http://127.0.0.1:5000/title_mining_job',
+            type:'GET',
             data: {prospect_profile: ress.objectId},
-            success: function(res) {
-              console.log(res)
-            },
-            error: function(err) {
-              console.log(err)
-            }
+            success: function(res) { console.log(res) },
+            error: function(err) { console.log(err) }
           })
         }
 
@@ -216,13 +242,13 @@ var CreateHiringSignal = React.createClass({
           </span>
           <br/>
           <span style={{display:'block',marginBottom:-10}}> 
-            <h6 style={{width:140,display:'inline-block'}}>
+            <h6 style={{width:140,display:'none'}}>
               Location: &nbsp;
             </h6>
             <input type="text" 
-                   style={{display:'inline-block',width:'73.1%',marginRight:10}} 
+                   style={{display:'none',width:'73.1%',marginRight:10}} 
                    data-role="tagsinput"
-                   className="form-control hiring-role prospect-location-profile" />
+                   className="form-control prospect-location-profile-tmp" />
 
                 <a href="javascript:" 
                    className="btn btn-xs btn-success" style={{display:'none'}}>
@@ -236,7 +262,7 @@ var CreateHiringSignal = React.createClass({
             <input type="text" 
                    style={{display:'inline-block',width:'73.1%',marginRight:10}} 
                    data-role="tagsinput"
-                   className="form-control hiring-role" />
+                   className="form-control " />
 
             <a href="javascript:" 
                className="btn btn-xs btn-success" style={{display:'none'}}>
@@ -245,6 +271,7 @@ var CreateHiringSignal = React.createClass({
           </span>
           <CompanyProfile />
 
+          <div style={{display:'none'}}>
           <div style={{marginTop:10}}>
             <h6 style={{width:140,display:'inline-block'}}>Auto Prospect: &nbsp;</h6>
             <div className="btn-group autoprospect" data-toggle="buttons" >
@@ -256,6 +283,7 @@ var CreateHiringSignal = React.createClass({
               </label> 
             </div>
           </div>
+        </div>
         </form>
       </div>
     )
@@ -282,6 +310,7 @@ var CompanyProfile = React.createClass({
     return (
       <div >
           <br/> 
+          <div style={{display:'none'}}>
           <h6 style={{display:'inline-block',margin:0,
                       width:140,marginBottom:20}}>Company Size </h6>
                     <div className="btn-group" data-toggle="buttons" 
@@ -299,7 +328,9 @@ var CompanyProfile = React.createClass({
                 <input type="checkbox"/> 1000 +
               </label>
             </div>
+          </div>
 
+          <div style={{display:'none'}}>
             <br/> <h6 style={{display:'inline-block',margin:0,width:140}}>
               Approx. Revenue  </h6>
             <div className="btn-group" data-toggle="buttons" 
@@ -317,6 +348,7 @@ var CompanyProfile = React.createClass({
                 <input type="checkbox"/> $25M +
               </label>
             </div>
+          </div>
       </div>
     )
   }

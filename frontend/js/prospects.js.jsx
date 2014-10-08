@@ -134,6 +134,7 @@ module.exports = React.createClass({
     this.setState({currentPage: 1})
     this.setState({keyboardActiveProspect: 0})
 
+    company = JSON.stringify(JSON.parse(localStorage.currentUser).company)
     qry = 'where={"company":'+company+',"archived":true}&count=1&order=-createdAt'
     console.log(newListName)
 
@@ -146,9 +147,9 @@ module.exports = React.createClass({
 
       company = JSON.stringify(JSON.parse(localStorage.currentUser).company)
       qry = 'where={"company":'+company+'}&count=1'
-      qry = 'where={"lists":'+currentList+'}&count=1&order=-createdAt'
+      qry = 'where={"lists":'+currentList+'}&count=1&order=-createdAt&include=email_guesses,email_guesses.pattern'
     } else if (newListName == 'Archived') {
-      qry = 'where={"company":'+company+',"archived":false}&count=1&order=-createdAt'
+      qry = 'where={"company":'+company+',"archived":false}&count=1&order=-createdAt&include=email_guesses,email_guesses.pattern'
     }
     console.log(qry)
 
@@ -795,18 +796,28 @@ module.exports = React.createClass({
       'X-Parse-REST-API-Key'    : 'VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb'
     }
 
-    company = JSON.stringify(JSON.parse(localStorage.currentUser).company)
     cuid = JSON.parse(localStorage.currentUser).objectId
     user = JSON.stringify({'__type':'Pointer',
                            'objectId':cuid, 
                            'className': 'User'})
     archiveList = JSON.stringify({ //hardCode
-      'objectId':'SerPQjckve',
+      'objectId':'SerPQjckve', // Differente For Wach User
       '__type':'Pointer', 
       'className' : 'ProspectList' 
     })
 
-    qry = 'where={"company":'+company+',"archived":true}&count=1&order=-createdAt'
+    qry = {
+      where: JSON.stringify({
+        company: JSON.parse(localStorage.currentUser).company,
+        archived: true,
+      }),
+      count: 1,
+      order: '-createdAt',
+      limit: this.state.prospectPerPage,
+      include: 'email_guesses,email_guesses.pattern'
+    }
+
+    //qry = 'where={"company":'+company+',"archived":true}&count=1&order=-createdAt&incude=email_guesses'
 
     if(this.state.currentList != 'All'){
       currentList = {
@@ -824,10 +835,9 @@ module.exports = React.createClass({
     }
 
     $.ajax({
-      //url: 'https://api.parse.com/1/classes/Prospects?limit=50',
-      url: 'https://api.parse.com/1/classes/Prospect?limit='+thisss.state.prospectsPerPage,
+      url: 'https://api.parse.com/1/classes/Prospect',
       type:'GET',
-      headers: parse_headers,
+      headers: appConfig.parseHeaders,
       cache: true,
       data: qry,
       success: function(res){

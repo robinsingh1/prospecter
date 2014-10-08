@@ -10,22 +10,18 @@ module.exports = React.createClass({
 
   getSignalReport: function() {
     thissss = this;
-    
-    //console.log('CALENDAR PROPS')
-    //console.log(this.props.currentProfile)
     qry = 'where='+JSON.stringify({profile:{
       __type:'Pointer',
       className:'ProspectProfile',
       objectId:this.props.currentProfile.objectId
     }})
-    // Get Signal Reports Of Current Profile
+
     $.ajax({
       url: 'https://api.parse.com/1/classes/SignalReport?order=-createdAt',
       type:'GET',
       data: qry,
       headers:appConfig.parseHeaders,
       success: function(res) {
-        //console.log(res.results)
         thissss.setState({reports: res.results})
       },
       error: function(err) {
@@ -96,6 +92,20 @@ var SignalReportRow = React.createClass({
     this.props.setCurrentReport(this.props.report)
   },
 
+  prospectAllSignalReportProspects: function(e) {
+    e.stopPropagation()
+    // Update UI
+    console.log(this.props.report.objectId)
+    thiss = this
+    $.ajax({
+      //url:'http://nameless-retreat-3525.herokuapp.com/prospect_signal_report',
+      url:'http://127.0.0.1:5000/prospect_signal_report',
+      data: {signal_report_id: thiss.props.report.objectId },
+      success: function(res) { console.log(res) },
+      error: function(err) { console.log(err) }
+    })
+  },
+
   render: function() {
     return (
       <tr onClick={this.rowClick} style={{cursor:'pointer'}}>
@@ -118,6 +128,7 @@ var SignalReportRow = React.createClass({
         </td>
         <td>
           <a href="javascript:" 
+            onClick={this.prospectAllSignalReportProspects}
              style={{fontWeight:'bold',marginTop:5}}
              className="btn btn-xs btn-success">
             Prospect All

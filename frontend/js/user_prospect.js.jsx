@@ -61,6 +61,27 @@ module.exports = React.createClass({
       
     rowCl = (this.props.keyboardSelected) ? "prospects-tr keySelect" : "prospects-tr"
     websiteBtn = (prospect.websiteUrl) ?  <a href={"http://"+prospect.websiteUrl.replace('http://','')} > <i className="fa fa-globe" /> </a> : ""
+    
+    prospect_email = prospect.email
+    if(prospect.email == "no_email"){
+      if(prospect.email_guesses) {
+        //console.log(prospect)
+        // Get First Untried Email ther
+        prospect.email_guesses = prospect.email_guesses.reverse()
+        guess = _.findWhere(prospect.email_guesses, {tried: false})
+        name = this.props.prospect.name
+        vars = {
+          first: _.first(name.split(' ')),
+          last: _.last(name.split(' ')),
+          fi: _.first(name.split(' '))[0],
+          li: _.last(name.split(' '))[0]
+        }
+        console.log(guess.pattern.pattern)
+        prospect_email = Mustache.render(guess.pattern.pattern, vars)
+      }
+    }
+     prospect_email = (prospect_email) ? prospect_email.toLowerCase() : ""
+
     return (
       <tr className={rowCl} 
           onClick={this.rowClick}
@@ -90,9 +111,9 @@ module.exports = React.createClass({
           <td style={color}>
             <h6 style={{margin:'0px'}}>{prospect.city}</h6></td>
           <td style={color}>
-            <a href={"mailto:"+prospect.email} 
+            <a href={"mailto:"+prospect_email} 
                style={{margin:'0px'}}>
-            {(prospect.email) ? prospect.email.toLowerCase() : ""}
+               {prospect_email}
           </a></td>
           <td style={color}>{this.props.li}&nbsp;{this.props.link}</td>
           <td style={color}>

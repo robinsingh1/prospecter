@@ -50,9 +50,13 @@ module.exports = React.createClass({
 
     for(i=0;i< this.props.lists.length;i++){
       list = this.props.lists[i]
-      if(list.signal_list)
+      if(list.list_type == "signal_list")
+        iconType = "wifi"
+      else if (list.list_type == "mining_job")
+        iconType = "cloudDownload"
+      if(list.list_type)
         lists.push( <SideMenuListOption list={list} 
-                                        iconType={'wifi'}
+                                        iconType={iconType}
                                         changeList={this.props.changeList}/>)
       else 
         lists.push( <SideMenuListOption list={list} 

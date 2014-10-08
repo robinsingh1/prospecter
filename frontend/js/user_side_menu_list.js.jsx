@@ -55,6 +55,8 @@ module.exports = React.createClass({
       icon = <i className="fa fa-user" />
     } else if(this.props.iconType == "wifi"){
       icon = <i className="fa fa-wifi" />
+    } else if(this.props.iconType == "cloudDownload"){
+      icon = <i className="fa fa-cloud-download" />
     }
 
 

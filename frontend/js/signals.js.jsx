@@ -240,7 +240,7 @@ var SignalDetailButtons = React.createClass({
             <i className="fa fa-newspaper-o" />&nbsp; 
             {(this.props.currentProfile.name != "") ? this.props.currentProfile.name : 'All'}
           </h4>
-          <div className="btn-group" style={{marginLeft:'2%'}}>
+          <div className="btn-group" style={{marginLeft:'0%'}}>
             <a className={ppl}
                style={{padding:2}} 
                onClick={this.setSignalType}> 

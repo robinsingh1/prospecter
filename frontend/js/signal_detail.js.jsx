@@ -16,6 +16,8 @@ module.exports = React.createClass({
       objectId: this.props.currentProfileReport.objectId
     })
 
+    console.log('CURRENT PROFILE')
+    console.log(currentProfileReport)
     qry = 'where={"signal_report":'+currentProfileReport+'}&include=company_signal,company_signal.signals&order=-createdAt'
     $.ajax({
       url: 'https://api.parse.com/1/classes/PeopleSignal?'+qry,

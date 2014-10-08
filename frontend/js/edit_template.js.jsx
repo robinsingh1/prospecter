@@ -27,50 +27,6 @@ module.exports = React.createClass({
       })
     }
 
-    /*
-    var example = {
-        "glossary": {
-            "title": "example glossary",
-            "GlossDiv": {
-                "title": "S",
-                "GlossList": {
-                    "GlossEntry": {
-                        "ID": "SGML",
-                        "SortAs": "SGML",
-                        "GlossTerm": "Standard Generalized Markup Language",
-                        "Acronym": "SGML",
-                        "Abbrev": "ISO 8879:1986",
-                        "GlossDef": {
-                            "para": "A meta-markup language, used to create markup languages such as DocBook.",
-                            "GlossSeeAlso": ["GML", "XML"]
-                        },
-                        "GlossSee": "markup"
-                    }
-                }
-            },
-        "glossary": {
-            "title": "example glossary",
-            "GlossDiv": {
-                "title": "S",
-                "GlossList": {
-                    "GlossEntry": {
-                        "ID": "SGML",
-                        "SortAs": "SGML",
-                        "GlossTerm": "Standard Generalized Markup Language",
-                        "Acronym": "SGML",
-                        "Abbrev": "ISO 8879:1986",
-                        "GlossDef": {
-                            "para": "A meta-markup language, used to create markup languages such as DocBook.",
-                            "GlossSeeAlso": ["GML", "XML"]
-                        },
-                        "GlossSee": "markup"
-                    }
-                }
-            }
-        }
-        },
-    };
-    */
     renderjson.set_show_to_level('all')
     prospect = _.pick(this.props.prospect, 
       'company_name', 'name', 'pos'
@@ -92,7 +48,7 @@ module.exports = React.createClass({
       'background-color':'rgba(0,0,0,0)',
       'border':'0',
       'color':'white',
-      'margin-top':'-100px',
+      'margin-top':'0px',
       'height': '542px',
       'overflow':'auto',
       'width':'380px'
@@ -232,36 +188,52 @@ module.exports = React.createClass({
 
     return (
       <div id="editTemplate">
-      <div onClick={this.clickedOverlay} id="editTemplateOverlay"></div>
-      <div id="editTemplateView" 
-           className="panel panel-default" 
-           style={{display:'block'}}>
-           <div className="panel-heading" style={{height:50}}> 
-             {the_name}
-          {toggleButton}
+        <h5 className="example-template-title" >Example Template Values</h5>
+        <div className="example-template-title"
+             style={{marginLeft:215, marginTop:8}}>
+          <a href="javascript:"
+            className="btn btn-default btn-xs" >
+            <i className="fa fa-chevron-left" /></a>
+          <a href="javascript:"
+            style={{marginLeft:5}}
+            className="btn btn-default btn-xs" >
+            <i className="fa fa-chevron-right" /></a>
         </div>
-        <div className="panel-body">
-          <div className="editTemplateTitle">
-            <span>Subject: </span>
-            {subjectPlace}
-          </div>
-         <br/>
-         <div className="templateDetails">
-           <h6 style={{marginBottom:'0'}} className="text-muted">
-             Created by Mark on Jul. 21, 2014
-           </h6>
-           <h6 style={{marginTop:'0'}} className="text-muted">
-             last updated 7 days ago
-           </h6>
-         </div>
-        <br/>
-        <div className="panel panel-default"> 
-          <div className="panel-body summer template-body">
-          </div>
+        <div onClick={this.clickedOverlay} id="editTemplateOverlay"></div>
+          <div id="editTemplateView" 
+               className="panel panel-default" 
+               style={{display:'block'}}>
+               <div className="panel-heading" style={{height:50}}> 
+                 {the_name}
+              <a href="javascript:"
+                className="btn btn-default btn-xs"
+                style={{float:'right',marginLeft:5,marginTop:5}}>
+                <i className="fa fa-trash"/>
+              </a>
+              {toggleButton}
+            </div>
+            <div className="panel-body">
+              <div className="editTemplateTitle">
+                <span>Subject: </span>
+                {subjectPlace}
+              </div>
+             <br/>
+             <div className="templateDetails">
+               <h6 style={{marginBottom:'0'}} className="text-muted">
+                 Created by Mark on Jul. 21, 2014
+               </h6>
+               <h6 style={{marginTop:'0'}} className="text-muted">
+                 last updated 7 days ago
+               </h6>
+             </div>
+            <br/>
+            <div className="panel panel-default"> 
+              <div className="panel-body summer template-body">
+              </div>
+            </div>
         </div>
+      </div>
     </div>
-</div>
-</div>
     );
   }
 });

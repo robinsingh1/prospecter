@@ -14,19 +14,21 @@ body {
 }
 .flat .plan li.plan-price {
   border-top: 0;
+  border-bottom: 1px solid #eee;
 }
 .flat .plan li.plan-name {
   border-radius: 6px 6px 0 0;
   padding: 15px;
-  font-size: 24px;
+  font-size: 28px;
   line-height: 24px;
   color: #fff;
-  background: #e74c3c;
-  margin-bottom: 30px;
+  background: #0294f5;
   border-top: 0;
+  font-weight: bold;
+  font-family: proxima-nova;
 }
 .flat .plan li > strong {
-  color: #e74c3c;
+  color: #0294f5;
 }
 .flat .plan li.plan-action {
   margin-top: 10px;
