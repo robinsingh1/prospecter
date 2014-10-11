@@ -165,19 +165,19 @@ var Home = React.createClass({
       <div className="container">
         <h1 style={{fontWeight:'bold',display:'inline',fontWeight:'100',color:'#1ca3fd'}}>
           <img src="build/img/network.png" 
-            style={{ height:32, marginTop:-9,
+            style={{ height:32, marginTop:-4,
               marginRight:5, }}
           />
-          Customero 
+          <span style={{fontWeight:'bold',fontSize:32,fontFamily:'Proxima-Nova' }}>Customero </span>
         </h1>
       <span style={{float:'right'}}>
         <img src="build/img/user.png" style={{height:'40px',width:'40px',padding:'2px',marginTop:'5px',borderRadius:'23px',display:'inline'}} className="thumbnail"/>&nbsp;&nbsp;&nbsp; 
         <h6 style={{marginTop:'20px',float:'right',display:'inline'}}>Welcome</h6>
       </span>
       <span style={{float:'right', marginRight:'150px'}}>
-        <h6 style={{marginTop:'20px',float:'right',display:'inline',}}><a href="javascript:" onClick={this.logout}>Logout</a></h6>
-        <h6 style={{marginTop:'20px',float:'right',display:'inline',marginRight:'10px'}}><a href="#pricing">Pricing</a></h6>
-        <h6 style={{marginTop:'20px',float:'right',display:'inline',display:'none', marginRight:'10px'}}><a href="#pricing">Documentation</a></h6>
+        <h6 style={{marginTop:'20px',float:'right',display:'inline',}}><a href="javascript:" onClick={this.logout} style={{color:'#1ca3fd'}}>Logout</a></h6>
+        <h6 style={{marginTop:'20px',float:'right',display:'inline',marginRight:'10px'}}><a href="#pricing" style={{color:'#1ca3fd'}}>Pricing</a></h6>
+        <h6 style={{marginTop:'20px',float:'right',display:'inline', marginRight:'10px'}}><a href="http://resources.customerohq.com" style={{color:'#1ca3fd'}}>Resources</a></h6>
       </span>
       <br/>
       <br/>

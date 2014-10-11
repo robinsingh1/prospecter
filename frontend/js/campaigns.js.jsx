@@ -23,7 +23,7 @@ module.exports = React.createClass({
                         campaign={this.props.campaigns[i]}/> )
     }
     return (
-      <div style={{overflow:'auto'}}>
+      <div style={{overflow:'auto',height:550}}>
         <table className="table table-striped">
           <thead>
             <th></th>
