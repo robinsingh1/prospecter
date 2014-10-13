@@ -2,177 +2,54 @@
 
 module.exports = React.createClass({
   // createSignalModal
+  getInitialState: function() {
+    return {
+      mining_days : []
+    }
+  },
+
+  componentDidUdpate: function() {
+
+  },
+
   createSignal: function() {
-    console.log('Create SIgnal Called')
-    // Get Name
-    profileName = $('.hiring-profile-name').val()
-
-    hiringProfile = {
-      'className': 'HiringProfile',
-      'roles'    : $('.hiring-role').tagsinput('items').reverse()
-    }
-
-    autoProspect = $('.autoprospect > .active').text() ==  " Yes"
-    
-    revenueProfile = {'className':'RevenueProfile', 
-                      'revenues': _.map($('#revenueBtns').find('.active'), 
-                                            function(revBtn){
-                                              return $(revBtn).text().trim() 
-                                            }).reverse()}
-
-    employeeProfile = {'className':'EmployeeProfile', 
-                       'employees': _.map($('#employeeBtns').find('.active'), 
-                                          function(empBtn){ 
-                                            return $(empBtn).text().trim() 
-                                          }).reverse()}
-
-    prospectProfile = {
-      'className':'ProspectTitleProfile',
-      'title_keywords' : $('.prospectRoleKeywords').tagsinput('items').reverse()
-    }
-
-    $.ajax({
-      url:'https://api.parse.com/1/classes/ProspectProfile',
-      headers:appConfig.headers,
-      type:'POST',
-      data:JSON.stringify({name:profileName, autoProspect:autoProspect,
-                          user:{
-                            __type:'Pointer',
-                            className:'_User',
-                            objectId:JSON.parse(localStorage.currentUser).objectId
-                          },
-                          company: JSON.parse(localStorage.currentUser).company
-      }),
-      success:function(ress) {
-        // Add Signal List
-
-        $.ajax({
-          url:'https://api.parse.com/1/classes/HiringProfile',
-          headers:appConfig.headers,
-          type:'POST',
-          data:JSON.stringify({roles: hiringProfile.roles}),
-          success:function(res) {
-            $.ajax({
-              url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
-              type:'PUT',
-              headers:appConfig.headers,
-              data:JSON.stringify({profiles:{
-                __op: 'AddUnique',
-                objects:[{
-                  __type:'Pointer',
-                  className:'HiringProfile',
-                  objectId:res.objectId
-                }]}
-              }),
-            })
-          },
-        })
-        //Create Prospect Profile
-        $.ajax({
-          url:'https://api.parse.com/1/classes/RevenueProfile',
-          headers:appConfig.headers,
-          type:'POST',
-          data:JSON.stringify({revenues: revenueProfile.revenues}),
-          success:function(res) {
-            $.ajax({
-              url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
-              type:'PUT',
-              headers:appConfig.headers,
-              data:JSON.stringify({profiles:{
-                __op: 'AddUnique',
-                objects:[{
-                  __type:'Pointer',
-                  className:'RevenueProfile',
-                  objectId:res.objectId
-                }]}
-              }),
-            })
-          },
-        })
-        //Create Employee Profile
-        $.ajax({
-          url:'https://api.parse.com/1/classes/EmployeeProfile',
-          headers:appConfig.headers,
-          type:'POST',
-          data:JSON.stringify({employees: employeeProfile.employees}),
-          success:function(res) {
-            $.ajax({
-              url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
-              type:'PUT',
-              headers:appConfig.headers,
-              data:JSON.stringify({profiles:{
-                __op: 'AddUnique',
-                objects:[{
-                  __type:'Pointer',
-                  className:'EmployeeProfile',
-                  objectId:res.objectId
-                }]}
-              }),
-            })
-          },
-        })
-        //Create Revenue Profile
-        $.ajax({
-          url:'https://api.parse.com/1/classes/ProspectTitleProfile',
-          type:'POST',
-          headers:appConfig.headers,
-          data:JSON.stringify({title_keywords: prospectProfile.title_keywords}),
-          success:function(res) {
-            $.ajax({
-              url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
-              type:'PUT',
-              headers:appConfig.headers,
-              data:JSON.stringify({profiles:{
-                __op: 'AddUnique',
-                objects:[{
-                  __type:'Pointer',
-                  className:'ProspectTitleProfile',
-                  objectId:res.objectId
-                }]}
-              }),
-            })
-          },
-        })
-      },
-    })
-
-    newProfile = {
-      name: profileName,
-      autoProspect: autoProspect,
-      profiles: [
-        prospectProfile,
-        revenueProfile,
-        employeeProfile,
-        hiringProfile
-      ]
-    }
-    console.log(newProfile)
-
-    this.props.addProfile(newProfile)
   },
 
   updateDate: function(e) {
     if(!$(e.target).hasClass('no-hover')){
+    /*
       $(e.target).addClass('list-group-item-success')
       $(e.target).addClass('no-hover')
       $(e.target).append('<span class="label label-success" style="float:right;">Downloading...</span>')
+    */
 
-      //setTimeout($('.modal').click(), 500)
+      /*
+      $.ajax({
+        url:'',
+        headers:appConfig.headers
+        data:{},
+        success: function(res) {},
+        error: function(err) {},
+      })
+      */
     }
   },
 
   render: function() {
     // moment.utc(moment().startOf('day')).valueOf()/1000
     dates = []
-    for(i=0;i< 52; i++) {  
-      first = moment().subtract(i*7, 'days').format('ll')
-      second = moment().subtract((i+1)*7, 'days').format('ll')
-      date = first+" - "+second
-      date = second+" - "+first
+    for(i=0;i< 30; i++) {  
+      date = moment().subtract((i+1), 'days').format('ll')
 
       dates.push(
-        <li onClick={this.updateDate} 
-            className="list-group-item download-date">{date}</li>
+        <li onClick={this.updateDate} style={{textAlign:'center'}}
+          className="list-group-item download-date">
+          <i className="fa fa-calendar" />&nbsp;
+          {date} &nbsp; &nbsp; &nbsp;
+          <a href="javascript:"
+            className="btn btn-success btn-xs">
+            Download</a>
+        </li>
       )
     }
 

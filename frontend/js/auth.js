@@ -5,7 +5,9 @@ function checkAuth(){
   currentUser = localStorage.getItem('currentUser')
   if (currentUser) {
     if(window.location.hash != "#free_trial")
-      location.href = "#"            
+      lol = 4
+
+      //location.href = "#"            
   } else {
     if(window.location.hash != "#free_trial" || window.location.hash != "#login" || window.location.href=="#signup")
       location.href = "#get_started"

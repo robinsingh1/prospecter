@@ -1056,6 +1056,7 @@ var ListDetailButtons = React.createClass({
                 <i className="fa fa-pencil" />
               </a>
               <a href="javascript:" 
+                onClick={this.deleteList}
                 style={listBtn}
                 className="btn btn-xs btn-default">
                 <i className="fa fa-trash-o" />
@@ -1073,7 +1074,19 @@ var ListDetailButtons = React.createClass({
   },
 
   deleteList: function(){
-    this.props.deleteList()
+    thiss = this;
+    swal({   
+      title: "Are you sure?",   
+      text: "Your will not be able to recover this prospect list!",   
+      type: "warning",   
+      showCancelButton: true,   
+      confirmButtonColor: "#DD6B55",   
+      confirmButtonText: "Yes, delete it!",   
+      closeOnConfirm: false }, 
+      function(){   swal("Deleted!", "Your prospect list has been deleted.", "success"); 
+        console.log('deleted')
+        thiss.props.deleteList()
+      });
   },
 
   toggleEdit: function() {

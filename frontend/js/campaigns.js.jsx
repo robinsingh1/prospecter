@@ -52,9 +52,10 @@ var CampaignRow = React.createClass({
   },
 
   render: function() {
-    if(this.props.campaign.prospect_list.list_type == "signal_list")
+    prospect_list = (this.props.campaign.prospect_list) ? this.props.campaign.prospect_list : {list_type:"", name:""}
+    if(prospect_list.list_type == "signal_list")
         iconType = <i className="fa fa-wifi" style={{marginRight:5}}/>
-    else if(this.props.campaign.prospect_list.list_type == "mining_job")
+    else if(prospect_list.list_type == "mining_job")
         iconType = <i className="fa fa-cloud-download" style={{marginRight:5}} />
     else 
         iconType =""
@@ -66,7 +67,7 @@ var CampaignRow = React.createClass({
         </h6> </td>
         <td> <h6>
             {iconType}
-            {this.props.campaign.prospect_list.name}
+            {prospect_list.name}
         </h6> </td>
         <td style={{textAlign:'center',padding:12}}>
           <span className="badge" style={{backgroundColor:'#f0ad4e'}}>

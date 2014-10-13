@@ -38,12 +38,14 @@ var Home = React.createClass({
 
   getInitialState: function() {
     // num_of_pages
+    console.log(this.props)
     return {prospects: [] , 
             currentPage: 1, 
             pages: 1, 
             count:"~", 
             prospectType:'Prospect', 
-            selectedScreen: 'Prospects'}
+            //selectedScreen:'Prospects'}
+            selectedScreen: this.props.selectedScreen}
   },
 
   toggleScreen: function(e) {
@@ -129,6 +131,7 @@ var Home = React.createClass({
       case 'Prospects':
         currentScreen = <Prospects />
         prospects = "choose btn btn-primary app-active"
+        location.href= "#prospects"
         break;
       case 'Companies':
         currentScreen = <CompanyProspects  />
@@ -137,6 +140,7 @@ var Home = React.createClass({
                                                  '# of Prospects','Signals',
                                                  '','' ]}
                                    className={'CompanyProspect'} />
+        location.href= "#companies"
         companyProspects = "choose btn btn-primary app-active"
         break;
       case 'Mining Jobs':
@@ -148,10 +152,12 @@ var Home = React.createClass({
       case 'Campaigns':
         currentScreen = <Campaigns />
         campaigns = "choose btn btn-primary app-active"
+        location.href= "#campaigns"
         break;
       case 'Signals':
         currentScreen = <Signals />
         signals = "choose btn btn-primary app-active"
+        location.href= "#signals"
         break;
       case 'Settings':
         currentScreen = <Settings />
@@ -186,7 +192,7 @@ var Home = React.createClass({
             className="btn btn-primary btn-xs"
             onClick={this.downloadSocialProspecter}> 
             <i className="fa fa-download" /> &nbsp;
-            Download Social Prospecter
+            Download Chrome Social Prospecter
           </a>
       </span>
       <br/>
@@ -228,9 +234,9 @@ var Home = React.createClass({
   },
   
   downloadSocialProspecter: function() {
-    console.log('download')
-    chrome.webstore.install('https://chrome.google.com/webstore/detail/ofcalkjbogaiipekcocdefjenclioeci')
+    //chrome.webstore.install('https://chrome.google.com/webstore/detail/ofcalkjbogaiipekcocdefjenclioeci')
     //chrome.webstore.install()
+    window.open('https://chrome.google.com/webstore/detail/customero-prospecter/ofcalkjbogaiipekcocdefjenclioeci')
   },
 
   /*
@@ -264,17 +270,53 @@ var Home = React.createClass({
 var Workspace = Backbone.Router.extend({
   routes: {
     //landing_page
-    ""            : "home",
+    //""            : "home",
     "get_started" : "landing_page",
     "free_trial"  : "free_trial",
     "signup"      : "signup",
     "login"       : "login",
     "pricing"     : "pricing",
+    
+    "signals"     : "signals",
+    "prospects"   : "prospects",
+    "companies"   : "companies",
+    "campaigns"   : "campaigns",
+
+    "prospects/p:page"       : "prospects",
+    "prospects/list/:list"   : "prospects_list",
+
+    "companies/p:page"       : "companies",
+    "companies/list/:list"   : "companies_list",
+
+    "signals/profile/:profile"  : "signals_profile",
+    "signals/calendar/:profile" : "signals_calendar",
+
+    "campaigns/followup_feed"      : "campaigns",
+    "campaigns/sent_emails"         : "campaigns",
+    "campaigns/template/:template" : "campaigns",
   },
+
+  mainRoute: function(route) {
+    console.log(route)
+    currentUser = localStorage.getItem('currentUser')
+    $('#content').html('')
+    if (currentUser) 
+      React.renderComponent(<Home selectedScreen={route} />, 
+                            document.getElementById('content'));
+    else
+      location.href = "#get_started"
+  },
+
+  signals  : function() { this.mainRoute('Signals') },
+  prospects: function() { this.mainRoute('Prospects') },
+  companies: function() { this.mainRoute('Companies') },
+  campaigns: function() { this.mainRoute('Campaigns') },
+
   home: function() {
     currentUser = localStorage.getItem('currentUser')
     if (currentUser) 
-      React.renderComponent(Home(), document.getElementById('content'));
+      React.renderComponent(<Home selectedScreen="Prospects"/>, 
+                            document.getElementById('content'));
     else
       location.href = "#get_started"
   },
@@ -301,13 +343,3 @@ $(document).ready(function(){
   var workspace = new Workspace;
   Backbone.history.start();
 });
-/*
-          <div className="dropdown" style={{display:'block',float:'left'}}>
-            <a data-toggle="dropdown" onClick={this.listDropdown} className="prospect-list-select" href="javascript:">Default&nbsp;&nbsp;&nbsp;<i className="fa fa-chevron-circle-down" /></a>
-              <ul className="list-select-dropdown dropdown-menu" role="menu" aria-labelledby="dLabel" style={{marginTop:'-1px'}}>
-                <li>LOL</li>
-                <li>LMAO</li>
-                <li>LMFAO</li>
-              </ul>
-          </div>
-*/
