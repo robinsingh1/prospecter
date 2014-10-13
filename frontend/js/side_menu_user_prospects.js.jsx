@@ -64,7 +64,7 @@ module.exports = React.createClass({
     }
 
     return (
-      <div className="col-md-2" 
+      <div className="col-md-2 col-sm-2 col-xs-2" 
            style={{padding:'0',height:'438px',backgroundColor:'#e0e9ee',
                    borderRight:'1px solid #b0b8bf',textAlign:'center'}}>
         <div className="prospect-list-header"> Lists </div>

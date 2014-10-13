@@ -177,7 +177,17 @@ var Home = React.createClass({
       <span style={{float:'right', marginRight:'150px'}}>
         <h6 style={{marginTop:'20px',float:'right',display:'inline',}}><a href="javascript:" onClick={this.logout} style={{color:'#1ca3fd'}}>Logout</a></h6>
         <h6 style={{marginTop:'20px',float:'right',display:'inline',marginRight:'10px'}}><a href="#pricing" style={{color:'#1ca3fd'}}>Pricing</a></h6>
-        <h6 style={{marginTop:'20px',float:'right',display:'inline', marginRight:'10px'}}><a href="http://resources.customerohq.com" style={{color:'#1ca3fd'}}>Resources</a></h6>
+        <h6 style={{marginTop:'20px',float:'right',display:'inline', marginRight:'10px'}}>
+          <a href="http://resources.customerohq.com" style={{color:'#1ca3fd'}}>Resources</a>
+        </h6>
+          <a href="javascript:" 
+            style={{marginTop:15, float:'right',marginRight:10,
+                    backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%)' }}
+            className="btn btn-primary btn-xs"
+            onClick={this.downloadSocialProspecter}> 
+            <i className="fa fa-download" /> &nbsp;
+            Download Social Prospecter
+          </a>
       </span>
       <br/>
       <br/>
@@ -207,12 +217,6 @@ var Home = React.createClass({
                 <i className="fa fa-envelope" />&nbsp;Campaigns
             </a>
           </div>
-          <a href="javascript:" 
-            style={{marginTop:7, float:'right'}}
-            className="btn btn-success btn-sm"
-            onClick={this.downloadSocialProspecter}> 
-            Download Social Prospecter
-          </a>
         </div>
 
           {currentScreen}
@@ -224,9 +228,9 @@ var Home = React.createClass({
   },
   
   downloadSocialProspecter: function() {
-    //chrome.webstore.install('https://chrome.google.com/webstore/detail/ofcalkjbogaiipekcocdefjenclioeci')
-    chrome.webstore.install()
     console.log('download')
+    chrome.webstore.install('https://chrome.google.com/webstore/detail/ofcalkjbogaiipekcocdefjenclioeci')
+    //chrome.webstore.install()
   },
 
   /*

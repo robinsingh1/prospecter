@@ -98,8 +98,8 @@ var CampaignRow = React.createClass({
           <a href="javascript:" className="btn btn-primary btn-xs" 
             style={{backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%) !important;',display:'none'}}> 
             <i className="fa fa-copy" style={{fontWeight:'bold'}}/>&nbsp; Clone</a>
-          <a href="javascript:" className="btn btn-primary btn-xs" 
-            style={{backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%) !important',marginLeft:5}}> <i className="fa fa-trash" /></a>
+          <a href="javascript:" className="btn-default" 
+            style={{marginLeft:5}}> <i className="fa fa-trash-o" /></a>
         </td>
         <td style={{textAlign:'center',padding:12,display:'none'}}>
           <h4 style={{margin:0}}>

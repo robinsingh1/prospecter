@@ -89,14 +89,14 @@ module.exports = React.createClass({
 
           <td style={color}>
             &nbsp; &nbsp;
-            <a href="javascript:" className="btn btn-success btn-xs"
+            <a href="javascript:" className="btn btn-primary btn-xs"
               onClick={this.openLinkedinCompanyProfile}
               style={{backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%)'}}> 
               <i className="fa fa-search" /> &nbsp;
               Search Profiles
             </a>
             &nbsp; &nbsp;
-            <a href="javascript:" className="btn btn-success btn-xs"
+            <a href="javascript:" className="btn btn-primary btn-xs"
               onClick={this.openSimilarCompanies}
               style={{backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%)'}}> 
               <i className="fa fa-copy" /> &nbsp;

@@ -162,6 +162,7 @@ module.exports = React.createClass({
   },
 
   render: function() {
+    // moment.utc(moment().startOf('day')).valueOf()/1000
     dates = []
     for(i=0;i< 52; i++) {  
       first = moment().subtract(i*7, 'days').format('ll')

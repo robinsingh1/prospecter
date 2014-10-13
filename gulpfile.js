@@ -112,10 +112,8 @@ gulp.task('default', ['clean'], function() {
 
 /* Gulp Parse Production */
 gulp.task('parse', ['parse-clean'], function() {
-  // Parse Styles // Parse images // Parse Browserify
   // Add A clean to parse public
   return gulp.start('parse-browserify', 'parse-libs', 
                     'parse-styles', 'parse-images')
-  //return gulp.start('parse-browserify')
 })
 

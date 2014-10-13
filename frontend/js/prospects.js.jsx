@@ -243,6 +243,7 @@ module.exports = React.createClass({
     }
 
     listType = (this.state.currentList == "All") ? {display:'none'} : {float:'left'}
+    listNameStyle = (this.state.currentList == "All") ? {display:'none'} : {float:'left',display:'inline-block', fontWeight: 200, marginTop: 1, paddingRight: 10, marginLeft: -10}
     listBtn = (this.state.currentList == "All") ? {display:'none'} : {float:'left',marginLeft:5}
     listOptions = (this.state.currentList == "All") ? {display:'none'} : {float:'right'}
     copyDropdownStyle = (this.state.currentList == "All") ? {width:114, right:4} : {width:114, right:36}
@@ -257,7 +258,7 @@ module.exports = React.createClass({
                            createList={this.createList}
                            lists={this.state.lists}/>
 
-        <div className="col-md-10" style={{padding:'0'}}>
+        <div className="col-md-10 col-sm-10 col-xs-10" style={{padding:'0'}}>
               <div id="prospectDetailButtons">
                 <ListDetailButtons 
                   renameList={this.renameList}
@@ -265,7 +266,7 @@ module.exports = React.createClass({
                   currentListName={this.state.currentList}
                   currentList={this.state.currentListObjectId}/>
 
-                <div className="dropdown">
+                <div className="dropdown" style={{display:'none'}}>
                   <a href="javascript:" 
                      className="btn btn-primary btn-xs list-options" 
                      id=""
@@ -307,6 +308,13 @@ module.exports = React.createClass({
                    id="downloadProspects"
                    className="drop-target btn btn-primary btn-xs list-options">
                   <i className="fa fa-download" /> &nbsp; Download CSV &nbsp; 
+                </a>
+                <a onClick={this.downloadFile} 
+                     style={listOptions} 
+                   href="javascript:" 
+                   id="downloadProspects"
+                   className="drop-target btn btn-primary btn-xs list-options">
+                  <i className="fa fa-building" /> &nbsp; Generate Company List &nbsp; 
                 </a>
               </div>
         
@@ -1027,8 +1035,8 @@ var ListDetailButtons = React.createClass({
   render: function() {
     //console.log(this.props.currentListObjectId)
     if(!this.state.editMode) {
-      stuff = <span className="label label-default" style={listType}>
-            {(this.props.currentListName == "All") ? '' : <i className="fa fa-align-justify" style={{marginRight:'5px'}}/>}
+      stuff = <span className="" style={listNameStyle}>
+            {(this.props.currentListName == "All") ? '' : <i className="fa fa-bars" style={{fontSize:16, marginTop:-5}}/>}
             {(this.props.currentListName == "All") ? '' : "   " +this.props.currentListName}
               </span>
     } else {
@@ -1044,18 +1052,16 @@ var ListDetailButtons = React.createClass({
                 data-toggle="modal"
                 id="renameListBtn"
                 data-target=".bs-renameList-modal-sm"
-                className="btn-gradient btn btn-xs btn-primary">
+                className="btn btn-xs btn-default">
                 <i className="fa fa-pencil" />
               </a>
               <a href="javascript:" 
                 style={listBtn}
-                data-toggle="modal"
-                id="deleteListModal"
-                data-target=".bs-deleteList-modal-sm"
-                className="btn-gradient btn btn-xs btn-primary">
+                className="btn btn-xs btn-default">
                 <i className="fa fa-trash-o" />
               </a>
             </h4>
+
             <RenameListModal renameList={this.props.renameList}/>
             <DeleteListModal deleteList={this.props.deleteList}/>
           </div>
