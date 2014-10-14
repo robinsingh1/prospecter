@@ -39,10 +39,11 @@ module.exports = React.createClass({
 
     newProfile = {
       name: profileName,
-      //autoProspect: autoProspect,
       profiles: nonemptyProfiles,
       type: 'prospect_profile',
       mining_job:true,
+      list_type:"mining_job",
+      only_people:true,
       user:{
         __type:'Pointer',
         className:'_User',
@@ -52,8 +53,7 @@ module.exports = React.createClass({
     }
 
     if(nonemptyProfiles.length) {
-      this.persistSignal(nonemptyProfiles, 
-                         _.omit(newProfile,'profiles'))
+      this.persistSignal(nonemptyProfiles, _.omit(newProfile,'profiles'))
       this.props.addProfile(newProfile)
       $('.modal').click()
       $('.prospect-profile-title').val('')
@@ -63,34 +63,43 @@ module.exports = React.createClass({
   persistSignal: function(nonemptyProfiles, newProfile) {
     console.log('NEW PROFILE')
     console.log(newProfile)
+    updateProfile = this.props.updateProfileWithObjectId
+
+    thissss = this;
     $.ajax({
       url:'https://api.parse.com/1/classes/ProspectProfile',
       headers:appConfig.headers,
       type:'POST',
       data:JSON.stringify(newProfile),
       success:function(ress) {
-        // Create Signal List ->  Update Prospect Profile
-        newProfile.user = {
-          __type: 'Pointer',
-          className:'_User',
-          objectId: JSON.parse(localStorage.currentUser).objectId
-        }
+        console.log('Prospect Profile')
+        console.log(ress)
+
+        thissss.props.updateProfileWithObjectId(newProfile, ress.objectId)
+        
+        user_id = JSON.parse(localStorage.currentUser).objectId
+        newProfile.user = appConfig.pointer('_User', user_id) 
         newProfile.company = JSON.parse(localStorage.currentUser).company
+
         if(newProfile.type == 'prospect_profile')
           newProfile.mining_job_list = true
+          newProfile.list_type = "mining_job"
+          newProfile.only_people = true
 
         $.ajax({
           url: 'https://api.parse.com/1/classes/ProspectList',
           type: 'POST',
           headers: appConfig.headers,
-          data:JSON.stringify(_.pick(newProfile, 'name','user',
-                                     'company','mining_job_list')),
+          data:JSON.stringify(_.pick(newProfile, 
+                                     'name','user','list_type',
+                                     'open_people', 'company',
+                                     'mining_job_list')),
           success: function(res) {
             $.ajax({
               url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
               type:'PUT',
               headers: appConfig.headers,
-              data: JSON.stringify({ 'prospect_list':{ __type:'Pointer',
+              data: JSON.stringify({'prospect_list':{ __type:'Pointer',
                                     className:'ProspectList',objectId:res.objectId } }),
               success: function(res){ console.log(res) },
               error: function(err){ console.log(err) }
@@ -102,8 +111,9 @@ module.exports = React.createClass({
         // Start Mining Job
         if(newProfile.type == 'prospect_profile') {
           $.ajax({
-            url:'https://nameless-retreat-3525.herokuapp.com/title_mining_job',
-            //url:'http://127.0.0.1:5000/title_mining_job',
+            //url:'https://nameless-retreat-3525.herokuapp.com/mining_job/title',
+            ///url:'https://nameless-retreat-3525.herokuapp.com/title_mining_job',
+            url:'http://127.0.0.1:5000/title_mining_job',
             type:'GET',
             data: {prospect_profile: ress.objectId},
             success: function(res) { console.log(res) },

@@ -1,6 +1,7 @@
 /** @jsx React.DOM */
 
 var SignalProfile = require('./signal_profile.js.min.js')
+var SignalLoading = require('./signal_loading.js.min.js')
 var CompanySignalCard = require('./company_signal_card.js.min.js')
 var PeopleSignalCard = require('./people_signal_card.js.min.js')
 var SignalCalendar = require('./signal_calendar.js.min.js')
@@ -41,32 +42,33 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    if(this.state.currentView == "Feed") {
-      signalView = <div>
-          <SignalDetailButtons signalType={this.state.signalType} 
-                               currentProfile={this.state.currentProfile}
-                               setSignalType={this.setSignalType}/>
-          <SignalsFeed 
-                  setCurrentView={this.setCurrentView}
-                  signalType={this.state.signalType} 
-                  profile={this.state.currentProfile}
-                  signals={this.state.signals}/>
-          </div>
-    } else if(this.state.currentView == "Calendar"){
-      signalView = <SignalCalendar 
-                        currentProfile={this.state.currentProfile}
-                        setCurrentReport={this.setCurrentReport}
-                        setCurrentView={this.setCurrentView} />
-    } else if(this.state.currentView == "Detail"){
-      signalView = <SignalsDetail 
-                        currentProfile={this.state.currentProfile}
-                        currentProfileReport={this.state.currentProfileReport}
-                        setCurrentView={this.setCurrentView}/>
-    } else if(this.state.currentView == "MiningJobCalendar"){
-      signalView = <MiningJobCalendar 
-                        currentProfile={this.state.currentProfile}
-                        setCurrentReport={this.setCurrentReport}
-                        setCurrentView={this.setCurrentView}/>
+    currentProfile = this.state.currentProfile
+    if(currentProfile.name == "All" || currentProfile.done){
+      if(this.state.currentView == "Feed") {
+        signalView = <div>
+            <SignalDetailButtons signalType={this.state.signalType} 
+                                 currentProfile={this.state.currentProfile}
+                                 setSignalType={this.setSignalType}/>
+            <SignalsFeed setCurrentView={this.setCurrentView}
+                         signalType={this.state.signalType} 
+                         profile={this.state.currentProfile}
+                         signals={this.state.signals}/>
+            </div>
+      } else if(this.state.currentView == "Calendar"){
+        signalView = <SignalCalendar currentProfile={this.state.currentProfile}
+                                     setCurrentReport={this.setCurrentReport}
+                                     setCurrentView={this.setCurrentView} />
+      } else if(this.state.currentView == "Detail"){
+        signalView = <SignalsDetail currentProfile={this.state.currentProfile}
+                                    currentProfileReport={this.state.currentProfileReport}
+                                    setCurrentView={this.setCurrentView}/>
+      } else if(this.state.currentView == "MiningJobCalendar"){
+        signalView = <MiningJobCalendar currentProfile={this.state.currentProfile}
+                                        setCurrentReport={this.setCurrentReport}
+                                        setCurrentView={this.setCurrentView}/>
+      }
+    } else {
+      signalView = <SignalLoading currentProfile={this.state.currentProfile}/>
     }
 
    return (
@@ -84,11 +86,12 @@ module.exports = React.createClass({
             {signalView}
           </div>
         </div>
+
         <CreateMiningJobModal />
         <CreateHiringSignalModal addProfile={this.addProfile}/>
         <CreateFundingSignalModal addProfile={this.addProfile}/>
         <CreateCompanyProfileModal addProfile={this.addProfile}/>
-        <CreateProspectProfileModal addProfile={this.addProfile}/>
+        <CreateProspectProfileModal addProfile={this.addProfile} updateProfileWithObjectId={this.updateProfileWithObjectId}/>
       </div>
     )
   },
@@ -96,6 +99,8 @@ module.exports = React.createClass({
   addProfile: function(newProfile) {
     profiles = this.state.profiles
     this.setState({profiles: [newProfile].concat(profiles)})
+    // Set Current Profile 
+    this.setCurrentProfile(newProfile)
   },
 
   removeProfile: function(oldProfile) {
@@ -112,9 +117,37 @@ module.exports = React.createClass({
     }
   },
 
-  setCurrentProfile: function(newProfile) {
-    console.log(newProfile)
+  updateProfileWithObjectId: function(oldProfile, objectId) {
+    // find where profile == profile
+    // replace element
+    profiles = this.state.profiles
+    count = 0
+    console.log('UPDATE PROFILES')
 
+    newProfiles = _.map(profiles, function(profile) {
+      profile = _.omit(profile, ['mining_job_list','profiles'])
+      oldProfile = _.omit(oldProfile, 'profiles')
+
+      console.log(_.isEqual(_.omit(profile, ['mining_job_list','profiles']),
+                            _.omit(oldProfile,'profiles')))
+      if(_.isEqual(profile, oldProfile)) {
+        profile.objectId = objectId
+        return profile
+      }
+      return profile
+    })
+    console.log(newProfiles)
+
+    currentProfile = _.omit(this.state.currentProfile,['mining_job_list','profiles'])
+    if(_.isEqual(currentProfile, oldProfile)) {
+      currentProfile = this.state.currentProfile
+      currentProfile.objectId = objectId
+      this.setState({currentProfile: currentProfile})
+    }
+    this.setState({profiles: newProfiles})
+  },
+
+  setCurrentProfile: function(newProfile) {
     if(newProfile.only_people) {
       this.getSignals('PeopleSignal', 
                       JSON.stringify({
@@ -134,14 +167,8 @@ module.exports = React.createClass({
 
   componentDidMount: function() {
     this.getSignals(this.state.signalType)
-
     currentUser = JSON.parse(localStorage.currentUser)
-    user = {
-      '__type'    : 'Pointer',
-      'className' : '_User',
-      'objectId'  : currentUser.objectId
-    }
-    user = JSON.stringify(user)
+    user = JSON.stringify(appConfig.pointer('_User', currentUser.objectId))
     company = JSON.stringify(currentUser.company)
     qry = 'where={"company":'+company+',"user":'+user+'}&include=profiles,prospect_list&order=-createdAt'
   
@@ -154,7 +181,7 @@ module.exports = React.createClass({
       success: function(res) {
         console.log('Prospect Profile')
         console.log(res.results)
-        thisss.setCurrentProfile(res.results[0])
+        //thisss.setCurrentProfile(res.results[0])
         thisss.setState({profiles: res.results})
       },
       error: function(err) {
@@ -213,7 +240,7 @@ module.exports = React.createClass({
       data: qry,
       headers:appConfig.parseHeaders,
       success: function(res) {
-        console.log(res.results)
+        //console.log(res.results)
         thiss.setState({signals: res.results})
       },
       error: function(err) { console.log(err) }
@@ -238,7 +265,7 @@ var SignalDetailButtons = React.createClass({
           <h4 style={{display:'inline-block',float:'left',width:300,
                       fontWeight:200,marginTop:4,paddingLeft:20}}>
             <i className="fa fa-newspaper-o" />&nbsp; 
-            {(this.props.currentProfile.name != "") ? this.props.currentProfile.name : 'All'}
+            {this.props.currentProfile.name}
           </h4>
           <div className="btn-group" style={{marginLeft:'0%'}}>
             <a className={ppl}
@@ -291,6 +318,7 @@ var SignalsOptions = React.createClass({
     }
 
     profiles_num = (this.props.profiles.length) ? this.props.profiles.length : "~"
+    /* border-left: 5px solid #0096ff !important; for selected profile */
     return (
       <div>
       <div className="list-group" >

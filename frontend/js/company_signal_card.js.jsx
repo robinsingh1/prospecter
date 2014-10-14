@@ -16,17 +16,20 @@ module.exports = React.createClass({
                 maxWidth: '40%', whiteSpace: 'nowrap',
                 overflow: 'hidden', textOverflow: 'ellipsis'}}>
               <i className="fa fa-suitcase"/> &nbsp;
-              {company.signals[0].job_title}
+              {(company.signals) ? company.signals[0].job_title : ""}
             </span>
           </h4>
           <a href="javascript:" className="btn btn-success"
             style={{float:'right',marginTop:15, fontWeight:'bold'}}> 
             Prospect This Company</a>
           <p style={{fontSize:12,width:'75%'}}>
-            {company.signals[0].summary}
+            <span>
+            {(company.signals) ? company.signals[0].summary : ""}
+            </span>
           </p>
           <h6> <i className="fa fa-map-marker" />
-            &nbsp; {company.signals[0].location}</h6>
+             &nbsp;{(company.signals) ? company.signals[0].location : ""}
+            </h6>
         </div>
       </div>
     );

@@ -26,12 +26,27 @@ module.exports = React.createClass({
     this.props.setCurrentView('Feed')
   },
 
+  removeTheProfile: function() {
+    this.props.removeProfile(this.props.profile)
+  },
+
   removeProfile: function() {
-    if (confirm("Press a button!") == true) {
-      this.props.removeProfile(this.props.profile)
-    } else {
-      x = "You pressed Cancel!";
-    }
+    thissss = this;
+    console.log(thiss.removeTheProfile)
+
+    swal({   
+      title: "Are you sure?",   
+      text: "Your will not be able to recover this prospect list!",   
+      type: "warning",   
+      showCancelButton: true,   
+      confirmButtonColor: "#DD6B55",   
+      confirmButtonText: "Yes, delete it!",   
+      closeOnConfirm: false }, 
+      function(){   
+        swal("Deleted!", "Your prospect list has been deleted.", "success"); 
+        thissss.removeTheProfile()
+        console.log('deleted')
+      });
   },
 
   render: function() {
@@ -44,6 +59,11 @@ module.exports = React.createClass({
       icon = <i className="fa fa-wifi" style={{marginRight:5}}/>
     else
       icon = <i className="fa fa-cloud-download" style={{marginRight:5}} />
+
+    loading = (!this.props.profile.done) ? <div className="profile-loading" >
+            <div className="double-bounce1"></div>
+            <div className="double-bounce2"></div>
+          </div> : ""
     return (
       <div className="list-group-item ideal-company-profile"
            onClick={this.setCurrentProfile}
@@ -54,6 +74,7 @@ module.exports = React.createClass({
             {icon}    
             {this.props.profile.name}
           </h6>
+          {loading}
           <a href="javascript:" 
              className="btn btn-primary btn-xs signal-detail-btn"
              onClick={this.removeProfile}>
