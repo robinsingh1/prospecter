@@ -50,7 +50,7 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    //console.log(this.props.profile)
+
     signalDetails = []
     for(i=0;i< this.props.profile.profiles.length; i++) {
       signalDetails.push(<ProfileType profile={this.props.profile.profiles[i]} />)
@@ -64,17 +64,30 @@ module.exports = React.createClass({
             <div className="double-bounce1"></div>
             <div className="double-bounce2"></div>
           </div> : ""
+    
+    if(this.props.profile.mining_job && this.props.profile.done)
+      mining_job_done = <i className="fa fa-check-circle" style={{color:'#0096ff',marginLeft:5,fontSize:15}}/>
+    else
+      mining_job_done = ""
+
+    selectedStyle = {paddingTop:5,borderLeft:0,paddingLeft:10, borderRight:'1px solid #ddd', borderLeft: '5px solid #0096ff !important'}
+    regularStyle = {paddingTop:5,borderLeft:0,paddingLeft:10, borderRight:'1px solid #ddd', borderLeft: '5px solid red !important'}
+    regularStyle = {paddingTop:5,borderLeft:0,paddingLeft:10, borderRight:'1px solid #ddd', borderLeft:'5px solid rgba(0,0,0,0)'}
+    selected= this.props.profile.objectId == this.props.currentProfile.objectId
+    itemStyle = (selected) ? selectedStyle : regularStyle
+    itemClass = (selected) ? "list-group-item ideal-company-profile list-group-selected" : "list-group-item ideal-company-profile"
+
+
     return (
-      <div className="list-group-item ideal-company-profile"
+      <div className={itemClass}
            onClick={this.setCurrentProfile}
-           style={{paddingTop:5,borderLeft:0,paddingLeft:10,
-                   borderRight:'1px solid #ddd'}}>
+           style={regularStyle}>
         <span className="profile-title">
           <h6 className="label label-default profile-name"> 
             {icon}    
             {this.props.profile.name}
           </h6>
-          {loading}
+          {loading}{mining_job_done}
           <a href="javascript:" 
              className="btn btn-primary btn-xs signal-detail-btn"
              onClick={this.removeProfile}>
@@ -99,9 +112,10 @@ module.exports = React.createClass({
       </div>
     );
   },
+
   launchModal: function(e) {
     $('#createMiningJobModal').modal()
-    e.stopPropogation()
+    e.stopPropagation()
   }
 });
 
@@ -153,6 +167,9 @@ var ProfileType = React.createClass({
     } else if (this.props.profile.className  == "CompanySizeProfile") {
       signalIcon = <i className="fa fa-wrench" />
       signalName = "Technology"
+    } else if (this.props.profile.className  == "ListProfile") {
+      signalIcon = <i className="fa fa-list-alt" />
+      signalName = "lists"
     } else if (this.props.profile.className  == "ProspectTitleProfile") {
       signalIcon = <i className="fa fa-user" />
       signalName = "Titles"

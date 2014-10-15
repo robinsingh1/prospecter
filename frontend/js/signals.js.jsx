@@ -80,6 +80,7 @@ module.exports = React.createClass({
                             addProfile={this.addProfile}
                             removeProfile={this.removeProfile}
                             setCurrentView={this.setCurrentView}
+                            currentProfile={this.state.currentProfile}
                             setCurrentProfile={this.setCurrentProfile}/>
           </div>
           <div className="col-md-9" style={{height:'100%',padding:0}}>
@@ -125,21 +126,22 @@ module.exports = React.createClass({
     console.log('UPDATE PROFILES')
 
     newProfiles = _.map(profiles, function(profile) {
-      profile = _.omit(profile, ['mining_job_list','profiles'])
+      _profile = _.omit(profile, ['mining_job_list','profiles'])
       oldProfile = _.omit(oldProfile, 'profiles')
 
       console.log(_.isEqual(_.omit(profile, ['mining_job_list','profiles']),
                             _.omit(oldProfile,'profiles')))
-      if(_.isEqual(profile, oldProfile)) {
+      if(_.isEqual(_profile, oldProfile)) {
         profile.objectId = objectId
         return profile
       }
       return profile
     })
     console.log(newProfiles)
-
-    currentProfile = _.omit(this.state.currentProfile,['mining_job_list','profiles'])
-    if(_.isEqual(currentProfile, oldProfile)) {
+    
+    currentProfile = this.state.currentProfile
+    if(_.isEqual(_.omit(currentProfile,['mining_job_list','profiles']), 
+                 oldProfile)) {
       currentProfile = this.state.currentProfile
       currentProfile.objectId = objectId
       this.setState({currentProfile: currentProfile})
@@ -291,9 +293,7 @@ var SignalsOptions = React.createClass({
   },
 
   setCurrentProfile: function(currentProfile) {
-    // Set Current Profile
     this.props.setCurrentProfile(currentProfile)
-    // Update Request To New Profile
   },
 
   removeProfile: function(oldProfile) {
@@ -310,15 +310,18 @@ var SignalsOptions = React.createClass({
 
   render: function() {
     profs = []
+    console.log('signals render')
     for(i=0; i< this.props.profiles.length;i++) {
+      select= this.props.profiles[i].objectId == this.props.currentProfile.objectId
       profs.push(<SignalProfile setCurrentProfile={this.setCurrentProfile} 
                                 setCurrentView={this.setCurrentView}
+                                currentProfile={this.props.currentProfile}
+                                selected={select}
                                 removeProfile={this.removeProfile}
                                 profile={this.props.profiles[i]} />)
     }
 
     profiles_num = (this.props.profiles.length) ? this.props.profiles.length : "~"
-    /* border-left: 5px solid #0096ff !important; for selected profile */
     return (
       <div>
       <div className="list-group" >

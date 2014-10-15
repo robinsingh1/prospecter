@@ -9,6 +9,7 @@ var SideMenuListOption = require('./user_side_menu_list.js.min.js');
 var LoadingSpinner = require('./loading_spinner.js.min.js')
 var PanelFooting = require('./panel_footing.js.min.js')
 var Messenger = require('./messenger.js.min.js')
+
 var DeleteListModal = require('./delete_list_modal.js.min.js')
 var RenameListModal = require('./rename_list_modal.js.min.js')
 

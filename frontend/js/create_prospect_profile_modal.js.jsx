@@ -31,11 +31,13 @@ module.exports = React.createClass({
     profiles = [titleProfile, locationProfile,
                 companySizeProfile, revenueProfile]
     */
+    
     profiles = [titleProfile]
 
     nonemptyProfiles = _.filter(profiles, function(profile) {
       if(_.values(profile)[1]){ return _.values(profile)[1].length }
     });
+    console.log(nonemptyProfiles)
 
     newProfile = {
       name: profileName,
@@ -53,8 +55,8 @@ module.exports = React.createClass({
     }
 
     if(nonemptyProfiles.length) {
-      this.persistSignal(nonemptyProfiles, _.omit(newProfile,'profiles'))
       this.props.addProfile(newProfile)
+      this.persistSignal(nonemptyProfiles, newProfile)
       $('.modal').click()
       $('.prospect-profile-title').val('')
     }
@@ -70,21 +72,13 @@ module.exports = React.createClass({
       url:'https://api.parse.com/1/classes/ProspectProfile',
       headers:appConfig.headers,
       type:'POST',
-      data:JSON.stringify(newProfile),
+      data:JSON.stringify(_.omit(newProfile, 'profiles')),
       success:function(ress) {
-        console.log('Prospect Profile')
-        console.log(ress)
-
         thissss.props.updateProfileWithObjectId(newProfile, ress.objectId)
         
         user_id = JSON.parse(localStorage.currentUser).objectId
         newProfile.user = appConfig.pointer('_User', user_id) 
         newProfile.company = JSON.parse(localStorage.currentUser).company
-
-        if(newProfile.type == 'prospect_profile')
-          newProfile.mining_job_list = true
-          newProfile.list_type = "mining_job"
-          newProfile.only_people = true
 
         $.ajax({
           url: 'https://api.parse.com/1/classes/ProspectList',
@@ -95,12 +89,12 @@ module.exports = React.createClass({
                                      'open_people', 'company',
                                      'mining_job_list')),
           success: function(res) {
+            prospectList = appConfig.pointer('ProspectList',res.objectId)
             $.ajax({
               url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
               type:'PUT',
               headers: appConfig.headers,
-              data: JSON.stringify({'prospect_list':{ __type:'Pointer',
-                                    className:'ProspectList',objectId:res.objectId } }),
+              data: JSON.stringify({'prospect_list':prospectList}),
               success: function(res){ console.log(res) },
               error: function(err){ console.log(err) }
             })

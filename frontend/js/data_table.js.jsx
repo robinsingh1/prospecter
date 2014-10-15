@@ -14,6 +14,7 @@ var Messenger = require('./messenger.js.min.js')
 var DeleteListModal = require('./delete_list_modal.js.min.js')
 var RenameListModal = require('./rename_list_modal.js.min.js')
 var CompanyProspect = require('./company.js.min.js');
+var CreateProspectListFromCompanyListModal = require('./create_prospect_list_from_company_list.js.min.js')
 
 module.exports = React.createClass({
   getInitialState: function() {
@@ -228,6 +229,7 @@ module.exports = React.createClass({
 
       //profile = this.state.prospects[i].linkedin_url.replace('http://','')
       //profile = this.state.prospects[i].linkedin_url.replace('https://','')
+      profile = (typeof(profile) != "undefined") ? profile : ""
       li = <a href={'http://'+profile} className="linkedin_link"><i className="fa fa-linkedin-square" /></a>
 
       keyboardSelected = (i == this.state.keyboardActiveProspect)
@@ -322,7 +324,7 @@ module.exports = React.createClass({
                   <i className="fa fa-download" /> &nbsp; Download CSV &nbsp; 
                 </a>
 
-                <a onClick={this.downloadFile} 
+                <a onClick={this.launchProspectListFromCompanyListModal} 
                    style={listOptions}
                    href="javascript:" 
                    id="downloadProspects"
@@ -352,6 +354,7 @@ module.exports = React.createClass({
                     prospectsPerPage={this.state.prospectsPerPage}
                     pages={this.state.pages}/>
       <Messenger />
+      <CreateProspectListFromCompanyListModal currentListObjectId={this.state.currentListObjectId}/>
     </div>
     );
   },
@@ -364,6 +367,11 @@ module.exports = React.createClass({
     })
     this.startKeyboardShortcuts()
     document.getElementById('autoscroll').scrollTop = 0
+  },
+
+  launchProspectListFromCompanyListModal: function() {
+    
+    $('#createProspectListFromCompanyListModal').modal()
   },
 
   downloadFile: function() {
@@ -1075,6 +1083,7 @@ var ListDetailButtons = React.createClass({
                 <i className="fa fa-trash-o" />
               </a>
             </h4>
+
             <RenameListModal renameList={this.props.renameList}/>
             <DeleteListModal deleteList={this.props.deleteList}/>
           </div>
