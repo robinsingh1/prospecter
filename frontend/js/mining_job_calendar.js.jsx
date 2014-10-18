@@ -10,16 +10,12 @@ module.exports = React.createClass({
 
   getSignalReport: function() {
     thissss = this;
-    qry = 'where='+JSON.stringify({profile:{
-      __type:'Pointer',
-      className:'ProspectProfile',
-      objectId:this.props.currentProfile.objectId
-    }})
-
+    profile = JSON.stringify({profile: appConfig.pointer('ProspectProfile',
+                                          this.props.currentProfile.objectId)})
     $.ajax({
       url: 'https://api.parse.com/1/classes/SignalReport?order=-createdAt',
       type:'GET',
-      data: qry,
+      data: {where: profile},
       headers:appConfig.parseHeaders,
       success: function(res) {
         thissss.setState({reports: res.results})
@@ -30,12 +26,44 @@ module.exports = React.createClass({
     });
   },
 
-  componentDidMount: function() {
-    this.getSignalReport()
+  getResults: function() {
+    thissss = this;
+    profile = JSON.stringify({profile: appConfig.pointer('ProspectProfile',
+                                          this.props.currentProfile.objectId)})
+    console.log(this.props)
+    theProfile = this.props.currentProfile
+    $.ajax({
+      url: 'https://api.parse.com/1/classes/PeopleSignal',
+      type:'GET',
+      data: {where: profile, order: '-createdAt',count:true},
+      headers:appConfig.parseHeaders,
+      success: function(res) {
+        // divide results into groups of 100
+        // schedule them for 1 intervals
+        number_of_reports = Math.ceil(res.count/100)
+        reports = []
+        for(i=0;i< number_of_reports;i++){
+          count = (i == number_of_reports-1) ? res.count % 100 : 100
+          console.log(theProfile.done)
+          reports.push({
+          scheduledAt: moment.unix(theProfile.done).add(i,'day').fromNow(),
+          people_count: count,
+          })
+        }
+        thissss.setState({reports: reports})
+      },
+      error: function(err) {
+        console.log(err)
+      }
+    });
   },
 
-  componentDidUpdate: function() {
-    this.getSignalReport()
+  componentDidMount: function() {
+    this.getResults()
+  },
+
+  componentWillRecieveProps: function() {
+    //this.getResults()
   },
 
   setCurrentReport: function(newReport) {
@@ -93,6 +121,7 @@ var SignalReportRow = React.createClass({
   },
 
   prospectAllSignalReportProspects: function(e) {
+    /*
     e.stopPropagation()
     // Update UI
     console.log(this.props.report.objectId)
@@ -104,6 +133,7 @@ var SignalReportRow = React.createClass({
       success: function(res) { console.log(res) },
       error: function(err) { console.log(err) }
     })
+    */
   },
 
   render: function() {
@@ -115,7 +145,7 @@ var SignalReportRow = React.createClass({
         </td>
         <td style={{textAlign:'center'}}>
           <h6> 
-            {moment(this.props.report.createdAt).fromNow()}
+            {this.props.report.scheduledAt}
           </h6>
         </td>
         <td style={{textAlign:'center'}}>

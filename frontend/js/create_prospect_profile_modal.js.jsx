@@ -46,6 +46,8 @@ module.exports = React.createClass({
       mining_job:true,
       list_type:"mining_job",
       only_people:true,
+      timestamp: moment().valueOf(),
+      done: 0,
       user:{
         __type:'Pointer',
         className:'_User',
@@ -65,16 +67,16 @@ module.exports = React.createClass({
   persistSignal: function(nonemptyProfiles, newProfile) {
     console.log('NEW PROFILE')
     console.log(newProfile)
-    updateProfile = this.props.updateProfileWithObjectId
 
-    thissss = this;
+    var thissss = this;
+    var thiss = this;
+    var _this = this;
     $.ajax({
       url:'https://api.parse.com/1/classes/ProspectProfile',
       headers:appConfig.headers,
       type:'POST',
       data:JSON.stringify(_.omit(newProfile, 'profiles')),
       success:function(ress) {
-        thissss.props.updateProfileWithObjectId(newProfile, ress.objectId)
         
         user_id = JSON.parse(localStorage.currentUser).objectId
         newProfile.user = appConfig.pointer('_User', user_id) 
@@ -89,6 +91,7 @@ module.exports = React.createClass({
                                      'open_people', 'company',
                                      'mining_job_list')),
           success: function(res) {
+            console.log(res)
             prospectList = appConfig.pointer('ProspectList',res.objectId)
             $.ajax({
               url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
@@ -139,6 +142,8 @@ module.exports = React.createClass({
             }
           })
         });
+
+        thiss.props.updateProfileWithObjectId(newProfile.timestamp, ress.objectId)
       }
     })
   },

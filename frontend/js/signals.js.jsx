@@ -37,12 +37,43 @@ module.exports = React.createClass({
     })
   },
 
+  prospectSignalReport: function(profile, report) {
+    profiles = _.map(this.state.profiles, function(_profile) {
+                  if(_profile.objectId == profile.objectId){
+                    reports = _.map(_profile.reports, function(_report) {
+                                if(_report.objectId == report.objectId){
+                                  _report.prospected = true
+                                  return _report
+                                }
+                                return _report
+                              })
+                    _profile.reports = reports
+                    return _profile
+                  }
+                  return _profile
+                })
+                //console.log(profiles)
+    this.setState({profiles: profiles})
+    $.ajax({
+      url:'https://api.parse.com/1/classes/SignalReport/'+report.objectId,
+      type:'PUT',
+      headers:appConfig.headers,
+      data:JSON.stringify({prospected:moment().valueOf()/1000}),
+      success: function(res) {},
+      error: function(err) {}
+    })
+  },
+
   setCurrentView: function(newSignalView) {
     this.setState({currentView: newSignalView})
   },
 
   render: function() {
     currentProfile = this.state.currentProfile
+    reports = this.state.currentProfile.reports
+    reports = (reports) ? reports : []
+    reports = _.sortBy(reports, function(o){ return o.createdAt }).reverse()
+    //console.log(currentProfile)
     if(currentProfile.name == "All" || currentProfile.done){
       if(this.state.currentView == "Feed") {
         signalView = <div>
@@ -56,6 +87,8 @@ module.exports = React.createClass({
             </div>
       } else if(this.state.currentView == "Calendar"){
         signalView = <SignalCalendar currentProfile={this.state.currentProfile}
+                                    prospectSignalReport={this.prospectSignalReport}
+                                     reports={reports}
                                      setCurrentReport={this.setCurrentReport}
                                      setCurrentView={this.setCurrentView} />
       } else if(this.state.currentView == "Detail"){
@@ -68,7 +101,15 @@ module.exports = React.createClass({
                                         setCurrentView={this.setCurrentView}/>
       }
     } else {
-      signalView = <SignalLoading currentProfile={this.state.currentProfile}/>
+      // Show Calendar Even When Signal Is Loading
+      if(this.state.currentView == "Calendar"){
+        signalView = <SignalCalendar currentProfile={this.state.currentProfile}
+                                     setCurrentReport={this.setCurrentReport}
+                                     reports={reports}
+                                     setCurrentView={this.setCurrentView} />
+      } else {
+        signalView = <SignalLoading currentProfile={this.state.currentProfile}/>
+      }
     }
 
    return (
@@ -76,31 +117,100 @@ module.exports = React.createClass({
         <div className="container" style={{padding:0, width:'100%', height:'100%'}}>
           <div className="col-md-3 signal-list" 
                style={{ height:'102.8%', padding:0}}>
-            <SignalsOptions profiles={this.state.profiles}
-                            addProfile={this.addProfile}
-                            removeProfile={this.removeProfile}
-                            setCurrentView={this.setCurrentView}
-                            currentProfile={this.state.currentProfile}
-                            setCurrentProfile={this.setCurrentProfile}/>
+              <SignalsOptions profiles={this.state.profiles}
+                              addProfile={this.addProfile}
+                              updateMiningJobDone={this.updateMiningJobDone}
+                              removeProfile={this.removeProfile}
+                              setCurrentView={this.setCurrentView}
+                              currentProfile={this.state.currentProfile}
+                              setCurrentProfile={this.setCurrentProfile}/>
           </div>
           <div className="col-md-9" style={{height:'100%',padding:0}}>
             {signalView}
           </div>
         </div>
 
-        <CreateMiningJobModal />
+        <CreateMiningJobModal createMiningJob={this.createMiningJob}
+                              currentProfile={this.state.currentProfile}/>
         <CreateHiringSignalModal addProfile={this.addProfile}/>
         <CreateFundingSignalModal addProfile={this.addProfile}/>
         <CreateCompanyProfileModal addProfile={this.addProfile}/>
-        <CreateProspectProfileModal addProfile={this.addProfile} updateProfileWithObjectId={this.updateProfileWithObjectId}/>
+        <CreateProspectProfileModal addProfile={this.addProfile} 
+                      updateProfileWithObjectId={this.updateProfileWithObjectId}/>
       </div>
     )
+  },
+
+  createMiningJob: function(theProfile, date) {
+    console.log('create mining job')
+    var thiss = this;
+    report = {
+      //createdAt: moment().valueOf(),
+      company_count: 0,
+      people_count: 0,
+      list_type:'mining_job',
+      done: 0,
+      mining_job: true,
+    }
+
+    profiles=_.map(this.state.profiles, function(profile) {
+      if(_.isEqual(theProfile, profile)){
+        if(profile.mining_days){
+          profile.mining_days.push(date)
+        }else{
+          profile.mining_days = [date]
+        }
+
+        if(profile.reports){
+          profile.reports = [report].concat(profile.reports)
+        }else{
+          profile.reports = [report]
+        }
+        
+        thiss.setState({currentProfile: profile})
+        thiss.persistMiningJob(date, report)
+        return profile
+      }
+      return profile
+    })
+    thiss.setState({profiles: profiles})
+  },
+
+  persistMiningJob: function(date, report) {
+    console.log(this.state)
+    objectId = this.state.currentProfile.objectId
+    $.ajax({
+      url:'https://api.parse.com/1/classes/SignalReport',
+      type:'POST',
+      headers:appConfig.headers,
+      data:JSON.stringify(report),
+      success: function(res) {
+        console.log(res)
+        $.ajax({
+          url:'https://api.parse.com/1/classes/ProspectProfile/'+objectId,
+          type:'PUT',
+          headers:appConfig.headers,
+          data:JSON.stringify({
+            mining_days: {
+              __op:'AddUnique',
+              objects:[date],
+            },
+            reports: {
+              __op:'AddUnique',
+              objects:[appConfig.pointer('SignalReport', res.objectId)]
+            }
+          }),
+          success: function(res) { console.log(res) },
+          error: function(err) {},
+        })
+      },
+      error: function(err) {},
+    })
   },
 
   addProfile: function(newProfile) {
     profiles = this.state.profiles
     this.setState({profiles: [newProfile].concat(profiles)})
-    // Set Current Profile 
     this.setCurrentProfile(newProfile)
   },
 
@@ -118,35 +228,39 @@ module.exports = React.createClass({
     }
   },
 
-  updateProfileWithObjectId: function(oldProfile, objectId) {
-    // find where profile == profile
-    // replace element
-    profiles = this.state.profiles
-    count = 0
+  updateMiningJobDone: function(profile) {
+    profiles = _.map(this.state.profiles, function(_profile) {
+                  if(_profile.objectId == profile.objectId) {
+                    _profile.done = true
+                    return _profile
+                  }
+                  return _profile
+                })
+    this.setState({profiles: profiles})
+  },
+
+  updateProfileWithObjectId: function(timestamp, objectId) {
     console.log('UPDATE PROFILES')
-
-    newProfiles = _.map(profiles, function(profile) {
-      _profile = _.omit(profile, ['mining_job_list','profiles'])
-      oldProfile = _.omit(oldProfile, 'profiles')
-
-      console.log(_.isEqual(_.omit(profile, ['mining_job_list','profiles']),
-                            _.omit(oldProfile,'profiles')))
-      if(_.isEqual(_profile, oldProfile)) {
-        profile.objectId = objectId
-        return profile
-      }
+    newProfiles = _.map(this.state.profiles, function(profile) {
+        if(profile.timestamp == timestamp) {
+          profile.objectId = objectId
+          return profile
+        }
       return profile
     })
-    console.log(newProfiles)
     
-    currentProfile = this.state.currentProfile
-    if(_.isEqual(_.omit(currentProfile,['mining_job_list','profiles']), 
-                 oldProfile)) {
-      currentProfile = this.state.currentProfile
-      currentProfile.objectId = objectId
-      this.setState({currentProfile: currentProfile})
-    }
+    console.log(newProfiles)
     this.setState({profiles: newProfiles})
+    console.log(objectId)
+
+    var pusher = new Pusher('1a68a96c8fde938fa75a');
+    console.log('new pusher channel ->', objectId)
+    var channel = pusher.subscribe(objectId);
+    var thiss = this;
+    channel.bind("done", function(data) {
+      thiss.updateMiningJobDone(_.findWhere(thiss.state.profiles, {timestamp: timestamp}))
+      alertify.success("New Success notification");
+    });
   },
 
   setCurrentProfile: function(newProfile) {
@@ -172,7 +286,8 @@ module.exports = React.createClass({
     currentUser = JSON.parse(localStorage.currentUser)
     user = JSON.stringify(appConfig.pointer('_User', currentUser.objectId))
     company = JSON.stringify(currentUser.company)
-    qry = 'where={"company":'+company+',"user":'+user+'}&include=profiles,prospect_list&order=-createdAt'
+    qry = 'where={"company":'+company+',"user":'+user+'}'
+    qry = qry+'&include=profiles,reports,prospect_list&order=-createdAt'
   
     thisss = this
     $.ajax({
@@ -310,10 +425,11 @@ var SignalsOptions = React.createClass({
 
   render: function() {
     profs = []
-    console.log('signals render')
+    //console.log('signals render')
     for(i=0; i< this.props.profiles.length;i++) {
       select= this.props.profiles[i].objectId == this.props.currentProfile.objectId
       profs.push(<SignalProfile setCurrentProfile={this.setCurrentProfile} 
+                                updateMiningJobDone={this.props.updateMiningJobDone}
                                 setCurrentView={this.setCurrentView}
                                 currentProfile={this.props.currentProfile}
                                 selected={select}
@@ -344,9 +460,9 @@ var SignalsOptions = React.createClass({
               style={{marginLeft:175,marginTop:-10}}
               role="menu" aria-labelledby="dropdownMenu1">
             <li role="presentation">
-              <a role="menuitem" tabindex="-1" 
+              <a href="javascript:"
                  onClick={this.launchModal}
-                 style={{paddingLeft:5}} href="#">
+                 style={{paddingLeft:5}}>
                  <h6 style={{margin:2}}>
                    <i className="fa fa-suitcase" style={{width:10}} />
                   &nbsp;&nbsp;Create Hiring Signal
@@ -354,19 +470,20 @@ var SignalsOptions = React.createClass({
               </a>
             </li>
             <li role="presentation" style={{display:'none'}}>
-              <a role="menuitem" tabindex="-1" 
+              <a href="javascript:"
                  onClick={this.launchModal}
-                 style={{paddingLeft:5}} href="#">
+                 style={{paddingLeft:5}}>
                 <h6 style={{margin:2}}><i className="fa fa-institution"  style={{width:10}}/>
                   &nbsp;&nbsp;Create Funding Signal
                 </h6>
               </a>
             </li>
             <li role="presentation">
-              <a role="menuitem" tabindex="-1" 
-                 onClick={this.launchModal}
-                 style={{paddingLeft:5,paddingRight:2}} href="#">
-                <h6 style={{margin:2}}><i className="fa fa-user" style={{width:10}} />
+              <a onClick={this.launchModal}
+                 style={{paddingLeft:5,paddingRight:2}} 
+                 href="javascript">
+                <h6 style={{margin:2}}>
+                  <i className="fa fa-user" style={{width:10}} />
                   &nbsp;&nbsp;Create Prospect Profile
                 </h6>
               </a>
@@ -392,6 +509,7 @@ var SignalsOptions = React.createClass({
   },
 
   launchModal: function(e) {
+    e.preventDefault()
     console.log($(e.target).text().trim())
     if($(e.target).text().trim() == 'Create Hiring Signal')
       $('#createHiringSignalModal').modal()
@@ -403,7 +521,8 @@ var SignalsOptions = React.createClass({
       $('#createCompanyProfileModal').modal()
   },
 
-  launchDropdown: function() {
+  launchDropdown: function(e) {
+    e.preventDefault()
     $('.create-profile-dropdown').dropdown()
   }
 });

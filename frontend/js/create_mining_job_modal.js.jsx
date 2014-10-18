@@ -2,55 +2,23 @@
 
 module.exports = React.createClass({
   // createSignalModal
-  getInitialState: function() {
-    return {
-      mining_days : []
-    }
-  },
-
-  componentDidUdpate: function() {
-
-  },
-
-  createSignal: function() {
-  },
-
-  updateDate: function(e) {
-    if(!$(e.target).hasClass('no-hover')){
-    /*
-      $(e.target).addClass('list-group-item-success')
-      $(e.target).addClass('no-hover')
-      $(e.target).append('<span class="label label-success" style="float:right;">Downloading...</span>')
-    */
-
-      /*
-      $.ajax({
-        url:'',
-        headers:appConfig.headers
-        data:{},
-        success: function(res) {},
-        error: function(err) {},
-      })
-      */
-    }
+  createMiningJob: function(date) {
+    this.props.createMiningJob(this.props.currentProfile, date)
   },
 
   render: function() {
     // moment.utc(moment().startOf('day')).valueOf()/1000
+    // recieve completed days as props
+    //console.log(this.props.currentProfile)
+    mining_days = this.props.currentProfile.mining_days
     dates = []
     for(i=0;i< 30; i++) {  
-      date = moment().subtract((i+1), 'days').format('ll')
-
-      dates.push(
-        <li onClick={this.updateDate} style={{textAlign:'center'}}
-          className="list-group-item download-date">
-          <i className="fa fa-calendar" />&nbsp;
-          {date} &nbsp; &nbsp; &nbsp;
-          <a href="javascript:"
-            className="btn btn-success btn-xs">
-            Download</a>
-        </li>
-      )
+      date = moment().subtract((i+1), 'days').startOf('day')
+      mining_day = _.indexOf(mining_days, date.valueOf()/1000) != -1
+      dates.push(<DownloadDateRow updateDate={this.updateDate}
+                                  createMiningJob={this.createMiningJob}
+                                  mining_day={mining_day}
+                                  date={date}/>)
     }
 
     return (
@@ -67,7 +35,7 @@ module.exports = React.createClass({
                 Download Prospects
               </h4>
               <a href="javascript:" className="btn btn-success btn-sm" 
-                 onClick={this.createSignal}
+                 onClick={this.createMiningJob}
                  style={{float:'right',marginTop:-28,
                          marginRight:-5,display:'none'}}>
                  Download
@@ -84,20 +52,41 @@ module.exports = React.createClass({
               </ul>
 
             </div>
-
-            <div className="modal-footer" style={{display:'none'}}>
-              <button type="button" className="btn btn-default">
-                Close
-              </button>
-              <button type="button" className="btn btn-primary">
-                Send Email
-              </button>
-            </div>
           </div>
         </div>
       </div>
     );
   },
-  
 });
+
+var DownloadDateRow = React.createClass({
+  updateDate: function() {
+    //this.createMiningJob()
+    date = this.props.date.startOf('day').valueOf()/1000
+    //date = moment().subtract((i+1), 'days').startOf('day')
+    this.props.createMiningJob(date)
+  },
+
+  render: function() {
+    loading = (this.props.mining_day) ?  <div className="profile-loading" style={{float:'right',height:20,width:20}}>
+            <div className="double-bounce1" style={{backgroundColor:'#5cb85c'}}></div>
+            <div className="double-bounce2" style={{backgroundColor:'#5cb85c'}}></div>
+          </div> : ""
+    loading = ""
+    return (
+        <li onClick={this.updateDate} style={{textAlign:'center'}}
+          className="list-group-item download-date bg-success"
+          style={(this.props.mining_day) ? {backgroundColor:'#dff0d8',textAlign:'center'} : {textAlign:'center'}}>
+          <span style={{width:85}}>
+            <i className="fa fa-calendar" />&nbsp;
+            {this.props.date.format('ll')} &nbsp; &nbsp; &nbsp;
+          </span>
+          <a href="javascript:" style={{width:89}}
+      className={(this.props.mining_day) ? "btn btn-success btn-xs disabled" : "btn btn-success btn-xs"}>
+            {(this.props.mining_day) ? "Downloading" : "Download" }</a>
+          {loading}
+        </li>
+    )
+  }
+})
 

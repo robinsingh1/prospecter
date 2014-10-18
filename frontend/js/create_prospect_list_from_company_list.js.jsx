@@ -3,8 +3,7 @@
 module.exports = React.createClass({
   // createProspectListFromCompanyListModal
   createProfile: function() {
-    profileName = $(".profileName").val()
-
+    //profileName = $(".profileName").val()
     titleProfile = {
       'className': 'ProspectTitleProfile',
       'title_keywords' : $('.prospectRoleKeywords').tagsinput('items').reverse()
@@ -12,6 +11,7 @@ module.exports = React.createClass({
 
     listProfile = {
       'className': 'ListProfile',
+      'listName':this.props.currentList,
       'list' : appConfig.pointer('CompanyProspectList', 
                                   this.props.currentListObjectId),
     }
@@ -22,8 +22,14 @@ module.exports = React.createClass({
       if(_.values(profile)[1]){ return _.values(profile)[1].length }
     });
 
+    //nonemptyProfiles.push(listProfile)
+    nonemptyProfiles.reverse()
+
+    console.log(nonemptyProfiles)
+    console.log(this.props.currentList)
+
     newProfile = {
-      name: profileName,
+      name: this.props.currentList,
       profiles: nonemptyProfiles,
       type: 'prospect_profile',
       mining_job:true,
@@ -39,8 +45,8 @@ module.exports = React.createClass({
 
     if(nonemptyProfiles.length) {
       this.persistSignal(nonemptyProfiles, _.omit(newProfile,'profiles'))
-      this.props.addProfile(newProfile)
       $('.modal').click()
+      //this.props.addProfile(newProfile)
       $('.prospect-profile-title').val('')
     }
   },
@@ -86,7 +92,10 @@ module.exports = React.createClass({
               headers: appConfig.headers,
               data: JSON.stringify({'prospect_list':{ __type:'Pointer',
                                     className:'ProspectList',objectId:res.objectId } }),
-              success: function(res){ console.log(res); location.href="#signals" },
+              success: function(res){ console.log(res); 
+                $('.modal').click()
+                //location.href="#signals" 
+              },
               error: function(err){ console.log(err) }
             })
           },

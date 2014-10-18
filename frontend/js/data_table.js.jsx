@@ -354,7 +354,7 @@ module.exports = React.createClass({
                     prospectsPerPage={this.state.prospectsPerPage}
                     pages={this.state.pages}/>
       <Messenger />
-      <CreateProspectListFromCompanyListModal currentListObjectId={this.state.currentListObjectId}/>
+      <CreateProspectListFromCompanyListModal currentList={this.state.currentList} currentListObjectId={this.state.currentListObjectId}/>
     </div>
     );
   },

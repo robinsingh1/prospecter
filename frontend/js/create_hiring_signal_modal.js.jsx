@@ -90,6 +90,18 @@ module.exports = React.createClass({
           })
         });
 
+        // Start Mining Job
+        $.ajax({
+          //url:'https://nameless-retreat-3525.herokuapp.com/mining_job/title',
+          ///url:'https://nameless-retreat-3525.herokuapp.com/title_mining_job',
+          url:'http://127.0.0.1:5000/signal/hiring',
+          type:'GET',
+          data: {prospect_profile: ress.objectId},
+          success: function(res) { console.log(res) },
+          error: function(err) { console.log(err) }
+        })
+      
+
       },
     })
   },
@@ -113,14 +125,6 @@ module.exports = React.createClass({
                 <div className="modal-body">
                   <CreateHiringSignal />
                 </div>
-              <div className="modal-footer" style={{display:'none'}}>
-                <button type="button" className="btn btn-default">
-                  Close
-                </button>
-                <button type="button" className="btn btn-primary">
-                  Send Email
-                </button>
-              </div>
               </div>
             </div>
           </div>
@@ -239,11 +243,13 @@ var CreateHiringSignal = React.createClass({
             </label> 
           </div>
           </div>
-          <hr/> {closeCompanyBtns} {companyHeading}     
-          <div style={addCompanyStyle}> {addCompany} </div>
+          <div style={{display:'none'}}>
+            <hr/> {closeCompanyBtns} {companyHeading}     
+            <div style={addCompanyStyle}> {addCompany} </div>
 
-          <hr/> {closeProspectBtns} {prospectHeading}     
-          <div style={addProspectStyle}> {addProspect} </div>
+            <hr/> {closeProspectBtns} {prospectHeading}     
+            <div style={addProspectStyle}> {addProspect} </div>
+          </div>
         </form>
       </div>
     )

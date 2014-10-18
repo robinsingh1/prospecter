@@ -12,12 +12,10 @@ module.exports = React.createClass({
 
   calendarClick:function(e) {
     this.props.setCurrentProfile(this.props.profile)
-
     if(!this.props.profile.mining_job)
       this.props.setCurrentView('Calendar')
     else
       this.props.setCurrentView('MiningJobCalendar')
-
     e.stopPropagation()
   },
 
@@ -49,8 +47,48 @@ module.exports = React.createClass({
       });
   },
 
-  render: function() {
+  //componentDidUpdate: function(prevProps, prevState) { },
+  componentWillReceiveProps: function(nextProps) {
+  //componentWillUpdate: function(nextProps) {
+    if(typeof(this.props.profile.objectId) == "undefined") {
+      console.log('RECEIVE PROPS')
 
+      var pusher = new Pusher('1a68a96c8fde938fa75a');
+      var thiss = this;
+      console.log(nextProps)
+      console.log(nextProps.profile)
+      console.log(_.keys(nextProps.profile))
+      console.log(nextProps.profile.objectId)
+      objectId = nextProps.profile.objectId
+      console.log('new pusher channel -> '+ objectId)
+
+      var channel = pusher.subscribe(objectId);
+      channel.bind("done", function(data) {
+        console.log(data)
+        console.log(thiss.props)
+        //thiss.setState({ done: data.done_timestamp })
+        thiss.props.updateMiningJobDone(thiss.props.profile)
+        alertify.success("Success notification");
+      });
+    }
+  },
+
+  componentDidMount: function() {
+    var pusher = new Pusher('1a68a96c8fde938fa75a');
+    objectId = this.props.profile.objectId
+    console.log('new pusher channel ->', objectId)
+    var channel = pusher.subscribe(objectId);
+    var thiss = this;
+    channel.bind("done", function(data) {
+      console.log(data)
+      console.log(thiss.props)
+      //thiss.setState({ done: data.done_timestamp })
+      thiss.props.updateMiningJobDone(thiss.props.profile)
+      alertify.success("Success notification");
+    });
+  },
+
+  render: function() {
     signalDetails = []
     for(i=0;i< this.props.profile.profiles.length; i++) {
       signalDetails.push(<ProfileType profile={this.props.profile.profiles[i]} />)
@@ -91,7 +129,7 @@ module.exports = React.createClass({
           <a href="javascript:" 
              className="btn btn-primary btn-xs signal-detail-btn"
              onClick={this.removeProfile}>
-            <i className="fa fa-trash" /></a>
+            <i className="fa fa-archive" /></a>
           <a href="javascript:" 
             style={{display:'none'}}
             className="btn btn-primary btn-xs signal-detail-btn">
@@ -115,6 +153,11 @@ module.exports = React.createClass({
 
   launchModal: function(e) {
     $('#createMiningJobModal').modal()
+    this.props.setCurrentProfile(this.props.profile)
+    if(this.props.currentView == 'Calendar')
+      this.props.setCurrentView('Calendar')
+    else if(this.props.currentView == 'Feed')
+      this.props.setCurrentView('Feed')
     e.stopPropagation()
   }
 });
@@ -169,7 +212,8 @@ var ProfileType = React.createClass({
       signalName = "Technology"
     } else if (this.props.profile.className  == "ListProfile") {
       signalIcon = <i className="fa fa-list-alt" />
-      signalName = "lists"
+      signalName = "Company List"
+      signalValue = this.props.profile.listName
     } else if (this.props.profile.className  == "ProspectTitleProfile") {
       signalIcon = <i className="fa fa-user" />
       signalName = "Titles"
