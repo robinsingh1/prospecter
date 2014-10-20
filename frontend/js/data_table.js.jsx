@@ -227,10 +227,10 @@ module.exports = React.createClass({
         the_link = ""
       }
 
-      //profile = this.state.prospects[i].linkedin_url.replace('http://','')
-      //profile = this.state.prospects[i].linkedin_url.replace('https://','')
+      profile = this.state.prospects[i].profile.replace('http://','')
+      profile = this.state.prospects[i].profile.replace('https://','')
       profile = (typeof(profile) != "undefined") ? profile : ""
-      li = <a href={'http://'+profile} className="linkedin_link"><i className="fa fa-linkedin-square" /></a>
+      li = <a href={profile} className="linkedin_link"><i className="fa fa-linkedin-square" /></a>
 
       keyboardSelected = (i == this.state.keyboardActiveProspect)
 
@@ -239,8 +239,6 @@ module.exports = React.createClass({
       for(ii=0;ii< selectedProspects.length;ii++)
         if(prospect.objectId == selectedProspects[ii])
           alreadyChecked = true
-
-        //console.log(alreadyChecked)
 
       prospects.push(
         <DataRow deleteProspect={this.deleteProspect} 

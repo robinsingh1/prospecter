@@ -116,14 +116,16 @@ module.exports = React.createClass({
     );
   },
 
-  openLinkedinCompanyProfile: function() {
+  openLinkedinCompanyProfile: function(e) {
     cid = this.props.prospect.profile.split('?')[0].split('/company/')[1]
     window.open("https://www.linkedin.com/vsearch/p?f_CC="+cid)
+    e.stopPropagation()
   },
 
-  openSimilarCompanies: function() {
+  openSimilarCompanies: function(e) {
     cid = this.props.prospect.profile.split('?')[0].split('/company/')[1]
     window.open("https://www.linkedin.com/vsearch/c?rsid=526440371409184768175&pivotType=sim&pid="+cid+"&trk=sim_companies_res_sim&trkInfo=VSRPsearchId%3A526440371409184768175%2CVSRPtargetId%3A1025%2CVSRPcmpt%3Aprimary")
+    e.stopPropagation()
   },
 
   deleteProspect: function() {

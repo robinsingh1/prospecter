@@ -259,7 +259,7 @@ module.exports = React.createClass({
                            createList={this.createList}
                            lists={this.state.lists}/>
 
-        <div className="col-md-10 col-sm-10 col-xs-10" style={{padding:'0'}}>
+        <div className="col-ld-10 col-md-10 col-sm-10 col-xs-10" style={{padding:'0'}}>
               <div id="prospectDetailButtons">
                 <ListDetailButtons 
                   renameList={this.renameList}

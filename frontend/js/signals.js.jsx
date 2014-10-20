@@ -2,6 +2,7 @@
 
 var SignalProfile = require('./signal_profile.js.min.js')
 var SignalLoading = require('./signal_loading.js.min.js')
+var MiningJobLoading = require('./mining_job_loading.js.min.js')
 var CompanySignalCard = require('./company_signal_card.js.min.js')
 var PeopleSignalCard = require('./people_signal_card.js.min.js')
 var SignalCalendar = require('./signal_calendar.js.min.js')
@@ -108,7 +109,11 @@ module.exports = React.createClass({
                                      reports={reports}
                                      setCurrentView={this.setCurrentView} />
       } else {
-        signalView = <SignalLoading currentProfile={this.state.currentProfile}/>
+        console.log(this.state.currentProfile)
+        if(this.state.currentProfile.type == "prospect_profile")
+          signalView =<MiningJobLoading currentProfile={this.state.currentProfile}/>
+        else
+          signalView = <SignalLoading currentProfile={this.state.currentProfile}/>
       }
     }
 
@@ -528,12 +533,6 @@ var SignalsOptions = React.createClass({
 });
 
 var SignalsFeed = React.createClass({
-  getInitialState: function() {
-    return {
-      signals: []
-    }
-  },
-
   render: function() {
     //this.getSignals()
 
@@ -544,10 +543,14 @@ var SignalsFeed = React.createClass({
       else if(this.props.signalType == "PeopleSignal")
         signalCards.push(<PeopleSignalCard profile={this.props.profile} person={this.props.signals[i]}/>)
     }
+    
+    content = (this.props.signals.length) ? signalCards : <div className="signal-card">LOL</div>
+    content = signalCards
+
     return (
       <div className="container signal-card-background" style={{height:356, overflow:'auto'}}>
         <div className="col-md-8 col-md-offset-2">
-          {signalCards}
+          {content}
         </div>
       </div>
     );

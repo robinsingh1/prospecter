@@ -270,7 +270,7 @@ var Home = React.createClass({
 var Workspace = Backbone.Router.extend({
   routes: {
     //landing_page
-    //""            : "home",
+    ""            : "prospects",
     "get_started" : "landing_page",
     "free_trial"  : "free_trial",
     "signup"      : "signup",
