@@ -1,6 +1,5 @@
 /* * * App * * */
-#navbar {
-  position:relative;
+#navbar { position:relative;
   z-index:100;
   background: #eff2f5;
   background-image: -moz-linear-gradient(270deg, #eff2f5 0%, #cfd8e0 100%);
@@ -924,3 +923,53 @@ font-family: proxima-nova;
   }
 }
 /* *****************  ***************** ***************** */
+.grn-btn {
+  background-image: -webkit-linear-gradient(top, rgb(113, 191, 0) 0%, rgb(77, 161, 0) 100%);
+  background-color: rgb(95, 176, 0);
+  border: 1px solid rgb(72, 133, 0);
+  box-shadow: rgba(255, 255, 255, 0.0588235) 0px 2px 0px 0px inset, rgba(0, 0, 0, 0.2) 0px 2px 3px 0px;
+}
+.list-name {
+  width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  float: left;
+}
+
+.icon-list-name {
+  width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  float: left;
+}
+
+.all-list-name {
+  width: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  float: left;
+}
+.dropdown-list-name {
+  font-weight: bold;
+  font-size: 10px;
+  width: 110px;
+  padding:5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+}
+
+#paginate-overlay {
+  position: absolute;
+  height: 95%;
+  width: 100%;
+  background-color: rgba(0,0,0,0.6);
+  margin-top: 38px;
+}

@@ -5,11 +5,11 @@ module.exports = React.createClass({
   createList: function() {
     console.log($('#listTitle').val())
 
+    currentUser = JSON.parse(localStorage.currentUser)
     data =  {
-      'name'        : $('#listTitle').val().trim(),   //Waiting , Running
-      'user'        : { '__type':'Pointer',
-                      'className':'_User',
-                      'objectId':'xWESiw5Smd' },
+      name : $('#listTitle').val().trim(),
+      user : appConfig.pointer('_User', currentUser.objectId),
+      company: currentUser.company
     }
 
     thiss = this;
@@ -19,13 +19,8 @@ module.exports = React.createClass({
       type:'POST',
       headers: appConfig.parseHeaders,
       data: JSON.stringify(data),
-      success: function(res) {
-        console.log(res)
-      },
-      error: function(err) {
-        console.log('error')
-        console.log(err)
-      }
+      success: function(res) { console.log(res) },
+      error: function(err) { console.log(err) }
     });
 
     data.count = 0
@@ -35,7 +30,6 @@ module.exports = React.createClass({
     $('#createListModal').modal('hide')
     $('body').removeClass('modal-open');
     $('.modal-backdrop').remove();
-    //$('button.close').click()
   },
 
   createListButtonClick: function() {

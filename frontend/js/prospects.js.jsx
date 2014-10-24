@@ -7,6 +7,7 @@ var UserProspect = require('./user_prospect.js.min.js');
 var UserProspectHeader = require('./user_prospect_header.js.min.js');
 var SideMenuListOption = require('./user_side_menu_list.js.min.js');
 var LoadingSpinner = require('./loading_spinner.js.min.js')
+var Spinner = require('./spinner.js.min.js')
 var PanelFooting = require('./panel_footing.js.min.js')
 var Messenger = require('./messenger.js.min.js')
 
@@ -23,7 +24,9 @@ module.exports = React.createClass({
               currentList : 'All',
               currentListObjectId : '',
               loading: true,
+              paginating: false,
               prospectsPerPage: 50,
+              downloading: false,
               lists : [],
               masterCheckboxChecked: false,
               keyboardActiveProspect: 0, //first
@@ -34,20 +37,11 @@ module.exports = React.createClass({
 
   createList: function(data) {
     lists = this.state.lists
-    lists.push(data)
+    lists = [data].concat(lists)
     this.setState({ lists: lists })
   },
 
   renameList: function(newListName) {
-    parseHeaders = {
-      'X-Parse-Application-Id'  : 'N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ', 
-      'X-Parse-REST-API-Key'    : 'VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb',
-      'Content-Type': 'application/json'
-    }
-    console.log(this.state.currentListObjectId)
-    console.log(this.state.currentList)
-    console.log(newListName)
-
     // Update Local State
     thiss = this;
     var filtered = _.filter(this.state.lists, function(item) {
@@ -58,8 +52,7 @@ module.exports = React.createClass({
       return item
     });
 
-    this.setState({lists : filtered})
-    this.setState({currentList: newListName})
+    this.setState({lists : filtered, currentList: newListName})
 
     $('.modal').click()
     $('#newListName').val('')
@@ -67,56 +60,46 @@ module.exports = React.createClass({
 
     // Persist / Ajax
     $.ajax({
-      url:'https://api.parse.com/1/classes/ProspectList/'+this.state.currentListObjectId,
-      headers: parseHeaders,
+      url:'https://api.parse.com/1/classes/ProspectList/'+thiss.state.currentListObjectId,
+      headers: appConfig.parseHeaders,
       type:'PUT',
       data:JSON.stringify({'name':newListName}),
-      success: function(res) {
-        console.log(res)
-      },
-      error: function(err) {
-        console.log(err)
-      }
+      success: function(res) { console.log(res) },
+      error: function(err) { console.log(err) }
     });
   },
 
   deleteList: function() {
-    // TODO 
-    // Get All Members Of This List
-    // Remove From List Array
-    parseHeaders = {
-      'X-Parse-Application-Id'  : 'N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ', 
-      'X-Parse-REST-API-Key'    : 'VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb',
-      'Content-Type': 'application/json'
-    }
-    
     var filtered = _.filter(this.state.lists, function(item) {
       if(item.objectId == thiss.state.currentListObjectId)
         return false
       return true
     });
 
-    this.setState({lists: filtered})
-    this.setState({currentList: 'All'})
+    this.setState({lists: filtered, currentList: 'All'})
     this.changeList('All', '')
 
     // Remove
-    $('.modal').click()
+    appConfig.closeModal()
     $('#newListName').val('')
-    $('.modal-backdrop').click()
 
     // Persist / Ajax
+    var thiss = this;
     $.ajax({
-      url:'https://api.parse.com/1/classes/ProspectList/'+this.state.currentListObjectId,
-      headers: parseHeaders,
+      url: appConfig.url+'ProspectList/'+thiss.state.currentListObjectId,
+      headers: appConfig.parseHeaders,
       type:'DELETE',
-      success: function(res) {
-        console.log(res)
-      },
-      error: function(err) {
-        console.log(err)
-      }
+      success: function(res) { console.log(res) },
+      error: function(err) { console.log(err) }
     });
+  },
+
+  setPaginate: function(value) {
+    this.setState({paginating: value})
+  },
+
+  setDownloading: function(value) {
+    this.setState({downloading: value})
   },
 
   changeList: function(newListName,objectId) {
@@ -153,11 +136,12 @@ module.exports = React.createClass({
       qry = 'where={"company":'+company+',"archived":false}&count=1&order=-createdAt&include=email_guesses,email_guesses.pattern'
     }
     console.log(qry)
+    var thisss = this;
 
     $.ajax({
       url: 'https://api.parse.com/1/classes/Prospect',
       type:'GET',
-      headers: parse_headers,
+      headers: appConfig.parseHeaders,
       async: true,
       data: qry,
       ajaxStart: function() {
@@ -192,6 +176,7 @@ module.exports = React.createClass({
       selectedProspects = _.reject(selectedProspects, 
                                    function(id){return id == objId})
 
+    selectedProspects = _.uniq(selectedProspects)
     console.log(selectedProspects)
     localStorage.selectedProspects = JSON.stringify(selectedProspects)
     this.setState({selectedProspects: selectedProspects})
@@ -206,7 +191,7 @@ module.exports = React.createClass({
     $('body').css({overflow:'auto'})
 
     prospects = []
-    for(i=0;i<this.state.prospects.length;i++) {
+    for(i=0;i< this.state.prospects.length;i++) {
       url = this.state.prospects[i].url
       prospect = this.state.prospects[i]
 
@@ -249,6 +234,9 @@ module.exports = React.createClass({
     listOptions = (this.state.currentList == "All") ? {display:'none'} : {float:'right'}
     copyDropdownStyle = (this.state.currentList == "All") ? {width:114, right:4} : {width:114, right:36}
     currentList = this.state.currentList
+    paginateOverlay = (this.state.paginating) ? <PaginateOverlay /> : ""
+
+    downloadIcon = (!this.state.downloading) ? <i className="fa fa-download" /> : <Spinner circleStyle={{backgroundColor:'white',height:4,width:4}} spinnerStyle={{height:13, width:13,margin:0,display:'inline-block',paddingTop:2}}/>
     return (
         <div>
       <div className="container" style={{width:'100%',padding:'0', background: 'linear-gradient(#dae8ff,#dae8ff)', backgroundImage: 'radial-gradient(circle at center center,#fff,#dff1fd 900px)'}}>
@@ -259,7 +247,9 @@ module.exports = React.createClass({
                            createList={this.createList}
                            lists={this.state.lists}/>
 
-        <div className="col-ld-10 col-md-10 col-sm-10 col-xs-10" style={{padding:'0'}}>
+        <div className="col-ld-10 col-md-10 col-sm-10 col-xs-10" 
+             style={{padding:'0'}}>
+              {paginateOverlay}
               <div id="prospectDetailButtons">
                 <ListDetailButtons 
                   renameList={this.renameList}
@@ -308,8 +298,10 @@ module.exports = React.createClass({
                    href="javascript:" 
                    id="downloadProspects"
                    className="drop-target btn btn-primary btn-xs list-options">
-                  <i className="fa fa-download" /> &nbsp; Download CSV &nbsp; 
+                   {downloadIcon}
+                   &nbsp; Download CSV &nbsp; 
                 </a>
+
                 <a onClick={this.downloadFile} 
                      style={listOptions} 
                    href="javascript:" 
@@ -338,6 +330,7 @@ module.exports = React.createClass({
                     count={this.state.count}
                     paginate={this.paginate}
                     prospectsPerPage={this.state.prospectsPerPage}
+                    setPaginate={this.setPaginate}
                     pages={this.state.pages}/>
       <Messenger />
     </div>
@@ -355,39 +348,44 @@ module.exports = React.createClass({
   },
 
   downloadFile: function() {
-    parse_headers = {
-      'X-Parse-Application-Id'  : 'N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ', 
-      'X-Parse-REST-API-Key'    : 'VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb',
-    }
-
-    // Get List Count
-    list = JSON.stringify({
+    list = {
       '__type'   :  'Pointer',
       'className':  'ProspectList',
       'objectId' :  this.state.currentListObjectId
-    })
-    console.log(list)
-    // Add Support For More than 1000
-    // num_of_requests
+    }
     localStorage.download_total = Math.ceil(this.state.count/1000)
     localStorage.downloads      = 0
 
-    if(this.state.currentList == "All")
-      qry = 'where={"company":'+company+'}&count=1'
-    else
-      qry = 'where={"lists":'+list+'}&count=1'
+    if(this.state.currentList == "All") {
+      qry = {
+        where : JSON.stringify({
+          company: appConfig.company
+        }),
+        count: 1,
+        archived: true,
+      }
+    } else {
+      qry = {
+        where: JSON.stringify({
+          lists: list
+        }),
+        count: 1,
+        archived: true,
+      }
+    }
 
+    var thiss = this;
     for(i=0;i< Math.ceil(this.state.count/1000); i++){
       $.ajax({
         url: 'https://api.parse.com/1/classes/Prospect?limit=1000&skip='+i,
         type:'GET',
-        headers: parse_headers,
+        headers: appConfig.parseHeaders,
+        beforeSend: function() {
+          thiss.setState({downloading: true})
+        },
         downloadFile: 'download_'+i,
         data: qry,
         success: function(res){
-          // Clean Results
-          // Remove Certain Parse Columns - created_at, updated_at, objectId
-          // Rename createdAt as date prospected
           for(i=0;i< res.results.length;i++) {
             delete res.results[i].company
             delete res.results[i].pos
@@ -416,6 +414,7 @@ module.exports = React.createClass({
             var blob = new Blob([Papa.unparse(prospects)], {type: "text/plain;charset=utf-8"});
             console.log(blob)
             saveAs(blob, "prospects.csv");
+            thiss.setState({downloading: false})
           }
       },
 
@@ -795,52 +794,37 @@ module.exports = React.createClass({
 
   componentDidMount: function() {
     /* OnLoad For The First Time Function */
+    var thisss = this;
     localStorage.selectedProspects = JSON.stringify([])
-    thisss = this;
+    currentUser = JSON.parse(localStorage.currentUser)
+    user = appConfig.pointer('User', currentUser.objectId)
 
-    //this.startKeyboardShortcuts()
-
-    parse_headers = {
-      'X-Parse-Application-Id'  : 'N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ', 
-      'X-Parse-REST-API-Key'    : 'VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb'
-    }
-
-    cuid = JSON.parse(localStorage.currentUser).objectId
-    user = JSON.stringify({'__type':'Pointer',
-                           'objectId':cuid, 
-                           'className': 'User'})
-    archiveList = JSON.stringify({ //hardCode
-      'objectId':'SerPQjckve', // Differente For Wach User
+    archiveList = JSON.stringify({ 
+      'objectId':'SerPQjckve', // TODO - Differente For Watch User
       '__type':'Pointer', 
       'className' : 'ProspectList' 
     })
 
     qry = {
       where: JSON.stringify({
-        company: JSON.parse(localStorage.currentUser).company,
+        company: currentUser.company,
         archived: true,
       }),
       count: 1,
       order: '-createdAt',
-      limit: this.state.prospectPerPage,
+      limit: this.state.prospectsPerPage,
       include: 'email_guesses,email_guesses.pattern'
     }
 
-    //qry = 'where={"company":'+company+',"archived":true}&count=1&order=-createdAt&incude=email_guesses'
-
     if(this.state.currentList != 'All'){
-      currentList = {
-        'objectId':this.state.currentListObjectId, 
-        '__type':'Pointer', 
-        'className' : 'ProspectList' 
+      currentList=appConfig.pointer('ProspectList',this.state.currentListObjectId)
+      qry = {
+        where: JSON.stringify({
+          company: currentUser.company,
+          lists: currentList
+        }),
+        count: 1
       }
-      currentList = JSON.stringify(currentList)
-      user = JSON.stringify({'__type':'Pointer',
-                             'objectId':'xThAXc0LZT',
-                             'className':'User'})
-
-      // add company to prospects added through mining job
-      qry = 'where={"company":'+company+',"lists":'+currentList+'}&count=1'
     }
 
     $.ajax({
@@ -851,22 +835,16 @@ module.exports = React.createClass({
       data: qry,
       success: function(res){
         console.log(res)
-        thisss.setState({prospects: res.results})
-        thisss.setState({count: res.count})
-        thisss.setState({totalCount: res.count})
-        thisss.setState({pages: Math.ceil(res.count/thisss.props.prospectsPerPage)})
-        thisss.setState({loading: false})
+        thisss.setState({
+          prospects: res.results,
+          count: res.count,
+          totalCount: res.count,
+          pages: Math.ceil(res.count/thisss.props.prospectsPerPage),
+          loading: false,
+        })
       },
-      error: function(res){
-        console.log('error')
-        console.log(res)
-      }
+      error: function(res){ console.log(res) }
     })
-
-    parse_headers = {
-      'X-Parse-Application-Id'  : 'N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ', 
-      'X-Parse-REST-API-Key'    : 'VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb',
-    }
 
     currentUser = { 
       '__type'   : 'Pointer',
@@ -875,11 +853,18 @@ module.exports = React.createClass({
     }
 
     thiss = this;
+    qry = {
+      where: JSON.stringify({
+        user: appConfig.pointer('_User', currentUser.objectId)
+      }),
+      count: 1,
+      order: '-createdAt',
+    }
     $.ajax({
       url: 'https://api.parse.com/1/classes/ProspectList',
       type: 'GET',
-      headers: parse_headers,
-      data: 'where={"user":'+JSON.stringify(currentUser)+"}&count=1&order=-createdAt",
+      headers: appConfig.parseHeaders,
+      data: qry,
       success: function(res) {
         console.log(res)
         results = res.results
@@ -902,7 +887,7 @@ module.exports = React.createClass({
           $.ajax({
             url:'https://api.parse.com/1/classes/Prospect',
             type:'GET',
-            headers:parse_headers,
+            headers: appConfig.parseHeaders,
             listObjectId: res.results[i].objectId,
             data: 'where={"lists":'+JSON.stringify(list)+'}&count=1',
             success: function(res) {
@@ -931,10 +916,7 @@ module.exports = React.createClass({
           })
         }
       },
-      error: function(err) {
-        console.log('error')
-        console.log(err)
-      }
+      error: function(err) { console.log(err) }
     });
   },
 
@@ -960,7 +942,10 @@ var CurrentLists = React.createClass({
     lists = [] 
     for(i=0;i< this.props.lists.length;i++) {
       lists.push(
-        <li><a style={{fontWeight:'bold',fontSize:'10px'}} href="javascript:" onClick={this.listAction}>{this.props.lists[i].name}</a></li>
+        <li><a style={{fontWeight:'bold',fontSize:'10px'}} 
+            className="dropdown-list-name"
+            href="javascript:" 
+            onClick={this.listAction}>{this.props.lists[i].name}</a></li>
       )
     }
     //console.log(this.props.copyDropdownStyle)
@@ -1012,6 +997,7 @@ var CurrentListsTwo = React.createClass({
     for(i=0;i<this.props.lists.length;i++) {
       lists.push(
         <li><a style={{fontWeight:'bold',fontSize:'10px'}}
+               className="dropdown-list-name"
                href="javascript:" 
                onClick={this.listAction}>
           {this.props.lists[i].name}</a></li>
@@ -1094,4 +1080,17 @@ var ListDetailButtons = React.createClass({
     this.setState({editMode: !this.state.editMode })
   }
 });
+
+
+
+var PaginateOverlay = React.createClass({
+  render: function() {
+    return (
+        <div id="paginate-overlay" style={{paddingTop:70}}>
+          <Spinner circleStyle={{backgroundColor:'white'}}/>
+        </div>
+
+    )
+  }
+})
 

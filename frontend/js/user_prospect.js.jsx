@@ -6,9 +6,12 @@ module.exports = React.createClass({
     return { }
   },
 
-  clickCheck: function() {
+  clickCheck: function(e) {
+    e.stopPropagation()
     domNode = this.getDOMNode()
+    //isChecked = $($(domNode).find('input[type="checkbox"]')[0]).prop('checked')
     isChecked = $($(domNode).find('input[type="checkbox"]')[0]).prop('checked')
+    $($(this.getDOMNode()).find('input[type="checkbox"]')[0]).click()
     //console.log(isChecked)
     this.setState({checked: isChecked})
     this.props.checkboxAction(isChecked, this.props.prospect.objectId)
@@ -63,24 +66,26 @@ module.exports = React.createClass({
     websiteBtn = (prospect.websiteUrl) ?  <a href={"http://"+prospect.websiteUrl.replace('http://','')} > <i className="fa fa-globe" /> </a> : ""
     
     prospect_email = prospect.email
-    if(prospect.email == "no_email"){
+    if(typeof(prospect.domain) == "undefined")
+      prospect.email = "website not found"
+    if(prospect.email == "no_email") {
       if(prospect.email_guesses) {
-        //console.log(prospect)
-        // Get First Untried Email ther
-        prospect.email_guesses = prospect.email_guesses.reverse()
         guess = _.findWhere(prospect.email_guesses, {tried: false})
         name = this.props.prospect.name
+
         vars = {
           first: _.first(name.split(' ')),
           last: _.last(name.split(' ')),
           fi: _.first(name.split(' '))[0],
           li: _.last(name.split(' '))[0]
         }
-        console.log(guess.pattern.pattern)
-        prospect_email = Mustache.render(guess.pattern.pattern, vars)
+        if(guess){
+          prospect_email = Mustache.render(guess.pattern.pattern, vars)
+          prospect_email = prospect_email+"@"+prospect.domain
+        }
       }
     }
-     prospect_email = (prospect_email) ? prospect_email.toLowerCase() : ""
+    prospect_email = (prospect_email) ? prospect_email.toLowerCase() : ""
 
     return (
       <tr className={rowCl} 
@@ -103,8 +108,11 @@ module.exports = React.createClass({
             <span style={{fontWeight:'bold'}}>
               {prospect.company_name}
             </span>
-            <h6 style={{fontWeight:'400',margin:'0px'}}>
-              {(prospect.employeeCountRange) ? prospect.employeeCountRange.name + " employees" : ""}
+            <h6 style={{fontWeight:'400',margin:'0px'}} className="company-size">
+              {(prospect.company_size) ? prospect.company_size : ""}
+            </h6>
+            <h6 style={{fontWeight:'400',margin:'0px',display:'none',fontStyle:'italic'}} className="company-size">
+              {(prospect.industry) ? prospect.industry : ""}
             </h6>
           </td>
 

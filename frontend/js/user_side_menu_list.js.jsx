@@ -50,24 +50,27 @@ module.exports = React.createClass({
     //console.log(this.props.iconType)
     icon = ""
     if(this.props.iconType == "archive"){
-      icon = <i className="fa fa-archive" />
+      icon = <i className="fa fa-archive" style={{float:'left',lineHeight:1.5,marginRight:5}}/>
     } else if(this.props.iconType == "users"){
-      icon = <i className="fa fa-user" />
+      icon = <i className="fa fa-user" style={{float:'left',lineHeight:1.5,marginRight:5}} />
     } else if(this.props.iconType == "wifi"){
-      icon = <i className="fa fa-wifi" />
+      icon = <i className="fa fa-wifi" style={{float:'left',lineHeight:1.5,marginRight:5}} />
     } else if(this.props.iconType == "cloudDownload"){
-      icon = <i className="fa fa-cloud-download" />
+      icon = <i className="fa fa-cloud-download" style={{float:'left',lineHeight:1.5,marginRight:5}} />
     }
 
 
-    countStyle = (this.props.hideCount) ? {'display':'none'} : {backgroundColor:'#999',float:'right',marginTop:'1px'}
+    countStyle = (this.props.hideCount) ? {'display':'none'} : {backgroundColor:'#999',float:'right',marginTop:2.25}
+    listStyle=(icon == "") ? "list-name" : "icon-list-name"
+    if(this.props.iconType == "users")
+      listStyle = "all-list-name" 
     return (
       <button type="button" 
               onClick={this.changeList} 
               className="list-names btn btn-default">
               {icon}
               &nbsp;
-              {listName}
+              <span className={listStyle}>{listName}</span>
               <span style={countStyle}
                 className="badge badge-default">{this.props.list.count}</span>      
       </button>

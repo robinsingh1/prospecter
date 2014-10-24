@@ -3,21 +3,33 @@
 module.exports = React.createClass({
   // Panel Footing
   paginatePrevious: function() {
-    thiss = this;
+    var thiss = this;
 
+    qry = {
+      where: JSON.stringify({
+        company: appConfig.company,
+        archived: true,
+      }),
+      count: 1,
+      skip: (thiss.props.currentPage-2)*thiss.props.prospectsPerPage,
+      limit: thiss.props.prospectsPerPage
+    }
     $.ajax({
-      url: 'https://api.parse.com/1/classes/Prospects?skip='+(thiss.props.currentPage-2)*thiss.props.prospectsPerPage,
+      url: 'https://api.parse.com/1/classes/Prospect',
       type:'GET',
-      headers: parse_headers,
-      data: 'where={"company":'+company+',"archived":true}&count=1',
+      beforeSend: function() {
+        console.log('before Send')
+        thiss.props.setPaginate(true)
+      },
+      headers: appConfig.parseHeaders,
+      data: qry,
       success: function(res){
         //thiss.setState({prospects: res.results})
         //thiss.setState({currentPage: this.props.currentPage - 1})
         thiss.props.paginate(res.results, thiss.props.currentPage - 1)
+        thiss.props.setPaginate(false)
       },
-      error: function(res){
-        console.log(res)
-      }
+      error: function(res){ console.log(res) }
     });
   },
 
@@ -33,7 +45,7 @@ module.exports = React.createClass({
       url: 'https://api.parse.com/1/classes/Prospect?skip='+skip,
       type:'GET',
       headers: parse_headers,
-      data: 'where={"company":'+company+'}&count=1',
+      data: 'where={"company":'+appConfig.company+'}&count=1',
       success: function(res){
         //thiss.setState({prospects: res.results})
         //thiss.setState({currentPage: this.props.currentPage + 1})
@@ -46,23 +58,36 @@ module.exports = React.createClass({
   },
 
   paginateForward: function() {
-    thiss = this;
+    var thiss = this;
+    qry = {
+      where: JSON.stringify({
+        company: appConfig.company,
+        //user: appConfig.user,
+        archived: true
+      }),
+      count: 1,
+      skip: thiss.props.currentPage*thiss.props.prospectsPerPage,
+      limit: thiss.props.prospectsPerPage,
+    }
+
     $.ajax({
-      url: 'https://api.parse.com/1/classes/Prospects?skip='+thiss.props.currentPage*thiss.props.prospectsPerPage,
+      url: 'https://api.parse.com/1/classes/Prospect',
       type:'GET',
-      headers: parse_headers,
-      data: 'where={"company":'+company+',"archived":true}&count=1',
+      headers: appConfig.parseHeaders,
+      data: qry,
+      beforeSend: function() {
+        thiss.props.setPaginate(true)
+      },
       success: function(res){
-        //thiss.setState({prospects: res.results})
-        //thiss.setState({currentPage: thiss.props.currentPage + 1})
+        console.log(res.results)
         console.log("success")
         thiss.props.paginate(res.results, thiss.props.currentPage + 1)
+        thiss.props.setPaginate(false)
       },
-      error: function(res){
-        console.log(res)
-      }
+      error: function(res){ console.log(res); }
     });
   },
+
   componentDidMount: function() {
     paginateForward = this.paginateForward
     paginatePrevious = this.paginatePrevious
@@ -81,9 +106,11 @@ module.exports = React.createClass({
   render: function() {
     // Should be handled by Panle Footing
 
+    lastPage = this.props.currentPage == this.props.pages
+    lessThanOnePage = this.props.count < this.props.prospectsPerPage
+    forward = (lastPage || lessThanOnePage) ? 'disabled' : ''
 
     previous = (this.props.currentPage - 1) ? '' : 'disabled'
-    forward = (this.props.currentPage == this.props.pages) ? 'disabled' : ''
 
     lowerLimit = (this.props.currentPage-1)*this.props.prospectsPerPage
     upperLimit = this.props.currentPage*this.props.prospectsPerPage

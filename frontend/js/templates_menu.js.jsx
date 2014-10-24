@@ -28,7 +28,7 @@ module.exports = React.createClass({
     }
 
     return (
-      <div className="" style={{padding:'0', borderRight:'2px solid rgba(0,0,0,0)',height:'100%',textAlign:'center'}}>
+      <div className="" style={{padding:'0', height:'100%',textAlign:'center'}}>
         <div className="panel panel-default" 
              style={{borderRight:0,borderRadius:0,height:'100%', overflow:'auto'}}>
           <div className="panel-heading" style={{height:40}}>

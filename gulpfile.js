@@ -56,6 +56,18 @@ gulp.task('parse-browserify', ['javascript', 'react-jsx -> js'], function() {
     .pipe(gulp.dest('../prospecter-parse-prod/public/js'))
 });
 
+gulp.task('parse-browserify', ['javascript', 'react-jsx -> js'], function() {
+  return gulp.src(['build/js/components/*'], {read: false})
+    .pipe(browserify({
+      transform: ['envify'],
+      debug: true,
+      extensions: [".jsx"]
+    }))
+    //.pipe(concat('compiled.js'))
+    //.pipe(uglify())
+    .pipe(gulp.dest('../prospecter-parse-prod/public/js'))
+});
+
 gulp.task('parse-libs', function() {
   return gulp.src('build/js/lib/*')
     .pipe(gulp.dest('../prospecter-parse-prod/public/js'))

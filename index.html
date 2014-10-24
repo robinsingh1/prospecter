@@ -128,6 +128,11 @@
       'X-Parse-REST-API-Key'    : 'VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb',
       'Content-Type' : 'application/json'
     }
+    appConfig.url = "https://api.parse.com/1/classes/"
+    appConfig.closeModal = function() {
+      $('.modal').click()
+      $('.modal-backdrop').click()
+    }
     appConfig.pointer = function(className, objectId) {
       return {
         __type:'Pointer',
@@ -135,6 +140,8 @@
         objectId: objectId
       }
     }
+    appConfig.company = JSON.parse(localStorage.currentUser).company
+    appConfig.user = appConfig.pointer('User', JSON.parse(localStorage.currentUser).objectId)
     appConfig.headers = {
       'X-Parse-Application-Id'  : 'N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ', 
       'X-Parse-REST-API-Key'    : 'VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb',
