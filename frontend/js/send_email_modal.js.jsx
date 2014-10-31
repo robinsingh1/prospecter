@@ -6,29 +6,57 @@ module.exports = React.createClass({
       currentProspect: 0,
     }
   },
+
+  sendEmails: function() {
+    // Features
+    // - Where to get batch_id ??
+    //
+    
+    selectedCampaign = this.props.selectedCampaign
+    campaign_id = selectedCampaign.objectId
+    prospectlist_id = selectedCampaign.prospect_list.objectId
+    template_id = this.props.currentTemplate.objectId
+
+    $.ajax({
+      //url:'https://nameless-retreat-3525.herokuapp.com/send_email',
+      url:'http://127.0.0.1:5000/send_email',
+      data: {
+        template_id : template_id,
+        campaign_id : campaign_id,
+        prospectlist_id : prospectlist_id,
+      },
+      success: function(res) { console.log(res.results) },
+      error: function(err) { console.log(err) }
+    })
+  },
+
   //SendEmailModal
   render: function() {
-    //console.log(this.props.currentTemplate)
+    // 1414641747479
     prospect = this.props.prospects[this.state.currentProspect]
     prospect = (prospect) ? prospect : {'name':'','email':''}
-    //console.log(prospect)
     prospects = []
     for(i=0; i< this.props.prospects.length; i++){
       prospects.push(<UserPlaceHolder prospect={this.props.prospects[i]}/>)
     }
     email = (prospect.email) ? prospect.email.toLowerCase() : ""
+
+    console.log('SENT EMAIL MODAL BATCH')
+    console.log(this.props.currentBatch)
     return (
-          <div className="modal fade bs-sendEmail-modal-lg" tabIndex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="sendEmailModal" style={{top:'10px'}}>
+      <div className="modal fade bs-sendEmail-modal-lg" tabIndex="-1" 
+           role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" 
+           id="sendEmailModal" style={{top:'10px'}}>
             <div className="modal-dialog modal-lg" >
               <div className="modal-content" >
                 <div className="modal-header">
                   <button type="button" className="close" data-dismiss="modal"><span aria-hidden="true">&times;</span>
                     <span className="sr-only">Close</span></button>
         <button type="button" 
+                onClick={this.sendEmails}
                 style={{float:'right'}}
                 className="btn btn-primary btn-sm">
-                <i className="fa fa-paper-plane" />&nbsp;
-                Send Email</button>
+                <i className="fa fa-paper-plane" />&nbsp; Send Email</button>
         <button type="button" style={{marginRight:10, float:'right'}}
                 className="btn btn-default btn-sm" data-dismiss="modal">Close</button>
                   <h4 className="modal-title" id="myModalLabel">

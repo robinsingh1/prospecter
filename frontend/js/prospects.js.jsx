@@ -204,7 +204,6 @@ module.exports = React.createClass({
 
       profile = this.state.prospects[i].linkedin_url.replace('http://','')
       profile = this.state.prospects[i].linkedin_url.replace('https://','')
-      li = <a href={'http://'+profile} className="linkedin_link"><i className="fa fa-linkedin-square" /></a>
 
       keyboardSelected = (i == this.state.keyboardActiveProspect)
 
@@ -225,7 +224,8 @@ module.exports = React.createClass({
                       keyboardSelected={keyboardSelected}
                       checkboxAction={this.checkboxAction}
                       alreadyChecked={alreadyChecked}
-                      li={li} />)
+                      liProfile={'http://'+profile}
+                      />)
     }
 
     listType = (this.state.currentList == "All") ? {display:'none'} : {float:'left'}
@@ -301,14 +301,6 @@ module.exports = React.createClass({
                    {downloadIcon}
                    &nbsp; Download CSV &nbsp; 
                 </a>
-
-                <a onClick={this.downloadFile} 
-                     style={listOptions} 
-                   href="javascript:" 
-                   id="downloadProspects"
-                   className="drop-target btn btn-primary btn-xs list-options">
-                  <i className="fa fa-building" /> &nbsp; Generate Company List &nbsp; 
-                </a>
               </div>
         
 
@@ -348,11 +340,8 @@ module.exports = React.createClass({
   },
 
   downloadFile: function() {
-    list = {
-      '__type'   :  'Pointer',
-      'className':  'ProspectList',
-      'objectId' :  this.state.currentListObjectId
-    }
+    list = appConfig.pointer('ProspectList', 
+                             this.state.currentListObjectId)
     localStorage.download_total = Math.ceil(this.state.count/1000)
     localStorage.downloads      = 0
 
@@ -376,8 +365,14 @@ module.exports = React.createClass({
 
     var thiss = this;
     for(i=0;i< Math.ceil(this.state.count/1000); i++){
+      qry = {
+        limit: 1000,
+        skip: 1,
+        include: 'email_guesses,email_guesses.pattern'
+      }
       $.ajax({
-        url: 'https://api.parse.com/1/classes/Prospect?limit=1000&skip='+i,
+        url: 'https://api.parse.com/1/classes/Prospect',
+        data: qry,
         type:'GET',
         headers: appConfig.parseHeaders,
         beforeSend: function() {
@@ -386,18 +381,38 @@ module.exports = React.createClass({
         downloadFile: 'download_'+i,
         data: qry,
         success: function(res){
-          for(i=0;i< res.results.length;i++) {
-            delete res.results[i].company
-            delete res.results[i].pos
-            delete res.results[i].user
-            delete res.results[i].objectId
-            delete res.results[i].createdAt
-            delete res.results[i].updatedAt
-          }
+          results = _.map(res.results, function(result) {
+            /*
+            if(result.email == "no_email") {
+              if(result.email_guesses) {
+                guess = _.findWhere(result.email_guesses, {tried: false})
+                name = result.name.toLowerCase()
+
+                vars = {
+                  first: _.first(name.split(' ')),
+                  last: _.last(name.split(' ')),
+                  fi: _.first(name.split(' '))[0],
+                  li: _.last(name.split(' '))[0]
+                }
+                if(guess){
+                  prospect_email = Mustache.render(guess.pattern.pattern, vars)
+                  prospect_email = prospect_email+"@"+result.domain
+                }
+              }
+            }
+            result.email = prospect_email
+            */
+            values =  _.pick(result, ['name', 'company_name', 'company_size',
+                            'industry', 'linkedin_profile','website','email'])
+            //values = _.values(values)
+            //values = _.object(['Name','Company','Company Size', 
+            //                 'Industry', 'Linkedin Profile', 'Email'], values)
+            return values
+          })
 
           // Add Results To LocalStorage
           localStorage.downloads = JSON.parse(localStorage.downloads) + 1 
-          localStorage.setItem(this.downloadFile, JSON.stringify(res.results))
+          localStorage.setItem(this.downloadFile, JSON.stringify(results))
 
           // Check to see if all ajax reqs in for loop are complete
           if(localStorage.downloads == localStorage.download_total) {
@@ -721,6 +736,27 @@ module.exports = React.createClass({
         thiss.setState({keyboardActiveProspect: keyboard-1})
     });
 
+    Mousetrap.bind('s', function() { 
+      console.log('open current prospect')
+      console.log($($('.keySelect').find('a.linkedin_link')[0]).attr('href'))
+      link = $($('.keySelect').find('a.similar_link')[0]).attr('href')
+      /*
+      window.open(link, '_blank')
+      console.log('new')
+      */
+      //popupWindow.blur();
+      //window.focus();
+      // keyboard = thiss.state.keyboardActiveProspect
+      
+      var a = document.createElement("a");
+      a.href = link
+      var evt = document.createEvent("MouseEvents");
+      //the tenth parameter of initMouseEvent sets ctrl key
+      // For Mac This Works Check For - Windows
+      evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0,
+                                  false, false, false, true, 0, null);
+      a.dispatchEvent(evt);
+    });
 
     Mousetrap.bind('o', function() { 
       console.log('open current prospect')

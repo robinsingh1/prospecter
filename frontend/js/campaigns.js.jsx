@@ -19,6 +19,7 @@ module.exports = React.createClass({
     for(i=0;i< this.props.campaigns.length; i++){ 
       campaigns.push(<CampaignRow 
                         toggleScreen={this.toggleScreen}
+                        deleteCampaign={this.props.deleteCampaign}
                         changeSelectedCampaign={this.changeSelectedCampaign}
                         campaign={this.props.campaigns[i]}/> )
     }
@@ -42,10 +43,29 @@ module.exports = React.createClass({
         </table>
       </div>
     );
-  }
+  },
 });
 
 var CampaignRow = React.createClass({
+  DeleteCampaign: function(e) {
+    var thiss = this;
+    console.log('DELETE CAMPAIGN')
+    e.stopPropagation()
+    swal({   
+      title: "Are you sure?",   
+      text: "You will not be able to recover this Campaign!",
+      type: "warning",   
+      showCancelButton: true,   
+      confirmButtonColor: "#DD6B55",   
+      confirmButtonText: "Yes, delete it!",   
+      closeOnConfirm: false }, 
+      function(){   
+        swal("Deleted!", "Your campaign has been deleted.", "success"); 
+        console.log('deleted')
+        thiss.props.deleteCampaign(thiss.props.campaign.objectId)
+      });
+  },
+
   toggleScreen: function() {
     //this.props.toggleScreen()
     this.props.changeSelectedCampaign(this.props.campaign)
@@ -99,8 +119,11 @@ var CampaignRow = React.createClass({
           <a href="javascript:" className="btn btn-primary btn-xs" 
             style={{backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%) !important;',display:'none'}}> 
             <i className="fa fa-copy" style={{fontWeight:'bold'}}/>&nbsp; Clone</a>
-          <a href="javascript:" className="btn-default" 
-            style={{marginLeft:5}}> <i className="fa fa-trash-o" /></a>
+
+          <a href="javascript:" 
+             className="btn-default" 
+             onClick={this.DeleteCampaign}
+             style={{marginLeft:5}}> <i className="fa fa-trash-o" /></a>
         </td>
         <td style={{textAlign:'center',padding:12,display:'none'}}>
           <h4 style={{margin:0}}>

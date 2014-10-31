@@ -18,10 +18,36 @@ module.exports = React.createClass({
     }
   },
 
+  deleteCampaign: function(objectId) {
+    // sweetAlert
+    console.log(this.state.campaigns)
+    campaigns = _.filter(this.state.campaigns, function(campaign) {
+      return campaign.objectId != objectId
+    })
+    console.log(campaigns)
+    this.setState({campaigns: campaigns})
+    $.ajax({
+      url:'https://api.parse.com/1/classes/Campaign/'+objectId,
+      type:'DELETE',
+      headers:appConfig.headers,
+      success: function(res) { console.log(res) },
+      error: function(err) { console.log(err) }
+    })
+    // persist
+    // error log
+  },
+
   componentDidMount: function() {
     thiss = this;
-     company = JSON.stringify(JSON.parse(localStorage.currentUser).company)
-     qry = 'where={"company":'+company+'}&include=prospect_list,followups,followups.template&order=-createdAt'
+     company = JSON.parse(localStorage.currentUser).company
+     //qry = 'where={"company":'+company+'}&include=prospect_list,followups,followups.template&order=-createdAt'
+     qry = {
+       where : JSON.stringify({
+         company: company
+       }),
+       include: 'prospect_list,followups,followups.template,batches',
+       order: '-createdAt'
+     }
      $.ajax({
        url:'https://api.parse.com/1/classes/Campaign',
       headers: appConfig.headers,
@@ -29,19 +55,7 @@ module.exports = React.createClass({
       success: function(res) {
         console.log(res.results)
         thiss.setState({campaigns: res.results})
-        // TODO  - Add Get Prospect List Count
-        // Follow Up Feed Feature
-        // - Shows what stages different prospects are at and whether you 
-        //   should send a follow up to them.
-        // How to get the stage of Prospect List
-        // - Where to persist last email sent
-        // - What is stored at the campaign level
-        // - What is stored at the prospect level
-        // - Timeline (General 7 x 7 cadences)
-        //   - 
-        // - Rules (Sankey / Flow View)
-        //   - Shows all or only the ones that havent responded 
-        //   - Show all the ones hthat haven't replied
+        // Find All Prospects In ProspectList that are not in any batches
       },
       error: function(err) {
         console.log('error')
@@ -50,10 +64,17 @@ module.exports = React.createClass({
      });
     $.ajax({
       url: 'https://api.parse.com/1/classes/ProspectList',
+      data: {
+        order: '-createdAt',
+        where : JSON.stringify({
+          user: appConfig.user,
+          company: appConfig.company,
+        })
+      },
       headers: appConfig.headers,
-      // TODO
-      // - Company Specific
       success: function(res) {
+        console.log('PROSPECT LISTS')
+        console.log(res.results)
         thiss.setState({prospectLists: res.results})
       },
       error: function(err) {
@@ -85,6 +106,7 @@ module.exports = React.createClass({
       case 'Campaigns':
         CurrentScreen = <Campaigns campaigns={thiss.state.campaigns}
                             changeSelectedCampaign={thiss.changeSelectedCampaign} 
+                            deleteCampaign={this.deleteCampaign}
                             toggleScreen={thiss.toggleScreen}/>
         break;
       case 'CampaignDetail':

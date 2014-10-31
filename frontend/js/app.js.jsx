@@ -32,10 +32,6 @@ var MouseTrap = require('../lib/mousetrap.min.min.js')
 //var checkAuth = require('./auth.min.js')
 
 var Home = React.createClass({
-  componentWillMount: function(){
-    checkAuth()
-  },
-
   getInitialState: function() {
     // num_of_pages
     console.log(this.props)
@@ -45,8 +41,40 @@ var Home = React.createClass({
             count:"~", 
             prospectType:'Prospect', 
             //selectedScreen:'Prospects'}
+            currentUser: JSON.parse(localStorage.currentUser),
             selectedScreen: this.props.selectedScreen}
   },
+
+  componentWillMount: function(){
+    //console.debug('WILL MOUNT')
+    checkAuth()
+    var thiss = this;
+    //console.debug(this.state.currentUser)
+    $.ajax({
+      url:'https://api.parse.com/1/classes/_User/'+thiss.state.currentUser.objectId,
+      headers: appConfig.headers,
+      success: function(res) {
+        //console.debug('LOL')
+        // Number of Prospects for user
+        // Number of Lists
+        // Number of Emails found
+        console.log(res.result)
+        Intercom('boot', {
+          app_id: 'd37c2de5ffe27d69b877645351490517333437bf',
+          email: res.result.email,
+          created_at: 1234567890,
+          name: 'John Doe',
+          user_id: 'lol'
+        });
+      },
+      error: function(err) {
+        console.debug('error')
+      }
+    });
+    // Intercom
+    // Mixpanel
+  },
+
 
   toggleScreen: function(e) {
     e.preventDefault()
@@ -73,18 +101,21 @@ var Home = React.createClass({
   },
 
   stripeCheckout: function() {
+    /*
     handler.open({
       name: 'Customero',
       description: 'Get 900 free email credits!',
       amount: 0,
       panelLabel: "Start Your Free Trial!",
       opened: function() {
+
       },
       closed: function() {
         console.log("closed")
-        location.reload()
+        //location.reload()
       }
     });
+    */
   },
 
   componentDidMount: function() {
@@ -93,40 +124,17 @@ var Home = React.createClass({
     currentUser = JSON.parse(localStorage.currentUser)
     if(!currentUser.creditCardVerified)
       this.stripeCheckout()
+    //console.debug('DID MOUNT')
 
-    /*
-     * Make Request To Get Most Up to Date Info
-     * On Success Add To Intercom
-    */
-
-    /*
-    $.ajax({
-      url:''
-      success: function(res) {
-        // Number of Prospects for user
-        // Number of Lists
-        // Number of Emails found
-        Intercom('boot', {
-          app_id: 'abc12345',
-          email: 'john.doe@example.com',
-          created_at: 1234567890,
-          name: 'John Doe',
-          user_id: '9876'
-        });
-      },
-      error: function(err) {
-      }
-    });
-    */
-    // Intercom
-    // Mixpanel
   },
 
   render: function() {
+    //console.debug('APP RENDER')
     prospects = "choose btn btn-primary "
     companyProspects = "choose btn btn-primary "
     campaigns = "choose btn btn-primary "
     signals = "choose btn btn-primary "
+
     switch (this.state.selectedScreen) {
       case 'Prospects':
         currentScreen = <Prospects />
@@ -163,7 +171,23 @@ var Home = React.createClass({
         currentScreen = <Settings />
         break;
     }
+    if(typeof(this.state.currentUser.accountType) == "undefined"){
+      signals = "dissappear"
+      campaigns = "dissappear"
+      if(companyProspects == "choose btn btn-primary app-active") {
+        companyProspects = "choose btn btn-primary app-active right-btn-rounded"
+      } else {
+        companyProspects = "choose btn btn-primary right-btn-rounded"
+      }
+      if(prospects == "choose btn btn-primary app-active") {
+        prospects = "choose btn btn-primary app-active left-btn-rounded"
+      } else {
+        prospects = "choose btn btn-primary left-btn-rounded"
+      }
+    }
 
+
+      
     return (
       <div>
       <br/>

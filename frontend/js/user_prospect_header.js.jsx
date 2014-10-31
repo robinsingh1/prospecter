@@ -6,14 +6,12 @@ module.exports = React.createClass({
     checkboxes = _.rest($('body').find('input[type="checkbox"]'))
     console.log(checkboxes)
     if(checkboxVal){
-      // make sure all checkboxes are checked
       _.map(checkboxes, function(checkbox){
         if(!$(checkbox).prop('checked'))
           $(checkbox).click()
       })
       
     } else {
-      // make sure all checkboxes are unchecked
       _.map(checkboxes, function(checkbox){
         if($(checkbox).prop('checked'))
           $(checkbox).click()

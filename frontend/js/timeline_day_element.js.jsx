@@ -5,15 +5,18 @@ module.exports = React.createClass({
   // - add prospect list progression
   // - add scheduled followup
   //
+  getInitialState: function() {
+    // 
+    return {
+      followupCompleted: 0,
+    }
+  },
 
   addFollowup: function() {
     this.props.addFollowup(this.props.dayCount)
   },
 
   render: function() {
-    batchCount = this.props.batchCount
-    batchStage = (batchCount) ? <BatchStage batchCount={this.props.batchCount} /> : ""
-
     if(this.props.addTemplateMode) {
       mode = <EditTemplate addFollowup={this.props.addFollowup}
                            saveFollowup={this.props.saveFollowup}
@@ -23,19 +26,36 @@ module.exports = React.createClass({
     } else {
       mode = <TemplateFollowup currentTemplate={this.props.currentTemplate} 
                                editFollowup={this.props.editFollowup}
+                               currentBatch={this.props.currentBatch}
+                               setCurrentBatch={this.props.setCurrentBatch}
                                dayCount={this.props.dayCount}
                                removeFollowup={this.props.removeFollowup}
                                setCurrentTemplate={this.props.setCurrentTemplate}/>
     }
+    if(this.state.followupCompleted) {
+      mode = <FollowupCompleted currentTemplate={this.props.currentTemplate} />
+    }
+
     mode = (this.props.elementType) ? "" : mode
     addFollowup = (this.props.elementType) ? this.addFollowup : ""
+    if(typeof(this.props.batchCount) != "undefined")
+      batchStage = <BatchStage currentBatch={this.props.currentBatch} 
+                               newProspects={this.props.newProspects} 
+                               prospectListCount={this.props.prospectListCount} 
+                               batchCount={this.props.batchCount} 
+                               hasScheduledEmail={mode != ""} 
+                               dayCount={this.props.dayCount} />
+    else
+      batchStage = ""
+
+    dayCount = (this.props.dayCount != 0.5) ? "D"+this.props.dayCount : ""
 
     return (
       <div> 
         <div onClick={addFollowup} className="day" data-trigger="manual" >
-          {"D"+this.props.dayCount} 
+          {dayCount} 
         </div>
-        {batchStage}{mode}
+        {mode}{batchStage}
       </div>
     )
   },
@@ -45,11 +65,38 @@ module.exports = React.createClass({
   }
 });
 
+var FollowupCompleted = React.createClass({
+  render: function() {
+    return (
+      <div className="followup-placement arrow_box_1 tmp_2"> 
+        <h6 style={{width:130,display:'inline-block'}}>
+          <i className="fa fa-file-text-o" />&nbsp;&nbsp;
+          {(this.props.currentTemplate) ? this.props.currentTemplate.name : ""}
+        </h6>
+        <button className="win-btn btn btn-success btn-xs disabled"
+                data-target=".bs-sendEmail-modal-lg"
+                onClick={this.setCurrentTemplate}
+                data-toggle="modal">
+          <i className="fa fa-check"/>&nbsp;Sent</button>&nbsp;
+        <button onClick={this.editFollowup}
+                className="win-btn btn btn-default btn-xs disabled">
+          <i className="fa fa-pencil" /></button>&nbsp;
+        <button onClick={this.removeFollowup}
+                className="win-btn btn btn-default btn-xs disabled">
+          <i className="fa fa-trash-o" /></button>
+      </div>
+                                         )
+  }
+})
+
 var TemplateFollowup = React.createClass({
   // EditMode False
 
   setCurrentTemplate: function() {
     this.props.setCurrentTemplate(this.props.currentTemplate)
+    // setCurrentBatch
+    this.props.setCurrentBatch(this.props.currentBatch)
+    $('.bs-sendEmail-modal-lg').modal()
   },
 
   render: function() {
@@ -60,7 +107,6 @@ var TemplateFollowup = React.createClass({
           {(this.props.currentTemplate) ? this.props.currentTemplate.name : ""}
         </h6>
         <button className="win-btn btn btn-success btn-xs"
-                data-target=".bs-sendEmail-modal-lg"
                 onClick={this.setCurrentTemplate}
                 data-toggle="modal">
           <i className="fa fa-paper-plane"/>&nbsp;Send</button>&nbsp;
@@ -88,11 +134,69 @@ var TemplateFollowup = React.createClass({
 
 var BatchStage = React.createClass({
   // Different Stages of People Added to Prospect List
+  getInitialState: function() {
+    // 
+    return {
+      initialBatchCount: this.props.batchCount
+    }
+  },
+
+  componentDidMount: function() {
+    // state
+    //console.debug('INSIDE BATCH '+this.props.dayCount)
+    console.debug(this.props.currentBatch)
+    _batches = appConfig.pointer('ProspectBatch', this.props.currentBatch)
+    if(this.props.batchCount == "~") {
+      // Why doesnt this work 
+      var thissss = this;
+      console.debug('INSIDE BATCH '+thiss.props.dayCount)
+      console.debug(_batches)
+      $.ajax({
+        url:'https://api.parse.com/1/classes/Prospect',
+        batches: _batches,
+        data: {
+          where: JSON.stringify({
+            batches: _batches
+          }),
+          count: true,
+        },
+        headers: appConfig.headers,
+        success: function(res) { 
+          console.debug('SUCCESS GET COUNT ' + res.count)
+          console.debug(res.results) 
+          thissss.setState({initialBatchCount: res.count})
+        },
+        error: function(err) { 
+          thissss.setState({initialBatchCount: 0 })
+        }
+      })
+    }
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    if(this.props.dayCount == 0)
+      this.setState({ initialBatchCount: nextProps.batchCount })
+  },
+
+
   render: function() {
+    if(this.props.hasScheduledEmail)
+      batchStageStyle = {top:-42, left:6}
+    else
+      batchStageStyle = {}
+
+    if(this.props.dayCount == 0.5)
+      batchStageStyle.left = 7
+
+    //console.log('BATCH STAGE')
+    //console.log(this.props)
+    //console.debug(this.props.currentBatch)                                                           
+
     return (
-      <div className="followup-placement arrow_box tmp">
-        <span className="badge">
-          {this.props.batchCount}
+      <div className="followup-placement arrow_box tmp" style={batchStageStyle}>
+        <span className="label label-primary">
+          <i className="fa fa-users" />&nbsp;
+          {this.state.initialBatchCount}
         </span>&nbsp;
         <h6 style={{display:'inline-block'}}> 
           prospects in the sales cycle.</h6>

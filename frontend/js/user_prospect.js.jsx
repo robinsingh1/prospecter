@@ -1,4 +1,5 @@
 /** @jsx React.DOM */
+var HorizantalSpinner = require('./horizantal_spinner.js.min.js')
 
 module.exports = React.createClass({
   // UserProspect
@@ -86,7 +87,13 @@ module.exports = React.createClass({
       }
     }
     prospect_email = (prospect_email) ? prospect_email.toLowerCase() : ""
+    prospect_email = <a href={"mailto:"+prospect_email} style={{margin:'0px'}}> {prospect_email} </a>
+    company_size = (prospect.company_size) ? prospect.company_size : ""
 
+    if(this.props.prospect.loading)
+      prospect_email = <HorizantalSpinner />
+    if(this.props.prospect.loading)
+      company_size = <HorizantalSpinner />
     return (
       <tr className={rowCl} 
           onClick={this.rowClick}
@@ -109,7 +116,7 @@ module.exports = React.createClass({
               {prospect.company_name}
             </span>
             <h6 style={{fontWeight:'400',margin:'0px'}} className="company-size">
-              {(prospect.company_size) ? prospect.company_size : ""}
+            {company_size}
             </h6>
             <h6 style={{fontWeight:'400',margin:'0px',display:'none',fontStyle:'italic'}} className="company-size">
               {(prospect.industry) ? prospect.industry : ""}
@@ -119,16 +126,41 @@ module.exports = React.createClass({
           <td style={color}>
             <h6 style={{margin:'0px'}}>{prospect.city}</h6></td>
           <td style={color}>
-            <a href={"mailto:"+prospect_email} 
-               style={{margin:'0px'}}>
-               {prospect_email}
-          </a></td>
-          <td style={color}>{this.props.li}&nbsp;{this.props.link}</td>
+            {prospect_email}
+          </td>
+          <td style={color}>
+            <div style={{width:51}}>
+              <a onClick={this.openSimilars} 
+                href="javascript:"
+                className="btn btn-xs btn-primary btn-gradient similar_link">
+                <i className="fa fa-copy" style={{fontWeight:'bold'}}/></a>&nbsp;
+            <a href={this.props.liProfile} className="btn btn-xs btn-primary btn-gradient linkedin_link"><i className="fa fa-linkedin-square" /></a>
+            &nbsp;{this.props.link}
+            </div>
+          </td>
           <td style={color}>
             {websiteBtn}
           </td>
         </tr>
     );
+  },
+
+  openSimilars: function(e) {
+    if(this.props.liProfile.indexOf('profile') != -1){
+      urlargs = this.props.liProfile.split('?')[1].split('&')
+      args = []
+      for(i=0;i< urlargs.length; i++)
+        args.push(urlargs[i].split('='))
+      args = _.object(args)
+    }
+    window.open("https://www.linkedin.com/vsearch/p?pivotType=sim&pid="+args.id)
+    e.stopPropagation()
+  },
+
+  openLinkedinProfile: function(e) {
+    id = this.state.linkedin_id
+    window.open("https://www.linkedin.com/vsearch/p?pivotType=sim&pid="+id)
+    e.stopPropagation()
   },
 
   deleteProspect: function() {

@@ -2,40 +2,6 @@
 
 module.exports = React.createClass({
   // createListModal
-  createList: function() {
-    console.log($('#listTitle').val())
-
-    data =  {
-      'name'        : $('#listTitle').val().trim(),   //Waiting , Running
-      'user'        : { '__type':'Pointer',
-                      'className':'_User',
-                      'objectId':'xWESiw5Smd' },
-    }
-
-    $.ajax({
-      url:'https://api.parse.com/1/classes/ProspectList',
-      type:'POST',
-      headers: appConfig.parseHeaders,
-      data: JSON.stringify(data),
-      success: function(res) {
-        console.log(res)
-      },
-      error: function(err) {
-        console.log('error')
-        console.log(err)
-      }
-    });
-
-    data.count = 0
-
-    this.props.createList(data)
-    
-    $('#createListModal').modal('hide')
-    $('body').removeClass('modal-open');
-    $('.modal-backdrop').remove();
-    //$('button.close').click()
-  },
-
   createCampaign: function(e) {
     e.preventDefault()
     //console.log($('#newListName').val())
