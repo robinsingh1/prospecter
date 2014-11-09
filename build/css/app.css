@@ -45,13 +45,32 @@ body {
   margin-top: 12px;
 }
 .login-btn{
-display: block;
-float: right;
-margin-right: 30px;
-margin-top: -45px;
-background-color: #1ca3fd;
-border-radius: 3px;
-color:white;
+  display: block;
+  float: right;
+  margin-right: 30px;
+  margin-top: -45px;
+  background-color: rgba(0,0,0,0);
+  border-radius: 3px;
+  color: white;
+  font-size: 14px;
+  border: 2px solid white;
+}
+
+.landing-page-nav {
+  float:right;
+  margin-top: -45px;
+  margin-right: 150px;
+  color: white;
+  font-family: proxima-nova;
+}
+.landing-page-nav > li :hover{
+  background-color:rgba(0,0,0,0)
+}
+.landing-page-nav-tab {
+  color:white;
+}
+.landing-page-nav-tab :hover{
+  background-color:rgba(0,0,0,0)
 }
 
 .choose {
@@ -157,7 +176,7 @@ tr.prospects-tr:hover{
   background-image: url(../img/goldslider.jpg);
   background-size: cover;
   background-repeat: no-repeat;
-  height: 90% !important;
+  height: 100% !important;
   background-position: bottom right;
     -webkit-filter: blur(10px);
     -moz-filter: blur(20px);
@@ -170,6 +189,9 @@ tr.prospects-tr:hover{
 border-bottom: 2px solid #007ee5;
 background-color: white;
 height: 71px;
+background-color: rgba(0,0,0,0);
+border-color: rgba(0,0,0,0);
+padding:30px
 }
 .tagline {
   text-align: center;
@@ -491,13 +513,8 @@ a.prospect-list-select:hover{
   background-image: radial-gradient(circle at center center,#fff,#dff1fd 900px);
 }
 .prospect-img{
-  height: 50px;
-  width: 50px;
-  border-radius: 25px;
-  margin-left:20px;
-  margin-right:20px;
-  margin-top:10px;
-  margin-bottom:10px;
+  height: 200px;
+  width: 200px;
 }
 
 #signup {
@@ -930,7 +947,7 @@ font-family: proxima-nova;
   box-shadow: rgba(255, 255, 255, 0.0588235) 0px 2px 0px 0px inset, rgba(0, 0, 0, 0.2) 0px 2px 3px 0px;
 }
 .list-name {
-  width: 140px;
+  width: 74%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -973,3 +990,108 @@ font-family: proxima-nova;
   background-color: rgba(0,0,0,0.6);
   margin-top: 38px;
 }
+
+.campaign-tab {
+height: 20px;
+margin-top: 3px;
+width: 100px;
+text-align: center;
+font-weight: bold;
+}
+
+.campaign-tabs > li{
+  width:20%;
+}
+.campaign-tabs{
+  margin-bottom: -1px;
+  position: relative;
+  z-index: 1;
+}
+
+.campaign-tab-link{
+  border: 1px solid #ddd;
+  margin-top:-10px;
+  padding-top: 6px !important;
+  height: 30px;
+  margin-bottom: -10px;
+  font-size: 11px;
+  border: 1px solid  #ddd !important;
+}
+.active-campaign-tab {
+  border-top: 3px solid #0096ff !important;
+  margin-top: -15px;
+  padding-top: 6px !important;
+  font-size: 13px;
+  border-left: 1px solid #ddd !important;
+  border-right: 1px solid #ddd !important;
+  border-bottom:0 !important;
+  height: 34px;
+  color:black !important;
+}
+
+.campaign-tab-link :hover {
+  background-color:#d9edf7 !important;
+}
+.campaign-tab :hover {
+  background-color:#d9edf7 !important;
+  background-color:#eef8ff !important;
+}
+.right-btn-rounded {
+  border-top-right-radius: 5px !important;
+  border-bottom-right-radius: 5px !important;
+}
+.left-btn-rounded {
+  margin-left:100px !important;
+  border-top-left-radius: 5px !important;
+  border-bottom-left-radius: 5px !important;
+}
+.dissappear {
+  display:none !important;
+}
+
+/*** Horizantal Spinner ***/
+.horizantal-spinner {
+  width: 100px;
+  text-align: center;
+}
+
+.horizantal-spinner > div {
+  width: 9px;
+  height: 9px;
+  background-color: #0096ff;
+  margin:3px;
+
+  border-radius: 100%;
+  display: inline-block;
+  -webkit-animation: bouncedelay 1.4s infinite ease-in-out;
+  animation: bouncedelay 1.4s infinite ease-in-out;
+  /* Prevent first frame from flickering when animation starts */
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+.horizantal-spinner .hoz-bounce1 {
+  -webkit-animation-delay: -0.32s;
+  animation-delay: -0.32s;
+}
+
+.horizantal-spinner .hoz-bounce2 {
+  -webkit-animation-delay: -0.16s;
+  animation-delay: -0.16s;
+}
+
+@-webkit-keyframes bouncedelay {
+  0%, 80%, 100% { -webkit-transform: scale(0.0) }
+  40% { -webkit-transform: scale(1.0) }
+}
+
+@keyframes bouncedelay {
+  0%, 80%, 100% { 
+    transform: scale(0.0);
+    -webkit-transform: scale(0.0);
+  } 40% { 
+    transform: scale(1.0);
+    -webkit-transform: scale(1.0);
+  }
+}
+/*** ****************** ***/

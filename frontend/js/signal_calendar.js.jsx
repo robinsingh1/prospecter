@@ -23,7 +23,7 @@ module.exports = React.createClass({
       data: qry,
       headers:appConfig.parseHeaders,
       success: function(res) {
-        //console.log(res.results)
+        console.log(res.results)
         thissss.setState({reports: res.results})
       },
       error: function(err) {
@@ -33,7 +33,7 @@ module.exports = React.createClass({
   },
 
   componentDidMount: function() {
-    //this.getSignalReport()
+    this.getSignalReport()
   },
 
   componentDidUpdate: function() {
@@ -73,7 +73,7 @@ module.exports = React.createClass({
                 </th>
                 <th style={{textAlign:'center'}}>Posted Job Listing</th>
                 <th>Company Signals</th>
-                <th style={{display:'none'}}>Prospect Signals</th>
+                <th style={{display:'block'}}>Prospect Signals</th>
                 <th style={{width:150,textAlign:'center'}}></th>
               </thead>
               <tbody className="reports">
@@ -96,6 +96,13 @@ module.exports = React.createClass({
 });
 
 var SignalReportRow = React.createClass({
+  getInitialState: function() {
+    return {
+      companyCount: '~',
+      peopleCount: '~'
+    }
+  },
+
   rowClick: function() {
     if(this.props.report.done)
       this.props.setCurrentReport(this.props.report)
@@ -108,6 +115,29 @@ var SignalReportRow = React.createClass({
     e.stopPropagation()
   },
 
+  componentDidMount: function() { 
+    report = appConfig.pointer('SignalReport', this.props.report.objectId)
+    qry = {
+      where:JSON.stringify({ report: report }),
+      count: 1
+    }
+    var thiss = this;
+    $.ajax({
+      url:'https://api.parse.com/1/classes/PeopleSignal',
+      data: qry,
+      headers: appConfig.headers,
+      success: function(res) { thiss.setState({peopleCount: res.count})},
+      error: function(err) { console.log(err.responseText) },
+    })
+
+    $.ajax({
+      url:'https://api.parse.com/1/classes/CompanySignal',
+      data: qry,
+      headers: appConfig.headers,
+      success: function(res) { thiss.setState({companyCount: res.count})},
+      error: function(err) { console.log(err.responseText) },
+    })
+  },
 
   render: function() {
     prospected = this.props.report.prospected
@@ -143,13 +173,13 @@ var SignalReportRow = React.createClass({
         </td>
         <td>
           <span className="label label-success">
-            {this.props.report.company_count}
+            {this.state.companyCount}
           </span>
           <h6 style={{display:'inline-block'}}>
             &nbsp; Companies found.
           </h6>
         </td>
-        <td style={{display:'none'}}>
+        <td style={{display:'block'}}>
           <span className="label label-success">
             {this.props.report.people_count}
           </span>

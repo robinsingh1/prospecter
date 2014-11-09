@@ -3,6 +3,14 @@
 module.exports = React.createClass({
   // createSignalModal
   createMiningJob: function(date) {
+    var thiss = this;
+    $.ajax({
+      //url:'http://127.0.0.1:5000/mining_job/hiring',
+      url:'https://nameless-retreat-3525.herokuapp.com/mining_job/hiring',
+      data: {profile_id: thiss.props.currentProfile.objectId, timestamp: date},
+      success: function(res) { console.log(res) },
+      error: function(err) {console.log(err.responseText) }
+    })
     this.props.createMiningJob(this.props.currentProfile, date)
   },
 

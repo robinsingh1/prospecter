@@ -227,8 +227,11 @@ module.exports = React.createClass({
         the_link = ""
       }
 
-      profile = this.state.prospects[i].profile.replace('http://','')
-      profile = this.state.prospects[i].profile.replace('https://','')
+      profile = this.state.prospects[i].profile
+      profile = (profile) ? profile : ""
+
+      profile = profile.replace('http://','')
+      profile = profile.replace('https://','')
       profile = (typeof(profile) != "undefined") ? profile : ""
       li = <a href={profile} className="linkedin_link"><i className="fa fa-linkedin-square" /></a>
 

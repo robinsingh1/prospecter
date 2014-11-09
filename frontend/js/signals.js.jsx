@@ -184,33 +184,6 @@ module.exports = React.createClass({
   persistMiningJob: function(date, report) {
     console.log(this.state)
     objectId = this.state.currentProfile.objectId
-    $.ajax({
-      url:'https://api.parse.com/1/classes/SignalReport',
-      type:'POST',
-      headers:appConfig.headers,
-      data:JSON.stringify(report),
-      success: function(res) {
-        console.log(res)
-        $.ajax({
-          url:'https://api.parse.com/1/classes/ProspectProfile/'+objectId,
-          type:'PUT',
-          headers:appConfig.headers,
-          data:JSON.stringify({
-            mining_days: {
-              __op:'AddUnique',
-              objects:[date],
-            },
-            reports: {
-              __op:'AddUnique',
-              objects:[appConfig.pointer('SignalReport', res.objectId)]
-            }
-          }),
-          success: function(res) { console.log(res) },
-          error: function(err) {},
-        })
-      },
-      error: function(err) {},
-    })
   },
 
   addProfile: function(newProfile) {
@@ -474,12 +447,21 @@ var SignalsOptions = React.createClass({
                 </h6>
               </a>
             </li>
-            <li role="presentation" style={{display:'none'}}>
+            <li role="presentation" style={{display:'block'}}>
               <a href="javascript:"
                  onClick={this.launchModal}
                  style={{paddingLeft:5}}>
                 <h6 style={{margin:2}}><i className="fa fa-institution"  style={{width:10}}/>
                   &nbsp;&nbsp;Create Funding Signal
+                </h6>
+              </a>
+            </li>
+            <li role="presentation" style={{display:'block'}}>
+              <a href="javascript:"
+                 onClick={this.launchModal}
+                 style={{paddingLeft:5}}>
+                <h6 style={{margin:2}}><i className="fa fa-globe"  style={{width:10}}/>
+                  &nbsp;&nbsp;Create Territory Strategy
                 </h6>
               </a>
             </li>
@@ -535,7 +517,6 @@ var SignalsOptions = React.createClass({
 var SignalsFeed = React.createClass({
   render: function() {
     //this.getSignals()
-
     signalCards = []
     for(i=0;i< this.props.signals.length;i++) {
       if(this.props.signalType == "CompanySignal")

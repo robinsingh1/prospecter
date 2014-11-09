@@ -81,6 +81,8 @@ module.exports = React.createClass({
         user_id = JSON.parse(localStorage.currentUser).objectId
         newProfile.user = appConfig.pointer('_User', user_id) 
         newProfile.company = JSON.parse(localStorage.currentUser).company
+        console.log('CREATED NEW PROSPECT PROFILE')
+        console.log(ress.result)
 
         $.ajax({
           url: 'https://api.parse.com/1/classes/ProspectList',
@@ -110,7 +112,8 @@ module.exports = React.createClass({
           $.ajax({
             //url:'https://nameless-retreat-3525.herokuapp.com/mining_job/title',
             ///url:'https://nameless-retreat-3525.herokuapp.com/title_mining_job',
-            url:'http://127.0.0.1:5000/title_mining_job',
+            url:'https://nameless-retreat-3525.herokuapp.com/title_mining_job',
+            //url:'http://127.0.0.1:5000/title_mining_job',
             type:'GET',
             data: {prospect_profile: ress.objectId},
             success: function(res) { console.log(res) },

@@ -85,14 +85,26 @@ module.exports = React.createClass({
     var thiss = this;
     selectedCampaign = this.props.selectedCampaign
     console.debug(this.props.selectedCampaign)
+    console.debug('Selected Campaign Batches')
+    console.debug(this.props.selectedCampaign.batches)
+    batches = this.props.selectedCampaign.batches
+    if(_.isEqual(batches, [])){ 
+      batch_query = { $in: [false, null] }
+    } else {
+      qry = _.map(batches, function(batch) {
+        return appConfig.pointer('ProspectBatch', batch.objectId)
+      })
+      batch_query = { $nin: qry }
+    }
+    prospect_list = thiss.props.selectedCampaign.prospect_list.objectId
     $.ajax({
       url:'https://api.parse.com/1/classes/Prospect',
       headers: appConfig.headers,
       selectedCampaign: thiss.props.selectedCampaign,
       data: {
         where: JSON.stringify({
-            batches:{ $in: [false, null] },
-            lists: appConfig.pointer('ProspectList', thiss.props.selectedCampaign.prospect_list.objectId)
+            batches: batch_query,
+            lists: appConfig.pointer('ProspectList', prospect_list)
         })
       },
       success: function(res) { 
@@ -138,7 +150,8 @@ module.exports = React.createClass({
       tab_2 = "active-campaign-tab campaign tab-link"
     } else if(this.state.currentScreen == "scheduled followups") {
       lolscreen = <CampaignFollowupFeed 
-                    followups={this.props.selectedCampaign.followups}/>
+                    batches={this.props.selectedCampaign.batches}
+                    followups={this.props.selectedCampaign.followups} />
       tab_3 = "active-campaign-tab campaign tab-link"
     } else if(this.state.currentScreen == "sent mail") {
       lolscreen = <CampaignSentEmail 

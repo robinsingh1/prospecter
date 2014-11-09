@@ -34,17 +34,17 @@ module.exports = React.createClass({
         <div className="background-image"></div>
         <nav className="thenavbar navbar navbar-default navbar-fixed-top" role="navigation">
           <div className="container-fluid">
-            <img className="network-logo" src="build/img/network.png" />
-            <a className="the-title tk-foco brand navbar-brand" style={{fontWeight:'100'}}
-                href="#">
-              Customero
-              <span style={{fontSize:'20px',marginLeft:'30px',fontFamily:'Open Sans'}}>Social Prospecting On Steroids </span>
-            </a>
+            <img className="" src="build/img/full-logo-5.png" style={{width:220}}/>
           </div>
           <a href="#login" className="btn-lg btn login-btn" style={{fontFamily:'proxima-nova'}}>LOG IN</a>
+              <ul className="nav nav-pills landing-page-nav" role="tablist">
+                <li ><a className="landing-page-nav-tab" style={{display:'none'}} href="#">HOME</a></li>
+                <li><a className="landing-page-nav-tab" style={{display:'none'}} href="#">PROFILE</a></li>
+                <li><a className="landing-page-nav-tab" href="#pricing">PRICING</a></li>
+              </ul>
         </nav>
 
-        <div className="col-md-7 col-sm-7" style={{marginTop:'100px',paddingTop:'80px'}}>
+        <div className="col-md-12 col-sm-12" style={{marginTop:'100px',paddingTop:'80px'}}>
           <h1 style={{color:'#1ca3fd',fontWeight:'100',color:'white',textAlign:'center',fontSize:'38px',fontFamily:'Open Sans',fontSize:'40px'}}> Generate High Quality Prospect Lists </h1>
           <h1 style={{color:'#1ca3fd',fontWeight:'100',textAlign:'center',color:'white',fontSize:'46px',fontFamily:'Open Sans', fontStyle:'italic'}}> Accelerate Sales </h1>
           <a href="#signup" className="btn-lg btn-success btn start-trial">Start Your Free Trial Today</a>
@@ -57,6 +57,7 @@ module.exports = React.createClass({
               <br/>
               <input placeholder="Password" type="password" id="password" className="form-control input-lg" style={{fontWeight:'100',fontSize:'22px'}} />
               <br/>
+
               <a href="javascript:" onClick={this.login} className="btn btn-success btn-lg" style={{display:'block',backgroundColor:'#1ca3fd'}}>Log In</a>
               </form>
             </div>
@@ -66,7 +67,7 @@ module.exports = React.createClass({
         <div className="gradient"> </div>
 
         <div className="col-md-5 col-sm-5" id="network-picture" 
-             style={{height:500,backgroundImage:"url('build/img/network_icon_1.png')"}}>
+             style={{height:500,backgroundImage:"url('build/img/network_icon_1.png')",display:'none'}}>
         </div>
       </div>
     );

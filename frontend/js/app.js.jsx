@@ -167,11 +167,17 @@ var Home = React.createClass({
         signals = "choose btn btn-primary app-active"
         location.href= "#signals"
         break;
+      case 'Strategies':
+        currentScreen = <Signals />
+        signals = "choose btn btn-primary app-active"
+        location.href= "#strategies"
+        break;
       case 'Settings':
         currentScreen = <Settings />
         break;
     }
-    if(typeof(this.state.currentUser.accountType) == "undefined"){
+
+    if(this.state.currentUser.accountType != "Staff"){
       signals = "dissappear"
       campaigns = "dissappear"
       if(companyProspects == "choose btn btn-primary app-active") {
@@ -185,8 +191,6 @@ var Home = React.createClass({
         prospects = "choose btn btn-primary left-btn-rounded"
       }
     }
-
-
       
     return (
       <div>
@@ -195,29 +199,34 @@ var Home = React.createClass({
       <div className="container">
         <h1 style={{fontWeight:'bold',display:'inline',fontWeight:'100',color:'#1ca3fd'}}>
           <img src="build/img/network.png" 
-            style={{ height:32, marginTop:-4,
+            style={{ height:32,
               marginRight:5, }}
           />
           <span style={{fontWeight:'bold',fontSize:32,fontFamily:'Proxima-Nova' }}>Customero </span>
+          <a href="javascript:" 
+            style={{marginTop:0, marginRight:10,
+                    backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%)' , backgroundImage: 'linear-gradient(#8add6d, #60b044)'}}
+            className="btn btn-success btn-xs"
+            onClick={this.downloadSocialProspecter}> 
+            30 days left! Upgrade Today!
+          </a>
         </h1>
-      <span style={{float:'right'}}>
+      <span style={{float:'right',display:'none'}}>
         <img src="build/img/user.png" style={{height:'40px',width:'40px',padding:'2px',marginTop:'5px',borderRadius:'23px',display:'inline'}} className="thumbnail"/>&nbsp;&nbsp;&nbsp; 
-        <h6 style={{marginTop:'20px',float:'right',display:'inline'}}>Welcome</h6>
+        <h6 style={{marginTop:'20px',float:'right',display:'inline'}}>Welcome </h6>
       </span>
-      <span style={{float:'right', marginRight:'150px'}}>
-        <h6 style={{marginTop:'20px',float:'right',display:'inline',}}><a href="javascript:" onClick={this.logout} style={{color:'#1ca3fd'}}>Logout</a></h6>
-        <h6 style={{marginTop:'20px',float:'right',display:'inline',marginRight:'10px'}}><a href="#pricing" style={{color:'#1ca3fd'}}>Pricing</a></h6>
-        <h6 style={{marginTop:'20px',float:'right',display:'inline', marginRight:'10px'}}>
-          <a href="http://resources.customerohq.com" style={{color:'#1ca3fd'}}>Resources</a>
-        </h6>
+      <span style={{float:'right', marginRight:'0px'}}>
+        <h6 style={{marginTop:'20px',float:'right',display:'none',}}><a href="javascript:" onClick={this.logout} style={{color:'#1ca3fd'}}>Logout</a></h6>
+        <h6 style={{marginTop:'20px',float:'right',display:'none',marginRight:'10px'}}><a href="#pricing" style={{color:'#1ca3fd'}}>Pricing</a></h6>
           <a href="javascript:" 
             style={{marginTop:15, float:'right',marginRight:10,
-                    backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%)' }}
-            className="btn btn-primary btn-xs"
+                    backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%)' , backgroundImage: 'linear-gradient(#8add6d, #60b044)'}}
+            className="btn btn-success btn-xs"
             onClick={this.downloadSocialProspecter}> 
             <i className="fa fa-download" /> &nbsp;
             Download Chrome Social Prospecter
           </a>
+        <h6 style={{marginTop:'20px',float:'right',display:'inline', marginRight:'10px'}}> <a href="http://resources.customerohq.com" style={{color:'#1ca3fd'}}>Resources</a> </h6>
       </span>
       <br/>
       <br/>
@@ -226,7 +235,7 @@ var Home = React.createClass({
 
           <div className="btn-group col-md-offset-4" >
             <a href="javascript:" className={signals} style={{display:'block'}} onClick={this.toggleScreen}> 
-                <i className="fa fa-wifi" />&nbsp;Signals
+                <i className="fa fa-line-chart" />&nbsp;Strategies
             </a>
             <a href="javascript:" className={prospects} onClick={this.toggleScreen}> 
                 <i className="fa fa-user" />&nbsp;Prospects
@@ -302,6 +311,7 @@ var Workspace = Backbone.Router.extend({
     "pricing"     : "pricing",
     
     "signals"     : "signals",
+    "strategies"  : "strategies",
     "prospects"   : "prospects",
     "companies"   : "companies",
     "campaigns"   : "campaigns",
@@ -332,6 +342,7 @@ var Workspace = Backbone.Router.extend({
   },
 
   signals  : function() { this.mainRoute('Signals') },
+  strategies  : function() { this.mainRoute('Strategies') },
   prospects: function() { this.mainRoute('Prospects') },
   companies: function() { this.mainRoute('Companies') },
   campaigns: function() { this.mainRoute('Campaigns') },

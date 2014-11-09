@@ -10,6 +10,7 @@ var rename     = require('gulp-rename');
 var nodemon    = require('gulp-nodemon');
 var browserify = require('gulp-browserify');
 var reactify   = require('reactify')
+var inject     = require('gulp-inject')
 
 //Parse and compress JS and JSX files
 //TODO -- Add Watchify
@@ -80,9 +81,9 @@ gulp.task('styles', function() {
 
 gulp.task('parse-styles', function() {
   return gulp.src('frontend/**/*.css')
-    .pipe(concat('compiled.css'))
+    //.pipe(concat('compiled.css'))
     //.pipe(uglify())
-    .pipe(gulp.dest('../prospecter-parse-prod/public/css'));
+    .pipe(gulp.dest('../prospecter-parse-prod/public'));
 });
 
 gulp.task('images', function() {
@@ -91,8 +92,11 @@ gulp.task('images', function() {
 });
 
 gulp.task('parse-images', function() {
-  return gulp.src('frontend/img/*')
-    .pipe(gulp.dest('../prospecter-parse-prod/public/img'));
+  gulp.src('frontend/img/*')
+    .pipe(gulp.dest('../prospecter-parse-prod/public/img'))
+
+  gulp.src('frontend/img/*')
+    .pipe(gulp.dest('../prospecter-parse-prod/public/build/img'));
 });
 
 gulp.task('clean', function() {
@@ -119,13 +123,45 @@ gulp.task('watch', ['clean'], function() {
 });
 
 gulp.task('default', ['clean'], function() {
-  return gulp.start('browserify', 'styles', 'images');
+  //return gulp.start('browserify', 'styles', 'images');
+  //gulp.run('dev-index')
+  gulp.run('browserify')
+  gulp.run('styles')
+  gulp.run('images')
+});
+
+gulp.task('dev-index', ['browserify'], function() {
+  var target = gulp.src('./index.html')
+  var scripts = gulp.src(['./build/js/**/*'], {read: false});
+  var styles = gulp.src(['./build/css/**/*'], {read: false});
+  target.pipe(inject(scripts))
+      .pipe(gulp.dest('./'));
+  target.pipe(inject(scripts))
+      .pipe(gulp.dest('./'));
+});
+
+gulp.task('parse-index', ['parse-browserify','parse-libs'], function() {
+  var target = gulp.src('./index.html')
+  var scripts = gulp.src(['../prospecter-parse-prod/public/js/**/*'], {read: false})
+  var styles = gulp.src(['../prospecter-parse-prod/public/css/**/*'], {read: false})
+  target.pipe(inject(scripts, {relative:true, addRootSlash: false,
+                     transform: function(filePath, file, i, length) {
+                       return '<script src="' + filePath.replace('../prospecter-parse-prod/public/','') + '"></script>';
+                                         }
+              }))
+          .pipe(gulp.dest('../prospecter-parse-prod/public'));
+  target.pipe(inject(styles, {relative:true, addRootSlash: false,
+                     transform: function(filePath, file, i, length) {
+                       return '<link rel="stylesheet" href="' + filePath.replace('../prospecter-parse-prod/public/','') + '"></script>';
+                                         }
+              }))
+          .pipe(gulp.dest('../prospecter-parse-prod/public'));
 });
 
 /* Gulp Parse Production */
 gulp.task('parse', ['parse-clean'], function() {
-  // Add A clean to parse public
-  return gulp.start('parse-browserify', 'parse-libs', 
-                    'parse-styles', 'parse-images')
+  gulp.run('parse-styles')
+  gulp.run('parse-images')
+  gulp.run('parse-index')
 })
 

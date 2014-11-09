@@ -6,28 +6,33 @@ module.exports = React.createClass({
   // SignUp
   componentDidMount: function() {
     $('body').css({overflow:'hidden'})
+    var thiss = this;
+    $("input").keypress(function(event) {
+        if (event.which == 13) {
+          event.preventDefault();
+          thiss.login()
+        }
+    });
   },
 
   login: function() {
     console.log('login')
-    email = $('#email').val()
-    password = $('#password').val()
-    p = {"X-Parse-Application-Id": "N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ",
-         "X-Parse-REST-API-Key": "VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb"}
     $.ajax({
       url:'https://api.parse.com/1/login',
-      headers: p,
+      headers: appConfig.headers,
       type:'GET',
       data: {
-        'username':email,
-        'password':password
+        'username':$('#email').val(),
+        'password':$('#password').val()
       },
+      beforeSend: function() { },
       success:function(res) {
+        //alertify.success('Logging in...')
         localStorage.setItem('currentUser', JSON.stringify(res))
         location.href = "#"
       },
       error: function(res) {
-        console.log(res)
+        alertify.error('There was an error with your login request. Please try again')
       }
     });
   },
@@ -51,13 +56,15 @@ module.exports = React.createClass({
         <h1 className="title">Customero.</h1>
         <h5 className="tagline">Generate high quality prospect lists. Accelerate Sales.</h5>
           <div className="panel panel-default login-info" style={{display:'block'}}>
-            <div className="panel-body">
+            <div className="panel-body" style={{fontFamily:'proxima-nova',fontWeight:'bold'}}>
               <form onSubmit={this.login}>
-              <input placeholder="Email" id="email" type="text" className="form-control input-lg" style={{fontWeight:'100',fontSize:'22px'}}/>
+              <input placeholder="Email" id="email" type="text" className="form-control input-lg" />
               <br/>
-              <input placeholder="Password" type="password" id="password" className="form-control input-lg" style={{fontWeight:'100',fontSize:'22px'}} />
+              <input placeholder="Password" type="password" id="password" className="form-control input-lg" />
               <br/>
-              <a href="javascript:" onClick={this.login} className="btn btn-success btn-lg" style={{display:'block',backgroundColor:'#1ca3fd'}}>Log In</a>
+
+              <a href="javascript:" onClick={this.login} className="btn btn-gradient btn-lg btn-primary" style={{borderRadius:3, display:'block',backgroundColor:'#1ca3fd',fontFamily:'proxima-nova',fontWeight:'bold'}}>LOG IN</a>
+
               </form>
             </div>
           </div>

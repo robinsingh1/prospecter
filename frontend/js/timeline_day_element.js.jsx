@@ -26,13 +26,15 @@ module.exports = React.createClass({
     } else {
       mode = <TemplateFollowup currentTemplate={this.props.currentTemplate} 
                                editFollowup={this.props.editFollowup}
+                               dayCount={this.props.dayCount}
                                currentBatch={this.props.currentBatch}
+                               hasBatch={typeof(this.props.batchCount) != "undefined"}
                                setCurrentBatch={this.props.setCurrentBatch}
                                dayCount={this.props.dayCount}
                                removeFollowup={this.props.removeFollowup}
                                setCurrentTemplate={this.props.setCurrentTemplate}/>
     }
-    if(this.state.followupCompleted) {
+    if(this.props.alreadySent) {
       mode = <FollowupCompleted currentTemplate={this.props.currentTemplate} />
     }
 
@@ -99,7 +101,15 @@ var TemplateFollowup = React.createClass({
     $('.bs-sendEmail-modal-lg').modal()
   },
 
+  waitForBatch: function() {
+    alertify.log("You must wait for a batch!");
+  },
+
   render: function() {
+    trash = (this.props.dayCount == 0) ?  <button onClick={this.removeFollowup}
+                className="win-btn btn btn-default btn-xs disabled">
+          <i className="fa fa-trash-o" /></button> : <button onClick={this.removeFollowup} className="win-btn btn btn-default btn-xs">
+          <i className="fa fa-trash-o" /></button> 
     return (
       <div className="followup-placement arrow_box_1 tmp_2"> 
         <h6 style={{width:130,display:'inline-block'}}>
@@ -107,15 +117,13 @@ var TemplateFollowup = React.createClass({
           {(this.props.currentTemplate) ? this.props.currentTemplate.name : ""}
         </h6>
         <button className="win-btn btn btn-success btn-xs"
-                onClick={this.setCurrentTemplate}
+        onClick={(this.props.hasBatch) ? this.setCurrentTemplate : this.waitForBatch}
                 data-toggle="modal">
           <i className="fa fa-paper-plane"/>&nbsp;Send</button>&nbsp;
         <button onClick={this.editFollowup}
                 className="win-btn btn btn-default btn-xs">
           <i className="fa fa-pencil" /></button>&nbsp;
-        <button onClick={this.removeFollowup}
-                className="win-btn btn btn-default btn-xs">
-          <i className="fa fa-trash-o" /></button>
+        {trash}
       </div>
     );
   },
@@ -162,8 +170,8 @@ var BatchStage = React.createClass({
         },
         headers: appConfig.headers,
         success: function(res) { 
-          console.debug('SUCCESS GET COUNT ' + res.count)
-          console.debug(res.results) 
+          //console.debug('SUCCESS GET COUNT ' + res.count)
+          //console.debug(res.results) 
           thissss.setState({initialBatchCount: res.count})
         },
         error: function(err) { 
@@ -195,7 +203,7 @@ var BatchStage = React.createClass({
     return (
       <div className="followup-placement arrow_box tmp" style={batchStageStyle}>
         <span className="label label-primary">
-          <i className="fa fa-users" />&nbsp;
+          <i className="fa fa-user" />&nbsp;
           {this.state.initialBatchCount}
         </span>&nbsp;
         <h6 style={{display:'inline-block'}}> 
@@ -212,6 +220,9 @@ var EditTemplate = React.createClass({
     for(i=0;i< this.props.templates.length; i++) {
       options.push( <option>{this.props.templates[i].name}</option>)
     }
+    trash = (this.props.dayCount == 0) ?  <button onClick={this.removeFollowup}
+                className="win-btn btn btn-default btn-xs disabled">
+          <i className="fa fa-trash-o" /></button> : <button onClick={this.removeFollowup} className="win-btn btn btn-default btn-xs"> <i className="fa fa-trash-o" /></button> 
     return (
       <div className="followup-placement arrow_box_1 tmp_2"> 
         <h6 style={{width:55,display:'inline-block'}} 
@@ -228,9 +239,7 @@ var EditTemplate = React.createClass({
                 onClick={this.saveFollowup}
                 style={{marginRight:5}}>
           <i className="fa fa-check" /></button>
-        <button className="win-btn btn btn-default btn-xs"
-                onClick={this.removeFollowup}>
-          <i className="fa fa-trash-o" /></button>
+        {trash}
       </div>
     )
   },

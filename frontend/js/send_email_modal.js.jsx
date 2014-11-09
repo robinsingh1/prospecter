@@ -8,18 +8,14 @@ module.exports = React.createClass({
   },
 
   sendEmails: function() {
-    // Features
-    // - Where to get batch_id ??
-    //
-    
     selectedCampaign = this.props.selectedCampaign
     campaign_id = selectedCampaign.objectId
     prospectlist_id = selectedCampaign.prospect_list.objectId
     template_id = this.props.currentTemplate.objectId
-
+    
     $.ajax({
-      //url:'https://nameless-retreat-3525.herokuapp.com/send_email',
-      url:'http://127.0.0.1:5000/send_email',
+      url:'https://nameless-retreat-3525.herokuapp.com/send_email',
+      //url:'http://127.0.0.1:5000/send_email',
       data: {
         template_id : template_id,
         campaign_id : campaign_id,
@@ -28,21 +24,38 @@ module.exports = React.createClass({
       success: function(res) { console.log(res.results) },
       error: function(err) { console.log(err) }
     })
+
+    /*
+    */
+    // Update Followup
+    // Persist Followup
+    // close modal
   },
 
-  //SendEmailModal
   render: function() {
-    // 1414641747479
     prospect = this.props.prospects[this.state.currentProspect]
     prospect = (prospect) ? prospect : {'name':'','email':''}
-    prospects = []
-    for(i=0; i< this.props.prospects.length; i++){
-      prospects.push(<UserPlaceHolder prospect={this.props.prospects[i]}/>)
-    }
-    email = (prospect.email) ? prospect.email.toLowerCase() : ""
 
-    console.log('SENT EMAIL MODAL BATCH')
-    console.log(this.props.currentBatch)
+    var thiss = this;
+    console.debug('SEND EMAIL BATCH')
+    console.debug(this.props.currentBatch)
+    newBatch = _.isEqual(this.props.currentBatch, {})
+    prospects = (newBatch) ? this.props.newProspects : this.props.prospects
+    if(newBatch){
+      prospects = _.map(this.props.newProspects, function(prospect) {
+          return <UserPlaceHolder prospect={prospect}/>
+      })
+    } else {
+      prospects = _.map(this.props.prospects, function(prospect) {
+        if(_.findWhere(prospect.batches, {objectId: thiss.props.currentBatch}))
+          return <UserPlaceHolder prospect={prospect}/>
+      })
+    }
+    prospects = _.compact(prospects)
+    console.debug(prospects)
+    console.debug(prospects.length)
+    prospectCount = prospects.length
+    email = (prospect.email) ? prospect.email.toLowerCase() : ""
     return (
       <div className="modal fade bs-sendEmail-modal-lg" tabIndex="-1" 
            role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" 
@@ -62,7 +75,7 @@ module.exports = React.createClass({
                   <h4 className="modal-title" id="myModalLabel">
                     <i className="fa fa-envelope" /> &nbsp;Send Email
                     &nbsp;&nbsp;
-                    <small>{"("+this.props.prospects.length+")"}</small>
+                    <small>{"("+prospectCount+")"}</small>
                   </h4>
                 </div>
                 <div className="modal-body" style={{paddingTop:5}}> 
@@ -73,7 +86,8 @@ module.exports = React.createClass({
                   </div>
                   <br/>
                   <h4 style={{display:'inline-block'}}>Emails &nbsp;&nbsp;&nbsp;
-                    <small>{(this.state.currentProspect+1)+' of '+this.props.prospects.length}</small></h4>
+                    <small>{(this.state.currentProspect+1)+' of '+prospectCount}
+                  </small></h4>
                   &nbsp;&nbsp;&nbsp;
                   <a href="javascript:" 
               className={(this.state.currentProspect == 0 ) ? "btn disabled" : "btn"}

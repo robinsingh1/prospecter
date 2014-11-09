@@ -1,18 +1,20 @@
 /** @jsx React.DOM */
 var SendEmailModal = require('./send_email_modal.js.min.js')
 var TimelineDayElement = require('./timeline_day_element.js.min.js')
-var BatchStage = require('./batch_stage.js.min.js')
 
 module.exports = React.createClass({
   // FollowupTimeline
   getInitialState: function() {
     initialFollowups = this.props.initialFollowups
     initialFollowups = (initialFollowups) ? initialFollowups : []
+    batches = this.props.selectedCampaign.batches
+    batches = (batches) ? batches : []
     return {
-      followups: initialFollowups,
+      followups: _.compact(initialFollowups),
       loading: false,
       currentTemplate:'',
       currentBatch: '',
+      batches : batches
     }
   },
 
@@ -47,15 +49,32 @@ module.exports = React.createClass({
        }
      })
   },
+
+  addFollowupSentToBatch: function(batch, followup) {
+    batches = _.map(this.state.batches, function(_batch) {
+                  if(_batch.objectId == batch.objectId) {
+                    if(_batch.followups)
+                      _batch.followups.push(followup)
+                    else
+                      _batch.followups = [followup]
+                  }
+                  return _batch
+              })
+    // Persist
+  },
   
   render: function() {
     timelineElements = []
+    followups = this.state.followups
 
-    batches = _.map(this.props.selectedCampaign.batches, function(batch) {
-      batch.currentDay = moment(batch.started).diff(moment(),  'days') * -1
-      return batch
+    batches = _.map(this.state.batches, function(batch) {
+      if(batch){
+        now = moment().startOf('day').valueOf()
+        batch.currentDay = moment(batch.started).diff(moment(now),  'days') * -1
+        return batch
+      }
     })
-    console.debug(batches)
+    batches = _.compact(batches)
 
     for(i=0;i< 31;i++){
       followup = _.findWhere(this.state.followups, {day: i})
@@ -66,16 +85,20 @@ module.exports = React.createClass({
 
       currentBatch = {}
       batch_started_today = false
+      alreadySent = false
+      batchCount = undefined
       if(i == 0) {
         batchCount = (batches) ? this.props.newProspects.length : this.props.prospects.length
-        console.debug('0 batchCount '+batchCount)
       } else {
-        batchCount = _.findWhere(batches, {currentDay: i})
-        //console.debug(batches)
-        if(batchCount) {
-          //console.debug('CURRENT BATCH'); console.debug(batchCount);
-          currentBatch = batchCount.objectId
+        batch = _.findWhere(batches, {currentDay: i})
+        if(batch) {
+          currentBatch = batch.objectId
+          console.debug(batch.objectId)
           batchCount = "~"
+          if(followup) {
+            _batches = followup.batches
+            alreadySent = _.findWhere(_batches, _.pick(batch,'objectId'))
+          }
         }
       }
 
@@ -85,6 +108,7 @@ module.exports = React.createClass({
                                     currentTemplate={currentTemplate}
                                     batchCount={batchCount}
                                     currentBatch={currentBatch}
+                                    alreadySent={alreadySent}
                                     addTemplateMode={addTemplateMode}
                                     templates={this.props.templates}
                                     newProspects={this.props.newProspects}
@@ -92,6 +116,7 @@ module.exports = React.createClass({
                                     editFollowup={this.editFollowup}
                                     saveFollowup={this.saveFollowup}
                                     removeFollowup={this.removeFollowup}
+                                 addFollowupSentToBatch={this.addFollowupSentToBatch}
                                     batches={this.props.selectedCampaign.batches}
                                     prospectListCount={this.props.prospectListCount}
                                     setCurrentBatch={this.setCurrentBatch}
@@ -100,6 +125,8 @@ module.exports = React.createClass({
 
       if(i == 0 && _.findWhere(batches, {currentDay: 0})){
           currentBatch = _.findWhere(batches, {currentDay: 0}).objectId
+          console.debug('0.5')
+          console.debug(currentBatch)
           batchCount = "~"
           timelineElements.push(<div><TimelineDayElement 
                                   dayCount={0.5}
@@ -121,6 +148,8 @@ module.exports = React.createClass({
         </div>
         <SendEmailModal prospects={this.props.prospects} 
                         selectedCampaign={this.props.selectedCampaign}              
+                        newProspects={this.props.newProspects}
+                        addFollowupSentToBatch={this.addFollowupSentToBatch}
                         currentBatch={this.state.currentBatch}
                         currentTemplate={this.state.currentTemplate}  />
       </div>
@@ -135,61 +164,42 @@ module.exports = React.createClass({
     //console.log('called template edit menu')
     followups = this.state.followups
     followups.push({addTemplateMode: true, day: day})
-    this.setState({
-      followups: followups
-    })
+    this.setState({ followups: followups })
   },
 
   editFollowup: function(day) {
     // find template set editmode is false
-    for(i=0;i< this.state.followups.length; i++){
-      if(this.state.followups[i].day == day){
-        break
-      }
-    }
-
-    followups = this.state.followups
-    followups[i].addTemplateMode = true
+    followups = _.map(this.state.followups, function(followup) {
+      if(followup.day == day){ followup.addTemplateMode = true }
+      return followup
+    })
     this.setState({followups: followups})
   },
 
   saveFollowup: function(day, chosenTemplate) {
-    new_followups = this.state.followups
-    new_followups = _.map(new_followups, function(followup) {
+    new_followups = _.map(this.state.followups, function(followup) {
       if(followup.day == day){
         followup.addTemplateMode = false
         followup.template = chosenTemplate
       }
       return followup
     })
-
     this.setState({followups: new_followups})
     followup = _.findWhere(new_followups, {day: day})
-    if(followup.objectId){
-      url = "/"+followup.objectId; type="PUT"
 
-      data = {template:{
-        __type:'Pointer',
-        className:'Template',
-        objectId: chosenTemplate.objectId
-      }}
-    } else {
-      url = ""; type="POST";
+      if(followup.objectId){
+        url = "/"+followup.objectId; type="PUT"
+        data = {template: appConfig.pointer('Template', chosenTemplate.objectId)}
+      } else {
+        url = ""; type="POST";
 
-      data = {
-        day: day,
-        campaign: {
-          __type: 'Pointer',
-          className:'Campaign',
-          objectId: this.props.selectedCampaign.objectId
-        },
-        template: {
-          __type: 'Pointer',
-          className:'Template',
-          objectId:chosenTemplate.objectId,
-        }
+          data = {
+            day: day,
+            campaign : appConfig.pointer('Campaign', 
+                                         this.props.selectedCampaign.objectId),
+            template: appConfig.pointer('Template', chosenTemplate.objectId),
+          }
       }
-    }
 
     thiss = this;
     $.ajax({
@@ -198,10 +208,8 @@ module.exports = React.createClass({
       data:JSON.stringify(data),
       headers:appConfig.headers,
       success: function(res) {
-        
         new_followups = _.map(new_followups, function(followup) {
-          if(followup.day == day)
-            followup.objectId = false
+          if(followup.day == day) { followup.objectId = false }
           return followup
         })
         thiss.setState({followups: new_followups})
@@ -212,20 +220,14 @@ module.exports = React.createClass({
           type:'PUT',
           data:JSON.stringify({followups: {
             __op: 'AddUnique',
-            objects:[{
-              __type:'Pointer', 
-              className:'Followup',
-              objectId:res.objectId
-            }]
+            objects:[appConfig.pointer('Followup', res.objectId)]
           }}),
           headers:appConfig.headers,
           success: function() { },
           error: function() { }
         })
       },
-      error: function() {
-
-      },
+      error: function() { },
     })
   },
 
@@ -249,9 +251,7 @@ module.exports = React.createClass({
         url:'https://api.parse.com/1/classes/Followup/'+id,
         headers:appConfig.headers,
         type:'DELETE',
-        success: function(res) {
-          console.log(res)
-        }
+        success: function(res) { console.log(res) }
       })
 
      console.log('REMOVE ARRAY')
@@ -262,18 +262,11 @@ module.exports = React.createClass({
         data: JSON.stringify({
           followups: {
             __op : 'Remove',
-            objects: [{
-              __type: 'Pointer',
-              className: 'Followup',
-              objectId: id
-            }]
+            objects: [appConfig.pointer('Followup', id)]
           }
         }),
-        success: function(res){
-          console.log(res)
-        },
-        error: function() {
-        }
+        success: function(res){ console.log(res) },
+        error: function() { }
       })
     }
   },

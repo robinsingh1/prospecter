@@ -10,6 +10,11 @@
   <link rel="stylesheet" href="//code.jquery.com/mobile/1.4.0/jquery.mobile-1.4.0.min.css" />
   <link rel="stylesheet" href="//demos.jquerymobile.com/1.4.0/_assets/css/jqm-demos.css" />
   -->
+  <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.13/d3.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.11/crossfilter.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/dc/1.7.0/dc.js"></script>
+  <link href="http://cdnjs.cloudflare.com/ajax/libs/dc/1.7.0/dc.css" />
+
   <script src="//www.parsecdn.com/js/parse-1.2.18.min.js"></script>
   <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
   <script src="//js.pusher.com/2.2/pusher.min.js"></script>
@@ -26,30 +31,23 @@
   <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.6.0/moment.min.js"></script>
   <script src="https://checkout.stripe.com/checkout.js"></script>
-  <script>(function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',intercomSettings);}else{var d=document;var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};w.Intercom=i;function l(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://static.intercomcdn.com/intercom.v1.js';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);}if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})()</script>
+  <script>(function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',intercomSettings);}else{var d=document;var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};w.Intercom=i;function l(){var s=d.createElement('script');s.type='text/javascript';s.async=true;
+
+    s.src='https://widget.intercom.io/widget/06859d89f181f85c425dc91f1a722c395262af88';
+
+    var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);}if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})()</script>
   <title>Customero</title> 
-  <!-- Sweet Alert -->
-  <script src="build/js/lib/sweet-alert.min.js"></script>
-  <link rel="stylesheet" href="build/css/sweet-alert.css" />
-  <!-- *********** -->
-
-  <!-- AlertifyJs -->
-  <link rel="stylesheet" href="build/css/core.css" />
-  <link rel="stylesheet" href="build/css/default-alertify.css" />
-  <!-- ********** -->
-  
-
-  <script src="build/js/lib/papaparse.min.min.js"></script>
-  <script src="build/js/lib/summernote.min.min.js"></script>
-  <script src="build/js/lib/FileSaver.min.js"></script>
-  <script src="build/js/lib/auth.min.js"></script>
-  <script src="build/js/lib/bootstrap-tagsinput.min.js"></script>
-  <script src="build/js/lib/renderjson.min.js"></script>
 
   <link rel="stylesheet" href="build/css/app.css" />
   <link rel="stylesheet" href="build/css/main.css" />
   <link rel="stylesheet" href="build/css/summernote.css" />
   <link rel="stylesheet" href="build/css/bootstrap-tagsinput.css" />
+  <link rel="stylesheet" href="build/css/core.css" />
+  <!-- <link rel="stylesheet" href="build/css/default-alertify.css" /> -->
+  <link rel="stylesheet" href="build/css/alertify-bootstrap-3.css" />
+  <link rel="stylesheet" href="build/css/sweet-alert.css" />
+  <!-- inject:css -->
+  <!-- endinject -->
 </head>
 
 <style>
@@ -75,14 +73,12 @@
       token: function(token) {
         // Use the token to create the charge with a server-side script.
         // You can access the token ID with `token.id`
+        console.log(token)
         currentUser = JSON.parse(localStorage.currentUser)
         $.ajax({
           url:'https://api.parse.com/1/users/'+currentUser.objectId,
           type: 'PUT',
-          headers : {
-            "X-Parse-Application-Id" : "jF3MjzUKzF0ag0b0m821ZCqfuQVIwMhI160QQRog",
-            "X-Parse-REST-API-Key"   : "HqGVm1hoPxJNxIx7T3RGwvGiTz7mfpJKHbz9EBuE",
-          },
+          headers: appConfig.headers,
           data : JSON.stringify({stripeToken: token}),
           success: function(res) {
             console.log('added')
@@ -113,11 +109,6 @@
       })
     }
 
-/*
-    first_key = "aIHDo506A6fdlZ7YZB6n93EZQeBvV8wBFsArgIYB"
-    second_key = "wWQnUcWjA7ARW2s5n6zSfv52ypp1d7PmyMSoLxDh"
-    Parse.initialize(first_key, second_key)
-*/
 
     currentUser = localStorage.getItem('Parse/N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ/currentUser')
     /* Auth */ 
@@ -140,8 +131,8 @@
         objectId: objectId
       }
     }
-    appConfig.company = JSON.parse(localStorage.currentUser).company
-    appConfig.user = appConfig.pointer('User', JSON.parse(localStorage.currentUser).objectId)
+    //appConfig.company = JSON.parse(localStorage.currentUser).company
+    //appConfig.user = appConfig.pointer('_User', JSON.parse(localStorage.currentUser).objectId)
     appConfig.headers = {
       'X-Parse-Application-Id'  : 'N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ', 
       'X-Parse-REST-API-Key'    : 'VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb',
@@ -156,17 +147,85 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.10.0/JSXTransformer.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js"></script>
   <script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=true"></script>
-  <script type="text/javascript" src="build/js/components/login.js.min.js"></script>
-  <script type="text/javascript" src="build/js/components/company_prospects.js.min.js"></script>
-  <script type="text/javascript" src="build/js/components/settings.js.min.js"></script>
-  <script type="text/javascript" src="build/js/components/email.js.min.js"></script>
-  <script type="text/javascript" src="build/js/components/analytics.js.min.js"></script>
-  <script type="text/javascript" src="build/js/components/mining_job.js.min.js"></script>
-  <script type="text/javascript" src="build/js/components/company.js.min.js"></script>
-  <script type="text/javascript" src="build/js/components/pricing.js.min.js"></script>
-  <script type="text/javascript" src="build/js/components/prospects.js.min.js"></script>
-  <script type="text/javascript" src="build/js/components/app.js.min.js"></script>
-  <script src="build/js/lib/alertify.min.js"></script>
 
+  <!-- -->
+
+  <!-- inject:js -->
+  <script src="/build/js/lib/FileSaver.min.js"></script>
+  <script src="/build/js/lib/alertify.min.js"></script>
+  <script src="/build/js/lib/auth.min.js"></script>
+  <script src="/build/js/lib/bootstrap-tagsinput.min.js"></script>
+  <script src="/build/js/lib/data.min.js"></script>
+  <script src="/build/js/lib/drop.min.js"></script>
+  <script src="/build/js/lib/jquery.dropdown.min.js"></script>
+  <script src="/build/js/lib/mousetrap.min.min.js"></script>
+  <script src="/build/js/lib/papaparse.min.min.js"></script>
+  <script src="/build/js/lib/renderjson.min.js"></script>
+  <script src="/build/js/lib/routes.min.js"></script>
+  <script src="/build/js/lib/summernote.min.min.js"></script>
+  <script src="/build/js/lib/sweet-alert.min.js"></script>
+  <script src="/build/js/components/analytics.js.min.js"></script>
+  <script src="/build/js/components/app.js.min.js"></script>
+  <script src="/build/js/components/batch_stage.js.min.js"></script>
+  <script src="/build/js/components/campaign_activity_view.js.min.js"></script>
+  <script src="/build/js/components/campaign_detail.js.min.js"></script>
+  <script src="/build/js/components/campaign_followup_feed.js.min.js"></script>
+  <script src="/build/js/components/campaign_report.js.min.js"></script>
+  <script src="/build/js/components/campaign_sent_email.js.min.js"></script>
+  <script src="/build/js/components/campaigns.js.min.js"></script>
+  <script src="/build/js/components/company.js.min.js"></script>
+  <script src="/build/js/components/company_prospects.js.min.js"></script>
+  <script src="/build/js/components/company_signal_card.js.min.js"></script>
+  <script src="/build/js/components/create_campaign.js.min.js"></script>
+  <script src="/build/js/components/create_company_profile_modal.js.min.js"></script>
+  <script src="/build/js/components/create_funding_signal_modal.js.min.js"></script>
+  <script src="/build/js/components/create_hiring_signal_modal.js.min.js"></script>
+  <script src="/build/js/components/create_list_modal.js.min.js"></script>
+  <script src="/build/js/components/create_mining_job_modal.js.min.js"></script>
+  <script src="/build/js/components/create_prospect_list_from_company_list.js.min.js"></script>
+  <script src="/build/js/components/create_prospect_profile_modal.js.min.js"></script>
+  <script src="/build/js/components/create_signal_modal.js.min.js"></script>
+  <script src="/build/js/components/create_template.js.min.js"></script>
+  <script src="/build/js/components/data_row.js.min.js"></script>
+  <script src="/build/js/components/data_table.js.min.js"></script>
+  <script src="/build/js/components/delete_list_modal.js.min.js"></script>
+  <script src="/build/js/components/edit_template.js.min.js"></script>
+  <script src="/build/js/components/email.js.min.js"></script>
+  <script src="/build/js/components/followup_feed.js.min.js"></script>
+  <script src="/build/js/components/followup_timeline.js.min.js"></script>
+  <script src="/build/js/components/free_trial.js.min.js"></script>
+  <script src="/build/js/components/horizantal_spinner.js.min.js"></script>
+  <script src="/build/js/components/landing_page.js.min.js"></script>
+  <script src="/build/js/components/landing_page_concept.js.min.js"></script>
+  <script src="/build/js/components/loading_spinner.js.min.js"></script>
+  <script src="/build/js/components/login.js.min.js"></script>
+  <script src="/build/js/components/messenger.js.min.js"></script>
+  <script src="/build/js/components/mining_job.js.min.js"></script>
+  <script src="/build/js/components/mining_job_calendar.js.min.js"></script>
+  <script src="/build/js/components/mining_job_loading.js.min.js"></script>
+  <script src="/build/js/components/panel_footing.js.min.js"></script>
+  <script src="/build/js/components/people_signal_card.js.min.js"></script>
+  <script src="/build/js/components/pricing.js.min.js"></script>
+  <script src="/build/js/components/prospects.js.min.js"></script>
+  <script src="/build/js/components/rename_list_modal.js.min.js"></script>
+  <script src="/build/js/components/schedule.js.min.js"></script>
+  <script src="/build/js/components/send_email_modal.js.min.js"></script>
+  <script src="/build/js/components/sent_mail.js.min.js"></script>
+  <script src="/build/js/components/settings.js.min.js"></script>
+  <script src="/build/js/components/side_menu_user_prospects.js.min.js"></script>
+  <script src="/build/js/components/signal_calendar.js.min.js"></script>
+  <script src="/build/js/components/signal_detail.js.min.js"></script>
+  <script src="/build/js/components/signal_loading.js.min.js"></script>
+  <script src="/build/js/components/signal_profile.js.min.js"></script>
+  <script src="/build/js/components/signals.js.min.js"></script>
+  <script src="/build/js/components/signup.js.min.js"></script>
+  <script src="/build/js/components/spinner.js.min.js"></script>
+  <script src="/build/js/components/templates.js.min.js"></script>
+  <script src="/build/js/components/templates_menu.js.min.js"></script>
+  <script src="/build/js/components/timeline_day_element.js.min.js"></script>
+  <script src="/build/js/components/user_prospect.js.min.js"></script>
+  <script src="/build/js/components/user_prospect_header.js.min.js"></script>
+  <script src="/build/js/components/user_side_menu_list.js.min.js"></script>
+  <!-- endinject -->
 </body>
 </html>

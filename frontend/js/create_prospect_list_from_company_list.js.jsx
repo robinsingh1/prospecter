@@ -106,8 +106,8 @@ module.exports = React.createClass({
         if(newProfile.type == 'prospect_profile') {
           $.ajax({
             //url:'https://nameless-retreat-3525.herokuapp.com/mining_job/title',
-            ///url:'https://nameless-retreat-3525.herokuapp.com/title_mining_job',
-            url:'http://127.0.0.1:5000/title_mining_job',
+            url:'https://nameless-retreat-3525.herokuapp.com/title_mining_job',
+            //url:'http://127.0.0.1:5000/title_mining_job',
             type:'GET',
             data: {prospect_profile: ress.objectId},
             success: function(res) { console.log(res) },

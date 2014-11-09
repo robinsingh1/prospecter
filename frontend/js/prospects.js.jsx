@@ -202,8 +202,9 @@ module.exports = React.createClass({
         the_link = ""
       }
 
-      profile = this.state.prospects[i].linkedin_url.replace('http://','')
-      profile = this.state.prospects[i].linkedin_url.replace('https://','')
+      _prospect = (this.state.prospects[i].linkedin_url) ? this.state.prospects[i].linkedin_url : ""
+      profile = _prospect.replace('http://','')
+      profile = _prospect.replace('https://','')
 
       keyboardSelected = (i == this.state.keyboardActiveProspect)
 

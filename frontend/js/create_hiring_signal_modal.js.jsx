@@ -65,6 +65,54 @@ module.exports = React.createClass({
       type:'POST',
       data:JSON.stringify(newProfile),
       success:function(ress) {
+
+        $.ajax({
+          url: 'https://api.parse.com/1/classes/CompanyProspectList',
+          type: 'POST',
+          headers: appConfig.headers,
+          data:JSON.stringify(_.pick(newProfile, 
+                                     'name','user','list_type',
+                                     'open_people', 'company',
+                                     'mining_job_list')),
+          success: function(res) {
+            console.log(res)
+            prospectList = appConfig.pointer('CompanyProspectList',res.objectId)
+            $.ajax({
+              url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
+              type:'PUT',
+              headers: appConfig.headers,
+              data: JSON.stringify({'company_prospect_list':prospectList}),
+              success: function(res){ console.log(res) },
+              error: function(err){ console.log(err) }
+            })
+          },
+          error: function() { }
+        })
+
+        $.ajax({
+          url: 'https://api.parse.com/1/classes/ProspectList',
+          type: 'POST',
+          headers: appConfig.headers,
+          data:JSON.stringify(_.pick(newProfile, 
+                                     'name','user','list_type',
+                                     'open_people', 'company',
+                                     'mining_job_list')),
+          success: function(res) {
+            console.log(res)
+            prospectList = appConfig.pointer('ProspectList',res.objectId)
+            $.ajax({
+              url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
+              type:'PUT',
+              headers: appConfig.headers,
+              data: JSON.stringify({'prospect_list':prospectList}),
+              success: function(res){ console.log(res) },
+              error: function(err){ console.log(err) }
+            })
+          },
+          error: function() { }
+        })
+        
+
         // Add Signal List
         _.map(nonemptyProfiles, function(profile) {
           $.ajax({
@@ -94,7 +142,8 @@ module.exports = React.createClass({
         $.ajax({
           //url:'https://nameless-retreat-3525.herokuapp.com/mining_job/title',
           ///url:'https://nameless-retreat-3525.herokuapp.com/title_mining_job',
-          url:'http://127.0.0.1:5000/signal/hiring',
+          //url:'http://127.0.0.1:5000/signal/hiring',
+          url:'https://nameless-retreat-3525.herokuapp.com/signal/hiring',
           type:'GET',
           data: {prospect_profile: ress.objectId},
           success: function(res) { console.log(res) },

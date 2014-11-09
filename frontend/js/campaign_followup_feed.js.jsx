@@ -9,23 +9,33 @@ module.exports = React.createClass({
   },
 
   componentDidMount: function() {
-    /*
-    var thiss = this;
-    $.ajax({
-      url: 'https://api.parse.com/1/classes/SentEmail',
-      data:{include: 'campaign,prospect,prospect.email_guesses.pattern'},
-      headers: appConfig.headers,
-      success: function(res) { thiss.setState({activities: res.results}) },
-      error: function() {}
-    })
-    */
-
+        // for each batch find followups remaining
+        // sort followups by ascending followup day
+        //
     // Batch Start Date
     // Current Batch Date
   },
 
   render: function() {
-    activities = <Followups />
+    var thiss = this;
+    followups = _.map(this.props.batches, function(batch) {
+      now = moment().startOf('day').valueOf()/1000
+      batch.currentDay = moment(batch.started).diff(moment(now),  'days') * -1
+      return _.map(thiss.props.followups, function(followup) {
+        followup.batch = batch
+        if(followup.day >= batch.currentDay)
+          return followup
+      })
+    })
+    followups = _.sortBy(followups, function(followup){ return followup.day })
+
+    console.debug(followups)
+
+    activities = _.map(followups[0], function(followup) {
+      return <Followups followup={followup} batch={followup.batch}/>
+    })
+    console.debug(activities)
+
     return (
       <div style={{overflow:'auto',height:436}}>
         <table className="table" style={{marginBottom:0}}>
@@ -48,6 +58,8 @@ module.exports = React.createClass({
 
 var Followups = React.createClass({
   render: function() {
+    // this.props.batch
+    // this.props.followup
     return (
       <tr>
           <td></td>
