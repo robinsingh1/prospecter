@@ -8,6 +8,8 @@ var PeopleSignalCard = require('./people_signal_card.js.min.js')
 var SignalCalendar = require('./signal_calendar.js.min.js')
 var MiningJobCalendar = require('./mining_job_calendar.js.min.js')
 var SignalsDetail = require('./signal_detail.js.min.js')
+var TerritoryOverview = require('./territory_overview.js.min.js')
+var TerritoryDetail = require('./territory_detail.js.min.js')
 
 var CreateHiringSignalModal = require('./create_hiring_signal_modal.js.min.js')
 var CreateFundingSignalModal = require('./create_funding_signal_modal.js.min.js')
@@ -23,7 +25,7 @@ module.exports = React.createClass({
       currentProfileObjectId: {},
       currentProfileReport: {},
       signals: [],
-      currentView: 'Feed',
+      currentView: 'Calendar',
       profiles: [],
     }
   },
@@ -36,6 +38,11 @@ module.exports = React.createClass({
       currentView:'Detail',
       currentProfileReport: newProfileReport 
     })
+  },
+
+  setReport: function(report, view) {
+    console.log('setReport')
+    this.setState({currentView:view, currentProfileReport: report}) 
   },
 
   prospectSignalReport: function(profile, report) {
@@ -73,7 +80,7 @@ module.exports = React.createClass({
     currentProfile = this.state.currentProfile
     reports = this.state.currentProfile.reports
     reports = (reports) ? reports : []
-    reports = _.sortBy(reports, function(o){ return o.createdAt }).reverse()
+    //reports = _.sortBy(reports, function(o){ return o.createdAt }).reverse()
     //console.log(currentProfile)
     if(currentProfile.name == "All" || currentProfile.done){
       if(this.state.currentView == "Feed") {
@@ -100,6 +107,16 @@ module.exports = React.createClass({
         signalView = <MiningJobCalendar currentProfile={this.state.currentProfile}
                                         setCurrentReport={this.setCurrentReport}
                                         setCurrentView={this.setCurrentView}/>
+      } else if(this.state.currentView == "TerritoryCalendar"){
+        signalView = <TerritoryOverview currentProfile={this.state.currentProfile}
+                                        setCurrentReport={this.setCurrentReport}
+                                        setReport={this.setReport}
+                                        setCurrentView={this.setCurrentView}/>
+      } else if(this.state.currentView == "TerritoryDetail"){
+        signalView = <TerritoryDetail currentProfile={this.state.currentProfile}
+                                      setCurrentReport={this.setCurrentReport}
+                                      setReport={this.setReport}
+                                      setCurrentView={this.setCurrentView}/>
       }
     } else {
       // Show Calendar Even When Signal Is Loading

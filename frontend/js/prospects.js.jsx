@@ -845,6 +845,7 @@ module.exports = React.createClass({
     qry = {
       where: JSON.stringify({
         company: currentUser.company,
+        user: appConfig.pointer('User',currentUser.objectId),
         archived: true,
       }),
       count: 1,

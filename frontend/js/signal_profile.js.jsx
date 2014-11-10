@@ -1,6 +1,13 @@
 /** @jsx React.DOM */
 
 module.exports = React.createClass({
+  getInitialState: function() {
+    return {
+      reportCount:'~',
+      companyCount: '~',
+      peopleCount: '~'
+    }
+  },
   // SignalProfile
   setCurrentView: function(e) {
     if(!this.props.profile.mining_job)
@@ -21,7 +28,10 @@ module.exports = React.createClass({
 
   setCurrentProfile: function() {
     this.props.setCurrentProfile(this.props.profile)
-    this.props.setCurrentView('Feed')
+    if(this.props.profile.list_type == "territory")
+      this.props.setCurrentView('TerritoryCalendar')
+    else
+      this.props.setCurrentView('Calendar')
   },
 
   removeTheProfile: function() {
@@ -86,6 +96,34 @@ module.exports = React.createClass({
       thiss.props.updateMiningJobDone(thiss.props.profile)
       alertify.success("Success notification");
     });
+
+    var thiss = this;
+    $.ajax({
+      url:'https://api.parse.com/1/classes/PeopleSignal',
+      headers: appConfig.headers,
+      data: {where: JSON.stringify( {profile: appConfig.pointer('ProspectProfile',this.props.profile.objectId)}),
+             count: true},
+      success: function(res) { thiss.setState({peopleCount: res.count})},
+      error: function(err) { }
+    })
+    $.ajax({
+      url:'https://api.parse.com/1/classes/CompanySignal',
+      headers: appConfig.headers,
+      data: {where: JSON.stringify({profile:
+             appConfig.pointer('ProspectProfile',this.props.profile.objectId)}),
+             count: true},
+      success: function(res) { thiss.setState({companyCount: res.count})},
+      error: function(err) { }
+    })
+    $.ajax({
+      url:'https://api.parse.com/1/classes/SignalReport',
+      headers: appConfig.headers,
+      data: {where: JSON.stringify({profile:
+             appConfig.pointer('ProspectProfile',this.props.profile.objectId)}),
+             count: true},
+      success: function(res) { thiss.setState({reportCount: res.count})},
+      error: function(err) { }
+    })
   },
 
   render: function() {
@@ -93,8 +131,10 @@ module.exports = React.createClass({
     for(i=0;i< this.props.profile.profiles.length; i++) {
       signalDetails.push(<ProfileType profile={this.props.profile.profiles[i]} />)
     }
-    if(!this.props.profile.mining_job) 
+    if(this.props.profile.list_type == "signal") 
       icon = <i className="fa fa-wifi" style={{marginRight:5}}/>
+    else if(this.props.profile.list_type == "territory") 
+      icon = <i className="fa fa-globe" style={{marginRight:5}}/>
     else
       icon = <i className="fa fa-cloud-download" style={{marginRight:5}} />
 
@@ -116,14 +156,24 @@ module.exports = React.createClass({
     itemClass = (selected) ? "list-group-item ideal-company-profile list-group-selected" : "list-group-item ideal-company-profile"
 
 
+    signal_type = this.props.profile.signal_type
     return (
       <div className={itemClass}
            onClick={this.setCurrentProfile}
            style={regularStyle}>
         <span className="profile-title">
-          <h6 className="label label-default profile-name"> 
-            {icon}    
-            {this.props.profile.name}
+          <h6 className="label label-primary profile-name" 
+              style={{backgroundColor:'rgb(0, 122, 265)'}}> 
+            {icon} {this.props.profile.name}
+          </h6>
+          <h6 className="profile-name">
+            <span className="label label-default">
+              <i className="fa fa-calendar" /> {this.state.reportCount}
+            </span> &nbsp;
+            <span className="label label-default">
+              <i className="fa fa-building"/> {this.state.companyCount} &nbsp;
+              <i className="fa fa-user"/> {this.state.peopleCount}
+            </span>
           </h6>
           {loading}{mining_job_done}
           <a href="javascript:" 
@@ -135,11 +185,12 @@ module.exports = React.createClass({
             className="btn btn-primary btn-xs signal-detail-btn">
             <i className="fa fa-cog" /></a>
           <a href="javascript:" className="btn btn-primary btn-xs signal-detail-btn"
+             style={{display:'none'}}
              onClick={this.calendarClick}>
             <i className="fa fa-calendar" /></a>
           <a href="javascript:" 
              onClick={this.launchModal}
-             style={(this.props.profile.mining_job) ? {display:'none'}:{display:'block'}}
+             style={(signal_type != "signal") ? {display:'block'}:{display:'none'}}
              className="btn btn-primary btn-xs signal-detail-btn">
             <i className="fa fa-cloud-download" /></a>
         </span>
@@ -205,6 +256,13 @@ var ProfileType = React.createClass({
       signalIcon = <i className="fa fa-building" />
       signalName = "Industries"
       signalValue = _.reduce(this.props.profile.industries, function(result, role) {
+        return role + ", "+ result
+      }, "");
+    } else if (this.props.profile.className  == "TerritoryProfile") {
+      console.log()
+      signalIcon = <i className="fa fa-globe" />
+      signalName = (this.props.profile.territories.length == 1) ? "Territory" : "Territories"
+      signalValue = _.reduce(this.props.profile.territories, function(result, role) {
         return role + ", "+ result
       }, "");
     } else if (this.props.profile.className  == "CompanySizeProfile") {
