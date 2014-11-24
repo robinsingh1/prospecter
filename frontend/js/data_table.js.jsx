@@ -233,7 +233,7 @@ module.exports = React.createClass({
       profile = profile.replace('http://','')
       profile = profile.replace('https://','')
       profile = (typeof(profile) != "undefined") ? profile : ""
-      li = <a href={profile} className="linkedin_link"><i className="fa fa-linkedin-square" /></a>
+      li = <a href={profile} className="btn btn-xs btn-primary btn-gradient linkedin_link"><i className="fa fa-linkedin-square" /></a>
 
       keyboardSelected = (i == this.state.keyboardActiveProspect)
 
@@ -326,7 +326,6 @@ module.exports = React.createClass({
                 </a>
 
                 <a onClick={this.launchProspectListFromCompanyListModal} 
-                   style={listOptions}
                    href="javascript:" 
                    id="downloadProspects"
                    className="drop-target btn btn-primary btn-xs list-options">
@@ -355,7 +354,7 @@ module.exports = React.createClass({
                     prospectsPerPage={this.state.prospectsPerPage}
                     pages={this.state.pages}/>
       <Messenger />
-      <CreateProspectListFromCompanyListModal currentList={this.state.currentList} currentListObjectId={this.state.currentListObjectId}/>
+      <CreateProspectListFromCompanyListModal lists={this.state.lists} currentList={this.state.currentList} currentListObjectId={this.state.currentListObjectId}/>
     </div>
     );
   },

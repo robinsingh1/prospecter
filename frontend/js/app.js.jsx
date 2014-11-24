@@ -29,6 +29,7 @@ var FreeTrial = require('./free_trial.js.min.js');
 var Pricing = require('./pricing.js.min.js');
 var Signals = require('./signals.js.min.js');
 var MouseTrap = require('../lib/mousetrap.min.min.js')
+var UpgradePlanModal = require('./upgrade_plan_modal.js.min.js')
 //var checkAuth = require('./auth.min.js')
 
 var Home = React.createClass({
@@ -45,6 +46,17 @@ var Home = React.createClass({
             selectedScreen: this.props.selectedScreen}
   },
 
+  componentDidUpdate: function() {
+    currentUser = JSON.parse(localStorage.currentUser)
+    days = moment().diff(moment(currentUser.createdAt),'days')
+    if(days > 14 && currentUser.accountType == 'trial') {
+      $('#upgradePlanModal').modal( {
+        backdrop: 'static',
+        keyboard: false
+      })
+    }
+  },
+
   componentWillMount: function(){
     //console.debug('WILL MOUNT')
     checkAuth()
@@ -58,10 +70,11 @@ var Home = React.createClass({
         // Number of Prospects for user
         // Number of Lists
         // Number of Emails found
-        console.log(res.result)
+        localStorage.currentUser = JSON.stringify(res)
+        console.log(res)
         Intercom('boot', {
           app_id: 'd37c2de5ffe27d69b877645351490517333437bf',
-          email: res.result.email,
+          email: res.email,
           created_at: 1234567890,
           name: 'John Doe',
           user_id: 'lol'
@@ -125,7 +138,14 @@ var Home = React.createClass({
     if(!currentUser.creditCardVerified)
       this.stripeCheckout()
     //console.debug('DID MOUNT')
-
+    currentUser = JSON.parse(localStorage.currentUser)
+    days = moment().diff(moment(currentUser.createdAt),'days')
+    if(days > 14 && currentUser.accountType == 'trial') {
+      $('#upgradePlanModal').modal( {
+        backdrop: 'static',
+        keyboard: false
+      })
+    }
   },
 
   render: function() {
@@ -192,6 +212,20 @@ var Home = React.createClass({
       }
     }
       
+    currentUser = JSON.parse(localStorage.currentUser)
+    daysLeft = moment().diff(moment(currentUser.createdAt),'days')
+    daysLeft = (daysLeft > 14) ? "" : (14 - daysLeft)+" days left. "
+
+    if(currentUser.accountType == "trial")
+      upgradeBtn = <a href="javascript:" 
+            style={{marginTop:0, marginRight:10,
+                    backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%)' , backgroundImage: 'linear-gradient(#8add6d, #60b044)'}}
+            className="btn btn-success btn-xs"
+            onClick={this.upgradePlanModal}> 
+            {daysLeft+"Upgrade Today!"}
+          </a>
+    else
+      upgradeBtn = ""
     return (
       <div>
       <br/>
@@ -203,13 +237,8 @@ var Home = React.createClass({
               marginRight:5, }}
           />
           <span style={{fontWeight:'bold',fontSize:32,fontFamily:'Proxima-Nova' }}>Customero </span>
-          <a href="javascript:" 
-            style={{marginTop:0, marginRight:10,
-                    backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%)' , backgroundImage: 'linear-gradient(#8add6d, #60b044)'}}
-            className="btn btn-success btn-xs"
-            onClick={this.downloadSocialProspecter}> 
-            30 days left! Upgrade Today!
-          </a>
+
+          {upgradeBtn}
         </h1>
       <span style={{float:'right',display:'none'}}>
         <img src="build/img/user.png" style={{height:'40px',width:'40px',padding:'2px',marginTop:'5px',borderRadius:'23px',display:'inline'}} className="thumbnail"/>&nbsp;&nbsp;&nbsp; 
@@ -226,7 +255,21 @@ var Home = React.createClass({
             <i className="fa fa-download" /> &nbsp;
             Download Chrome Social Prospecter
           </a>
-        <h6 style={{marginTop:'20px',float:'right',display:'inline', marginRight:'10px'}}> <a href="http://resources.customerohq.com" style={{color:'#1ca3fd'}}>Resources</a> </h6>
+          <h6 style={{marginTop:'20px',float:'right',display:'inline', marginRight:'10px'}}> <a href="http://resources.customerohq.com/v1.0/discuss" style={{color:'#1ca3fd'}}>
+
+              <i className="fa fa-question-circle" />
+              <span style={{paddingLeft:2}}>{'Support'}</span>
+        </a> </h6>
+          <h6 style={{marginTop:'20px',float:'right',display:'inline', marginRight:'10px'}}> <a href="http://resources.customerohq.com" style={{color:'#1ca3fd'}}>
+              <i className="fa fa-book" />
+              <span style={{paddingLeft:2}}>Resources</span>
+          </a> </h6>
+          <h6 style={{marginTop:'20px',float:'right',display:'inline', marginRight:'20px'}}> <a href="javascript:" style={{color:'#1ca3fd'}}>
+              <i className="fa fa-bell" />
+              <span style={{paddingLeft:2}}>Notifications </span>
+              <div className="label notification-badge">0</div>
+          </a></h6>
+
       </span>
       <br/>
       <br/>
@@ -262,23 +305,18 @@ var Home = React.createClass({
 
         </div>
       </div>
+      <UpgradePlanModal />
       </div>
     );
   },
+
+  upgradePlanModal: function() {
+    $('#upgradePlanModal').modal()
+  },
   
   downloadSocialProspecter: function() {
-    //chrome.webstore.install('https://chrome.google.com/webstore/detail/ofcalkjbogaiipekcocdefjenclioeci')
-    //chrome.webstore.install()
     window.open('https://chrome.google.com/webstore/detail/customero-prospecter/ofcalkjbogaiipekcocdefjenclioeci')
   },
-
-  /*
-          <a href="#" className="btn btn-success" onClick={this.downloadFile}
-                  style={{float:'right',marginTop:'6px'}}>
-            <i className="fa fa-download" />&nbsp;&nbsp;
-            <h5 style={{display:'inline'}} >Download CSV</h5>
-          </a>
-  */
 
   deleteProspect: function(objectId, endpoint) {
     var filtered = _.filter(this.state.prospects, function(item) {

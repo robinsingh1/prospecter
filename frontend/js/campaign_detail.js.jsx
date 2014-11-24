@@ -22,6 +22,9 @@ module.exports = React.createClass({
       prospects:[],
       currentScreen: 'timeline',
       newProspects: [],
+      bounced: '~',
+      delivered: '~',
+      opened: '~',
     }
   },
 
@@ -33,6 +36,8 @@ module.exports = React.createClass({
     thissss = this;
     company = JSON.stringify(JSON.parse(localStorage.currentUser).company)
     qry = 'where={"company":'+company+'}'
+
+
 
     $.ajax({
       url:'https://api.parse.com/1/classes/Template',
@@ -48,7 +53,7 @@ module.exports = React.createClass({
       'objectId'  : this.props.selectedCampaign.prospect_list.objectId, 
     })
 
-    qry = 'where={"lists":'+currentList+'}&limit=1000&count=1'
+    qry = 'where={"lists":'+currentList+'}&limit=1000&count=1&include=email_guesses,email_guesses.pattern'
     $.ajax({
       url: 'https://api.parse.com/1/classes/Prospect',
       headers: appConfig.headers,
@@ -97,6 +102,7 @@ module.exports = React.createClass({
       batch_query = { $nin: qry }
     }
     prospect_list = thiss.props.selectedCampaign.prospect_list.objectId
+    // TODO - add support for more than 1000
     $.ajax({
       url:'https://api.parse.com/1/classes/Prospect',
       headers: appConfig.headers,
@@ -104,19 +110,52 @@ module.exports = React.createClass({
       data: {
         where: JSON.stringify({
             batches: batch_query,
-            lists: appConfig.pointer('ProspectList', prospect_list)
-        })
+            lists: appConfig.pointer('ProspectList', prospect_list),
+        }), limit:1000
       },
-      success: function(res) { 
-        console.debug('BATCHES QRY')
-        console.debug(res.results) 
-        thiss.setState({newProspects: res.results})
-      },
-      error: function(err) { 
-        console.debug('BATCHES QRY ERROR')
-        console.debug(this.selectedCampaign)
-        console.debug(err.responseText) 
-      }
+      success: function(res) { thiss.setState({newProspects: res.results}) },
+      error: function(err) { console.debug(err.responseText) }
+    })
+    campaignId = thiss.props.selectedCampaign.objectId
+    qry = {
+      where: JSON.stringify({campaign: appConfig.pointer('Campaign', campaignId)}),
+      limit: 1000,
+      count: true
+    }
+    $.ajax({
+      url:'https://api.parse.com/1/classes/SentEmail',
+      data: qry,
+      headers: appConfig.headers,
+      success: function(res) { thiss.setState({delivered: res.count})},
+      error: function(err) { console.log(err.responseText) }
+    })
+    qry_1 = {
+      where: JSON.stringify({
+        campaign: appConfig.pointer('Campaign', campaignId),
+        opened: {"$gte": 0} 
+      }),
+      count: true
+    }
+    $.ajax({
+      url:'https://api.parse.com/1/classes/SentEmail',
+      data: qry_1,
+      headers: appConfig.headers,
+      success: function(res) { thiss.setState({opened : res.count}) },
+      error: function(err) { console.log(err.responseText) }
+    })
+    qry_2 = {
+      where: JSON.stringify({
+        campaign: appConfig.pointer('Campaign', campaignId),
+        failed: {"$gte": 0} 
+      }),
+      count: true
+    }
+    $.ajax({
+      url:'https://api.parse.com/1/classes/SentEmail',
+      data: qry_2,
+      headers: appConfig.headers,
+      success: function(res) { thiss.setState({bounced : res.count}) },
+      error: function(err) { console.log(err.responseText) }
     })
   },
 
@@ -218,20 +257,20 @@ module.exports = React.createClass({
           {(_.isEqual(batches, [])) ? 1 : batches.length}
         </span>
         
-        <div style={{border:'1px solid #ddd',borderRadius:5,float:'right',marginTop:-23,marginRight:100}}>
-            <div className="bg-warning" style={{display:'inline-block',padding:10,fontWeight:'bold',cursor:'pointer'}}>
+        <div style={{border:'1px solid #ddd',borderRadius:5,float:'right',marginTop:-45,marginRight:100}}>
+            <div className="bg-warning" style={{display:'inline-block',padding:10,fontWeight:'bold',cursor:'pointer',width:70,textAlign:'center'}}>
               <span className="text-warning">
-                <i className="fa fa-paper-plane"/> 100%
+                <i className="fa fa-paper-plane"/> {this.state.delivered}
               </span>
             </div>
-            <div className="bg-success" style={{display:'inline-block',padding:10,fontWeight:'bold',cursor:'pointer'}}>
+            <div className="bg-success" style={{display:'inline-block',padding:10,fontWeight:'bold',cursor:'pointer',width:70,textAlign:'center'}}>
               <span className="text-success">
-                <i className="fa fa-eye"/> 100%
+                <i className="fa fa-eye"/> {this.state.opened}
               </span>
             </div>
-            <div className="bg-danger" style={{display:'inline-block',padding:10,fontWeight:'bold',cursor:'pointer'}}>
+            <div className="bg-danger" style={{display:'inline-block',padding:10,fontWeight:'bold',cursor:'pointer',width:70,textAlign:'center'}}>
               <span className="text-danger">
-                <i className="fa fa-exclamation-circle"/> 100%
+                <i className="fa fa-exclamation-circle"/> {this.state.bounced}
               </span>
             </div>
         </div>

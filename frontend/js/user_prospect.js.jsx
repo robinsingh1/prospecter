@@ -4,7 +4,10 @@ var HorizantalSpinner = require('./horizantal_spinner.js.min.js')
 module.exports = React.createClass({
   // UserProspect
   getInitialState: function() {
-    return { }
+    return { 
+      prospect: this.props.prospect,
+      checked: false,
+    }
   },
 
   clickCheck: function(e) {
@@ -42,7 +45,7 @@ module.exports = React.createClass({
       });
     }
 
-    prospect = this.props.prospect
+    prospect = this.state.prospect
 
     if(this.props.masterCheckboxChecked && this.state.checked)
       checked = true
@@ -63,16 +66,16 @@ module.exports = React.createClass({
     if(this.state.checked || this.props.alreadyChecked)
       color = {backgroundColor: '#eef8ff'}
       
-    rowCl = (this.props.keyboardSelected) ? "prospects-tr keySelect" : "prospects-tr"
-    websiteBtn = (prospect.websiteUrl) ?  <a href={"http://"+prospect.websiteUrl.replace('http://','')} > <i className="fa fa-globe" /> </a> : ""
+    //rowCl = (this.props.keyboardSelected) ? "prospects-tr keySelect" : "prospects-tr"
+    websiteBtn = (prospect.websiteUrl) ? "http://"+prospect.websiteUrl.replace('http://','') : false
+    websiteShinyBtn = (websiteBtn) ? <a href={websiteBtn} className="btn btn-xs btn-primary btn-gradient"><i className="fa fa-globe" /></a> : ""
     
     prospect_email = prospect.email
-    if(typeof(prospect.domain) == "undefined")
-      prospect.email = "website not found"
-    if(prospect.email == "no_email") {
+
+    if(prospect.email == "no_email"){
       if(prospect.email_guesses) {
         guess = _.findWhere(prospect.email_guesses, {tried: false})
-        name = this.props.prospect.name
+        name = this.props.prospect.name.trim()
 
         vars = {
           first: _.first(name.split(' ')),
@@ -86,16 +89,35 @@ module.exports = React.createClass({
         }
       }
     }
-    prospect_email = (prospect_email) ? prospect_email.toLowerCase() : ""
-    prospect_email = <a href={"mailto:"+prospect_email} style={{margin:'0px'}}> {prospect_email} </a>
+
+    if(prospect_email) {
+        prospect_email = (prospect_email) ? prospect_email.toLowerCase() : ""
+        //prospect_email = <a href={"mailto:"+prospect_email} style={{margin:'0px'}}> {prospect_email} </a>
+        prospect_email = <input onClick={this.emailInputClick} type="text" value={prospect_email} className="form-control form-sm" style={{fontSize:12, width:200, height:26, marginTop: 5}}/>
+    }
+
     company_size = (prospect.company_size) ? prospect.company_size : ""
 
     if(this.props.prospect.loading)
-      prospect_email = <HorizantalSpinner />
+      prospect_email = <label className="label label-primary" style={{backgroundColor: 'rgb(0, 122, 265)'}}>Loading...</label>
     if(this.props.prospect.loading)
-      company_size = <HorizantalSpinner />
+      company_size = <label className="label label-primary" style={{backgroundColor: 'rgb(0, 122, 265)'}}>Loading...</label>
+
+    prospect_name = <span style={{fontWeight:'bold'}}>{prospect.name}</span>
+    prospect_company_name = <span style={{fontWeight:'bold'}}> {prospect.company_name} </span>
+    position = (prospect.pos) ? prospect.pos.trim() : ""
+    if(!this.props.prospect.loading){
+      if(typeof(prospect.domain) == "undefined")
+        prospect_email = <UserUpdateForm updateProspect={this.updateProspect} var="website" formText="Enter Website."/> 
+      if(typeof(prospect.name) == "undefined" || prospect.name == "LinkedIn Member")
+        prospect_name = <UserUpdateForm updateProspect={this.updateProspect} var="name"formText="Enter Full Name."/> 
+      if(typeof(prospect.company_name) == "undefined" || prospect.company_name == "")
+        prospect_company_name = <UserUpdateForm updateProspect={this.updateProspect} var="company_name" formText="Enter Company Name."/> 
+      if(typeof(position) == "undefined" || position == "")
+        position = <UserUpdateForm updateProspect={this.updateProspect} var="pos" formText="Enter Title."/> 
+    }
     return (
-      <tr className={rowCl} 
+      <tr className="prospects-tr"
           onClick={this.rowClick}
           style={keyboardSelected}>
           <td style={color}>
@@ -103,18 +125,14 @@ module.exports = React.createClass({
                      onChange={this.clickCheck} 
                      checked={checked}/>
           </td>
-          <td style={color}
-              className="fixed-data-column">
-            <span style={{fontWeight:'bold'}}>{prospect.name}</span>
+          <td style={color} className="fixed-data-column">
+              {prospect_name}
             <h6 style={{fontWeight:'400',margin:'0px'}}>
-              {(prospect.pos) ? prospect.pos.trim() : ""}
+              {position}
             </h6>
           </td>
-          <td style={color}
-              className="fixed-data-column">
-            <span style={{fontWeight:'bold'}}>
-              {prospect.company_name}
-            </span>
+          <td style={color} className="fixed-data-column">
+            {prospect_company_name}
             <h6 style={{fontWeight:'400',margin:'0px'}} className="company-size">
             {company_size}
             </h6>
@@ -129,21 +147,23 @@ module.exports = React.createClass({
             {prospect_email}
           </td>
           <td style={color}>
-            <div style={{width:51}}>
+            <div style={{width:77,paddingTop:5}}>
               <a onClick={this.openSimilars} 
                 href="javascript:"
                 className="btn btn-xs btn-primary btn-gradient similar_link">
                 <i className="fa fa-copy" style={{fontWeight:'bold'}}/></a>&nbsp;
             <a href={this.props.liProfile} className="btn btn-xs btn-primary btn-gradient linkedin_link"><i className="fa fa-linkedin-square" /></a>
-            &nbsp;{this.props.link}
+            &nbsp;
+            {this.props.link}
+            {websiteShinyBtn}
             </div>
-          </td>
-          <td style={color}>
-            {websiteBtn}
           </td>
         </tr>
     );
   },
+
+  emailInputClick: function(e) {e.stopPropagation() },
+
 
   openSimilars: function(e) {
     if(this.props.liProfile.indexOf('profile') != -1){
@@ -165,6 +185,54 @@ module.exports = React.createClass({
 
   deleteProspect: function() {
     this.props.deleteProspect(this.props.prospect.objectId, 'Prospect')
+  },
+  
+  updateProspect: function(prop, value) {
+    prospect = this.state.prospect
+    prospect[prop] = value
+    this.setState({prospect: value})
   }
 });
 
+var UserUpdateForm = React.createClass({
+  getInitialState: function() {
+    return {
+      submitted: false,
+      value: "",
+    }
+  },
+  formClick: function(e) { e.stopPropagation() },
+
+  submitForm: function(e) {
+    e.preventDefault()
+    console.log($(e.target).find('input').val())
+    console.log(e.target)
+    console.log(this.props.var)
+    this.props.updateProspect(this.props.var, $(e.target).find('input').val())
+    this.setState({submitted: true})
+  },
+
+  handleChange: function(event) {
+    console.log(event.target.value)
+    this.setState({value: event.target.value});
+  },
+
+  render: function() {
+    //"Enter Website."
+    btn = (this.state.submitted) ? "btn btn-xs btn-success" : "btn btn-xs btn-default"
+    return (
+      <form onClick={this.formClick} onSubmit={this.submitForm} style={{width:200}}>
+        <input style={{width:'70%', marginRight:10, display:'inline', height:24,
+                      marginBottom:6}}
+          type="text" className="form-control input-sm" 
+          disabled={this.state.submitted}
+          onChange={this.handleChange}
+          value={this.state.value}
+          placeholder={this.props.formText} />
+        <button type="submit" className={btn}
+          style={{display:'inline'}}>
+          <i className="fa fa-check"/></button>
+      </form>
+    )
+  }
+})

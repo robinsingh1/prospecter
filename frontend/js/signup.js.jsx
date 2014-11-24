@@ -59,6 +59,7 @@ module.exports = React.createClass({
           data: JSON.stringify({
             'username':email,
             'password': password,
+            'accountType':'trial',
             'company':{
               '__type'    : 'Pointer',
               'className' : 'Company',

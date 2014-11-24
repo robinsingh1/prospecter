@@ -10,7 +10,7 @@ module.exports = React.createClass({
           <div className="container-fluid">
             <a className="the-title tk-foco brand navbar-brand" style={{fontWeight:'100'}}
                 href="#">
-              Customero
+            <img className="" src="build/img/full-logo-5.png" style={{width:220}}/>
               <span style={{fontSize:'22px',marginLeft:'30px'}}>Supercharge your sales! </span>
             </a>
           </div>
@@ -31,6 +31,27 @@ var PricingTables = React.createClass({
       <div>
     <div className="container" style={{marginTop:150}}>
         <div className="row flat">
+          <div className="col-lg-3 col-md-3 col-xs-6">
+                <ul className="signal-card plan plan2">
+                    <li className="plan-name"> Individual </li>
+                    <li className="plan-price"> 
+                      <h1 style={{fontWeight:'bold',color:'#0294f5'}}>$99&nbsp;<small>/ month</small></h1>
+                    </li>
+
+                  <li> <strong>Up to 200 Email Credits</strong> </li>
+                  <li> <strong>Up to 1 Team Members</strong></li>
+                  <li style={{padding:0}}> <strong></strong> Includes: </li>
+                  <li> <strong>{'Emails & Phone Numbers'}</strong></li>
+                  <li> </li>
+                  <li> </li>
+                  <li> </li>
+                  <li> </li>
+                  <li className="" style={{paddingBottom:0}}> 
+                    <a href="#signup" className="btn btn-primary btn-md cool-btn">Sign Up</a> 
+                  </li>
+             </ul>
+         </div>
+
             <div className="col-lg-3 col-md-3 col-xs-6">
                 <ul className="signal-card plan plan2">
                     <li className="plan-name"> Startup </li>
@@ -45,7 +66,7 @@ var PricingTables = React.createClass({
                   <li> <strong>Quick Start Package</strong></li>
                   <li> <strong>Signals</strong></li>
                   <li className="" style={{paddingBottom:0}}> 
-                    <a href="#" className="btn btn-primary btn-md cool-btn">Sign Up</a> 
+                    <a href="#signup" className="btn btn-primary btn-md cool-btn">Sign Up</a> 
                   </li>
              </ul>
          </div>
@@ -62,10 +83,10 @@ var PricingTables = React.createClass({
             <li style={{padding:0}}> <strong></strong> Includes: </li>
             <li> <strong>All Startup Features </strong></li>
             <li style={{padding:0}}> <i className="fa fa-plus" /></li>
-            <li> <strong>Bulk Salesforce Integration</strong></li>
+            <li> <strong>Bulk CRM Integration</strong></li>
             <li> <strong>Mining Jobs</strong></li>
             <li className="" style={{paddingBottom:0}}> 
-              <a href="#" className="btn btn-primary btn-md cool-btn">Sign Up</a> 
+              <a href="#signup" className="btn btn-primary btn-md cool-btn">Sign Up</a> 
             </li>
          </ul>
      </div>
@@ -84,21 +105,10 @@ var PricingTables = React.createClass({
             <li> <strong>Dedicated Happiness Officer</strong></li>
             <li> <strong>Improved territory planning</strong></li>
             <li className="" style={{paddingBottom:0}}> 
-              <a href="#" className="btn btn-primary btn-md cool-btn">Sign Up</a> 
+              <a href="#signup" className="btn btn-primary btn-md cool-btn">Sign Up</a> 
             </li>
          </ul>
        </div>
-            <div className="col-lg-3 col-md-3 col-xs-6">
-                <ul className="signal-card plan plan1">
-                    <li className="plan-name"> Enterprise </li>
-                    <li className=""> </li>
-                    <li> <strong></strong> </li>
-                    <li> <strong></strong> </li>
-                    <li style={{fontSize:22}}> <strong>Contact Us</strong> </li>
-                    <li> <strong></strong> </li>
-                    <li> <strong></strong>  </li>
-                </ul>
-            </div>
 
 </div>
 

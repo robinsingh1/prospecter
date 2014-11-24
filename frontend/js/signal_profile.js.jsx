@@ -28,10 +28,16 @@ module.exports = React.createClass({
 
   setCurrentProfile: function() {
     this.props.setCurrentProfile(this.props.profile)
-    if(this.props.profile.list_type == "territory")
-      this.props.setCurrentView('TerritoryCalendar')
-    else
-      this.props.setCurrentView('Calendar')
+    if(this.props.profile.type == "prospect_profile") {
+      this.props.setCurrentView('MiningJobCalendar')
+    } else {
+      if(this.props.profile.list_type == "territory")
+        this.props.setCurrentView('TerritoryCalendar')
+      else if(this.props.profile.list_type == "territory")
+        this.props.setCurrentView('TerritoryCalendar')
+      else
+        this.props.setCurrentView('Calendar')
+    }
   },
 
   removeTheProfile: function() {
@@ -131,6 +137,8 @@ module.exports = React.createClass({
     for(i=0;i< this.props.profile.profiles.length; i++) {
       signalDetails.push(<ProfileType profile={this.props.profile.profiles[i]} />)
     }
+    console.log(this.props.profile.list_type)
+    console.log(this.props.profile.list_type == "territory")
     if(this.props.profile.list_type == "signal") 
       icon = <i className="fa fa-wifi" style={{marginRight:5}}/>
     else if(this.props.profile.list_type == "territory") 

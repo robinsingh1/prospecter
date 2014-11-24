@@ -71,8 +71,8 @@ module.exports = React.createClass({
               {icon}
               &nbsp;
               <span className={listStyle}>{listName}</span>
-              <span style={countStyle}
-                className="badge badge-default">{this.props.list.count}</span>      
+              <div style={countStyle}
+                className="badge badge-default">{this.props.list.count}</div>      
       </button>
     );
   }

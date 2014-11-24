@@ -10,11 +10,13 @@ var MiningJobCalendar = require('./mining_job_calendar.js.min.js')
 var SignalsDetail = require('./signal_detail.js.min.js')
 var TerritoryOverview = require('./territory_overview.js.min.js')
 var TerritoryDetail = require('./territory_detail.js.min.js')
+var MiningJobDetail = require('./mining_job_detail.js.min.js')
 
 var CreateHiringSignalModal = require('./create_hiring_signal_modal.js.min.js')
 var CreateFundingSignalModal = require('./create_funding_signal_modal.js.min.js')
 var CreateProspectProfileModal = require('./create_prospect_profile_modal.js.min.js')
 var CreateCompanyProfileModal = require('./create_company_profile_modal.js.min.js')
+var CreateTerritoryStrategyModal = require('./create_territory_strategy_modal.js.min.js')
 var CreateMiningJobModal = require('./create_mining_job_modal.js.min.js')
 
 module.exports = React.createClass({
@@ -40,7 +42,7 @@ module.exports = React.createClass({
     })
   },
 
-  setReport: function(report, view) {
+  setReport: function(view, report) {
     console.log('setReport')
     this.setState({currentView:view, currentProfileReport: report}) 
   },
@@ -82,6 +84,8 @@ module.exports = React.createClass({
     reports = (reports) ? reports : []
     //reports = _.sortBy(reports, function(o){ return o.createdAt }).reverse()
     //console.log(currentProfile)
+    console.log('CURRENT VIEW')
+    console.log(this.state.currentView)
     if(currentProfile.name == "All" || currentProfile.done){
       if(this.state.currentView == "Feed") {
         signalView = <div>
@@ -103,17 +107,29 @@ module.exports = React.createClass({
         signalView = <SignalsDetail currentProfile={this.state.currentProfile}
                                     currentProfileReport={this.state.currentProfileReport}
                                     setCurrentView={this.setCurrentView}/>
+      } else if(this.state.currentView == "MiningJobDetail"){
+        signalView = <MiningJobDetail currentProfile={this.state.currentProfile}
+                                    currentProfileReport={this.state.currentProfileReport}
+                                    setCurrentView={this.setCurrentView}/>
+      } else if(this.state.currentView == "MiningJobOverview"){
+        signalView = <MiningJobDetail currentProfile={this.state.currentProfile}
+                                    currentProfileReport={this.state.currentProfileReport}
+                                    setCurrentView={this.setCurrentView}/>
       } else if(this.state.currentView == "MiningJobCalendar"){
         signalView = <MiningJobCalendar currentProfile={this.state.currentProfile}
                                         setCurrentReport={this.setCurrentReport}
+                                        setReport={this.setReport}
                                         setCurrentView={this.setCurrentView}/>
       } else if(this.state.currentView == "TerritoryCalendar"){
+        console.log('TERRITORY OVERVIEW IS CHOSEN')
         signalView = <TerritoryOverview currentProfile={this.state.currentProfile}
                                         setCurrentReport={this.setCurrentReport}
                                         setReport={this.setReport}
                                         setCurrentView={this.setCurrentView}/>
       } else if(this.state.currentView == "TerritoryDetail"){
+        console.log('TERRITORY DETAIL IS CHOSEN')
         signalView = <TerritoryDetail currentProfile={this.state.currentProfile}
+                                      currentProfileReport={this.state.currentProfileReport}
                                       setCurrentReport={this.setCurrentReport}
                                       setReport={this.setReport}
                                       setCurrentView={this.setCurrentView}/>
@@ -158,6 +174,8 @@ module.exports = React.createClass({
         <CreateFundingSignalModal addProfile={this.addProfile}/>
         <CreateCompanyProfileModal addProfile={this.addProfile}/>
         <CreateProspectProfileModal addProfile={this.addProfile} 
+                      updateProfileWithObjectId={this.updateProfileWithObjectId}/>
+        <CreateTerritoryStrategyModal addProfile={this.addProfile} 
                       updateProfileWithObjectId={this.updateProfileWithObjectId}/>
       </div>
     )
@@ -521,6 +539,8 @@ var SignalsOptions = React.createClass({
       $('#createFundingSignalModal').modal()
     else if($(e.target).text().trim() == 'Create Prospect Profile')
       $('#createProspectProfileModal').modal()
+    else if($(e.target).text().trim() == 'Create Territory Strategy')
+      $('#createTerritoryStrategyModal').modal()
     else if($(e.target).text().trim() == 'Create Company Profile')
       $('#createCompanyProfileModal').modal()
   },

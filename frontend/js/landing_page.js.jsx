@@ -32,7 +32,7 @@ module.exports = React.createClass({
     return (
       <div className="">
         <div className="background-image"></div>
-        <nav className="thenavbar navbar navbar-default navbar-fixed-top" role="navigation">
+        <nav className="thenavbar navbar navbar-default navbar-fixed-top" role="navigation" style={{padding:70}}>
           <div className="container-fluid">
             <a className="the-title tk-foco brand navbar-brand" style={{fontWeight:'100'}}
                 href="#">

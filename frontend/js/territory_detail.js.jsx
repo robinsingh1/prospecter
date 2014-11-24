@@ -6,7 +6,7 @@ module.exports = React.createClass({
     return {
       currentSignal: 'CompanySignal',
       signals: [],
-      allProspected: this.props.currentProfileReport.prospected,
+      //allProspected: this.props.currentProfileReport.prospected,
       companyCount: '~',
       peopleCount: '~'
     }
@@ -159,7 +159,6 @@ module.exports = React.createClass({
                     "Companies" : "People" }
                 </th>
 
-                <th>Signal</th>
 
                 <th>Source </th>
 
@@ -210,11 +209,6 @@ var CompanyHiringSignalRow = React.createClass({
           <h6>{company.city}</h6>
         </td>
 
-        <td >
-          <h6>{company.signals[0].className}</h6>
-          <h6>{company.signals[0].job_title}</h6>
-          <h6>{company.signals[0].summary}</h6>
-        </td>
         <td>
           {moment(company.timestamp).format('ll')}
         </td>
@@ -253,7 +247,7 @@ var PeopleSignalRow = React.createClass({
     console.log(this.props.signal)
     $.ajax({
       //url:'http://127.0.0.1:5000/signal_to_prospect',
-      url:'http://nameless-retreate-3525.herokuapp.com/signal_to_prospect',
+      url:'http://nameless-retreat-3525.herokuapp.com/signal_to_prospect',
       data: {signal_id: thiss.props.signal.objectId, signal_type:'PeopleSignal',
              all_signals:false},
       success: function(res) { console.log(res) },

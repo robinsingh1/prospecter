@@ -30,11 +30,12 @@ module.exports = React.createClass({
             <th></th>
             <th>Campaign Name</th>
             <th>Prospect List</th>
+            <th>Size</th>
             <th style={{textAlign:'center'}}>Delivered</th>
             <th style={{textAlign:'center'}}>Opened</th>
             <th style={{textAlign:'center',display:'none'}}>Replied</th>
             <th style={{textAlign:'center',display:'none'}}>Link Clicks</th>
-            <th style={{textAlign:'center'}}>Bounces</th>
+            <th style={{textAlign:'center'}}>Bounced</th>
             <th style={{width:150,textAlign:'center'}}> </th>
           </thead>
           <tbody>
@@ -47,6 +48,15 @@ module.exports = React.createClass({
 });
 
 var CampaignRow = React.createClass({
+  getInitialState: function() {
+    return {
+      delivered: '~',
+      opened: '~',
+      bounced: '~',
+      prospectListCount: '~'
+    }
+  },
+
   DeleteCampaign: function(e) {
     var thiss = this;
     console.log('DELETE CAMPAIGN')
@@ -71,6 +81,63 @@ var CampaignRow = React.createClass({
     this.props.changeSelectedCampaign(this.props.campaign)
   },
 
+  componentDidMount: function() {
+    var thiss = this;
+    list = this.props.campaign.prospect_list.objectId
+    qry = {
+      where: JSON.stringify({lists: appConfig.pointer('ProspectList',list)}),
+      count: true
+    }
+    $.ajax({
+      url: 'https://api.parse.com/1/classes/Prospect',
+      headers: appConfig.headers,
+      data: qry,
+      success: function(res) { thiss.setState({prospectListCount: res.count})},
+      error: function(err) { console.log(err.responseText) }
+    })
+    campaignId = this.props.campaign.objectId
+    qry = {
+      where: JSON.stringify({campaign: appConfig.pointer('Campaign', campaignId)}),
+      limit: 1000,
+      count: true
+    }
+    $.ajax({
+      url:'https://api.parse.com/1/classes/SentEmail',
+      data: qry,
+      headers: appConfig.headers,
+      success: function(res) { thiss.setState({delivered: res.count})},
+      error: function(err) { console.log(err.responseText) }
+    })
+    qry_1 = {
+      where: JSON.stringify({
+        campaign: appConfig.pointer('Campaign', campaignId),
+        opened: {"$gte": 0} 
+      }),
+      count: true
+    }
+    $.ajax({
+      url:'https://api.parse.com/1/classes/SentEmail',
+      data: qry_1,
+      headers: appConfig.headers,
+      success: function(res) { thiss.setState({opened : res.count}) },
+      error: function(err) { console.log(err.responseText) }
+    })
+    qry_2 = {
+      where: JSON.stringify({
+        campaign: appConfig.pointer('Campaign', campaignId),
+        failed: {"$gte": 0} 
+      }),
+      count: true
+    }
+    $.ajax({
+      url:'https://api.parse.com/1/classes/SentEmail',
+      data: qry_2,
+      headers: appConfig.headers,
+      success: function(res) { thiss.setState({bounced : res.count}) },
+      error: function(err) { console.log(err.responseText) }
+    })
+  },
+
   render: function() {
     prospect_list = (this.props.campaign.prospect_list) ? this.props.campaign.prospect_list : {list_type:"", name:""}
     if(prospect_list.list_type == "signal_list")
@@ -89,21 +156,26 @@ var CampaignRow = React.createClass({
             {iconType}
             {prospect_list.name}
         </h6> </td>
+        <td>
+          <div className="label label-primary">
+            <i className="fa fa-user" />&nbsp;&nbsp;
+            {this.state.prospectListCount}
+          </div>
+        </td>
         <td style={{textAlign:'center',padding:12}}>
-          <span className="badge" style={{backgroundColor:'#f0ad4e'}}>
-            <i className="fa fa-paper-plane" /> &nbsp;
-            100%
+          <span className="badge" style={{backgroundColor:'#f0ad4e',width:50}}>
+            <i className="fa fa-paper-plane" style={{float:'left'}}/> &nbsp;
+            {this.state.delivered}
           </span>
         </td>
         <td style={{textAlign:'center',padding:12}}>
           <span className="label label-success">
-            <i className="fa fa-eye" /> &nbsp;
-            100%</span>
+            <i className="fa fa-eye" /> &nbsp; {this.state.opened} </span>
         </td>
         <td style={{textAlign:'center',padding:12,display:'none'}}>
           <span className="label label-primary">
             <i className="fa fa-mail-reply" /> &nbsp;
-            100%</span>
+            {this.state.bounced}</span>
         </td>
         <td style={{textAlign:'center',padding:12,display:'none'}}>
           <span className="label label-info">
@@ -113,7 +185,7 @@ var CampaignRow = React.createClass({
         <td style={{textAlign:'center',padding:12}}>
           <span className="label label-default">
             <i className="fa fa-exclamation-circle" /> &nbsp;
-            11%</span>
+            {this.state.bounced}</span>
         </td>
         <td style={{textAlign:'center',paddingTop:12}}>
           <a href="javascript:" className="btn btn-primary btn-xs" 

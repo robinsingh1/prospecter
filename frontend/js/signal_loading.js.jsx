@@ -82,21 +82,21 @@ module.exports = React.createClass({
     // Show companies for hiring signals
     return (
       <div style={{background:'linear-gradient(#dae8ff,#dae8ff)', backgroundImage: 'radial-gradient(circle at center center,#fff,#dff1fd 900px)',height:'100%',paddingTop:10}}> 
-        <div className="signal-card" style={{
-            width:500,textAlign:'center',display:'block',marginRight:'auto',
-            marginLeft:'auto',marginTop:0,height:200
-          }}>
+        <div className="signal-card" 
+            style={{ width:500,textAlign:'center',display:'block',marginRight:'auto', marginLeft:'auto',marginTop:100,height:200,paddingTop:30,paddingLeft:30 }}>
 
         <div className="loading-two-balls" style={{height:20,width:20}}>
           <div className="dot1" style={{color:'black'}}></div>
           <div className="dot2" style={{color:'black'}}></div>
         </div>
-        <div id="" style={{color:'#1ca3fd', fontWeight:'bold',marginTop:-10,
-                          marginLeft:-200, fontSize:32, fontFamily:'Proxima-Nova'}}>
+        <div id="" style={{color:'#1ca3fd', fontWeight:'bold',marginTop:-30,
+                          marginLeft:0, fontSize:32, fontFamily:'Proxima-Nova'}}>
+              lol
             {this.state.count + " people found."}
           </div>
-          <div style={{float:'right',marginTop:-48,marginRight:55}}>
-            <h6 style={{marginBottom:3, fontWeight:'bold'}}>{this.state.prospectName} - &nbsp;
+          <div style={{float:'right',marginTop:55,marginRight:55}}>
+            <h6 style={{marginBottom:3, fontWeight:'bold'}}>
+              {this.state.prospectName.split('|')[0]} - &nbsp;
               <span style={{fontWeight:500, fontStyle:'italic'}}>
                 {this.state.prospectTitle}</span></h6> 
             <h6 style={{marginTop:0,textAlign:'left'}}>

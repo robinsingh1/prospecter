@@ -4,7 +4,8 @@ module.exports = React.createClass({
   // MiningJobCalendar
   getInitialState: function() {
     return {
-      reports : []
+      reports : [],
+      reportCount: '~',
     }
   },
 
@@ -15,10 +16,11 @@ module.exports = React.createClass({
     $.ajax({
       url: 'https://api.parse.com/1/classes/SignalReport?order=-createdAt',
       type:'GET',
-      data: {where: profile},
+      data: {where: profile, count: true},
       headers:appConfig.parseHeaders,
       success: function(res) {
-        thissss.setState({reports: res.results})
+        thissss.setState({reports: res.results,})
+                         //reportCount: res.count})
       },
       error: function(err) {
         console.log(err)
@@ -59,7 +61,8 @@ module.exports = React.createClass({
   },
 
   componentDidMount: function() {
-    this.getResults()
+    //this.getResults()
+    this.getSignalReport()
   },
 
   componentWillRecieveProps: function() {
@@ -76,6 +79,7 @@ module.exports = React.createClass({
     reports = []
     for(i=0;i< this.state.reports.length; i++)
       reports.push(<SignalReportRow setCurrentReport={this.setCurrentReport}
+                                    setReport={this.props.setReport}
                                     setCurrentView={this.setCurrentView}
                                     report={this.state.reports[i]} />)
 
@@ -87,7 +91,7 @@ module.exports = React.createClass({
               style={{float:'left',cursor:'pointer',marginTop:7,fontWeight:200,
                 paddingLeft:20,paddingTop:5, display:'inline-block'}}>
                 <i className="fa fa-calendar" style={{marginRight:5}}/> 
-                {this.props.currentProfile.name}
+                {this.props.currentProfile.name + " - " + this.state.reportCount}
           </h4>
         </div>
         <div className="col-md-12" style={{paddingLeft:0,paddingRight:0,
@@ -117,7 +121,8 @@ module.exports = React.createClass({
 
 var SignalReportRow = React.createClass({
   rowClick: function() {
-    this.props.setCurrentReport(this.props.report)
+    //this.props.setCurrentReport(this.props.report)
+    this.props.setReport('MiningJobDetail', this.props.report)
   },
 
   prospectAllSignalReportProspects: function(e) {

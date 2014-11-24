@@ -14,8 +14,8 @@ module.exports = React.createClass({
     template_id = this.props.currentTemplate.objectId
     
     $.ajax({
-      url:'https://nameless-retreat-3525.herokuapp.com/send_email',
-      //url:'http://127.0.0.1:5000/send_email',
+      //url:'https://nameless-retreat-3525.herokuapp.com/send_email',
+      url:'http://127.0.0.1:5000/send_email',
       data: {
         template_id : template_id,
         campaign_id : campaign_id,
@@ -25,8 +25,7 @@ module.exports = React.createClass({
       error: function(err) { console.log(err) }
     })
 
-    /*
-    */
+    /* */
     // Update Followup
     // Persist Followup
     // close modal
@@ -55,7 +54,31 @@ module.exports = React.createClass({
     console.debug(prospects)
     console.debug(prospects.length)
     prospectCount = prospects.length
-    email = (prospect.email) ? prospect.email.toLowerCase() : ""
+    email = (prospect.email) ? prospect.email : ""
+    if(email == "no_email" || email == "") {
+      console.log('GUESSING')
+      if(prospect.email_guesses) {
+        console.log('GUESSING EMAIL')
+        guess = _.findWhere(prospect.email_guesses, {tried: false})
+        name = _.title(prospect.name.trim())
+
+        vars = {
+          first: _.first(name.split(' ')).replace(/\W/g, ''),
+          last: _.last(name.split(' ')).replace(/\W/g, ''),
+          fi: _.first(name.split(' '))[0].replace(/\W/g, ''),
+          li: _.last(name.split(' '))[0].replace(/\W/g, '')
+        }
+        if(guess){
+          console.log(guess.pattern.pattern)
+          email = Mustache.render(guess.pattern.pattern, vars)
+          email = email+"@"+prospect.domain
+        }
+      } else {
+        console.log('NO GUESSES FOUND')
+      }
+    }
+    email = email.toLowerCase()
+    email = email
     return (
       <div className="modal fade bs-sendEmail-modal-lg" tabIndex="-1" 
            role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" 
@@ -86,14 +109,14 @@ module.exports = React.createClass({
                   </div>
                   <br/>
                   <h4 style={{display:'inline-block'}}>Emails &nbsp;&nbsp;&nbsp;
+                  <a href="javascript:" 
+              className={(this.state.currentProspect == 0 ) ? "badge btn disabled" : "badge btn"}
+                    onClick={this.previousProspect}><i className="fa fa-arrow-left" /></a>&nbsp;&nbsp;
                     <small>{(this.state.currentProspect+1)+' of '+prospectCount}
                   </small></h4>
                   &nbsp;&nbsp;&nbsp;
                   <a href="javascript:" 
-              className={(this.state.currentProspect == 0 ) ? "btn disabled" : "btn"}
-                    onClick={this.previousProspect}><i className="fa fa-arrow-left" /></a>
-                  <a href="javascript:" 
-            className={(this.state.currentProspect == 135 ) ? "btn disabled" : "btn"}
+            className={(this.state.currentProspect ==  this.props.prospects.length-1) ? "btn disabled badge" : "btn badge"}
                     onClick={this.nextProspect}><i className="fa fa-arrow-right" /></a>
 
                   <div>
@@ -101,10 +124,11 @@ module.exports = React.createClass({
 <ul className="list-group email-holder" style={{borderTop:'solid 1px #eee'}}>
   <li className="list-group-item">
     <h5 style={{display:'inline-block',marginTop:0,marginBottom:0}}>To:&nbsp;&nbsp;</h5> 
-    {prospect.name + " - " + email}
+    
+    <span className="label label-primary">{email}</span>
   </li>
   <li className="list-group-item">
-    <h5 style={{display:'inline-block',marginTop:0,marginBottom:0}}>Subject:&nbsp;&nbsp;</h5> {this.props.currentTemplate.subject}
+    <h5 style={{display:'inline-block',marginTop:0,marginBottom:0}}>Subject:&nbsp;&nbsp;</h5> <span className="label label-primary" >{this.props.currentTemplate.subject}</span>
   </li>
   <li className="list-group-item body"></li>
 </ul>
@@ -140,10 +164,10 @@ module.exports = React.createClass({
     signals = (prospect.signals) ? prospect.signals[0] : ""
     templateBody = Mustache.render(templateBody, {
       hiring_signal: signals,
-      first_name: prospect.name.split(' ')[0]
+      first_name: _.title(prospect.name.split(' ')[0])
     })
 
-    console.log(templateBody)
+    //console.log(templateBody)
       
     return templateBody
   },
@@ -165,7 +189,7 @@ var UserPlaceHolder = React.createClass({
             <button type="button"   
                     className="btn btn-success btn-sm">
               <i className="fa fa-user" />&nbsp;&nbsp;
-              {(this.props.prospect) ? this.props.prospect.name : ""}
+              {(this.props.prospect) ? _.title(this.props.prospect.name) : ""}
             </button>
           </div>
           <button type="button" className="btn btn-success btn-sm">

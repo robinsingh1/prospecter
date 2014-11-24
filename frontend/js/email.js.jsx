@@ -40,9 +40,10 @@ module.exports = React.createClass({
   componentDidMount: function() {
     thiss = this;
      company = JSON.parse(localStorage.currentUser).company
-     //qry = 'where={"company":'+company+'}&include=prospect_list,followups,followups.template&order=-createdAt'
+     user = appConfig.pointer('_User', JSON.parse(localStorage.currentUser).objectId)
      qry = {
        where : JSON.stringify({
+         user: user,
          company: company
        }),
        include: 'prospect_list,followups,followups.template,batches',
@@ -153,8 +154,9 @@ module.exports = React.createClass({
   persistCampaign: function(newCampaign) {
     Campaign = {}
     Campaign.name = newCampaign.name
+    Campaign.user = appConfig.pointer('_User', JSON.parse(localStorage.currentUser).objectId)
     Campaign.company = JSON.parse(localStorage.currentUser).company
-    thiss = this;
+    var thiss = this;
 
     $.ajax({
       url:'https://api.parse.com/1/classes/Campaign',

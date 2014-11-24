@@ -28,7 +28,7 @@ module.exports = React.createClass({
                                editFollowup={this.props.editFollowup}
                                dayCount={this.props.dayCount}
                                currentBatch={this.props.currentBatch}
-                               hasBatch={typeof(this.props.batchCount) != "undefined"}
+                               hasBatch={typeof(this.props.batchCount) != "undefined" && this.props.batchCount > 0}
                                setCurrentBatch={this.props.setCurrentBatch}
                                dayCount={this.props.dayCount}
                                removeFollowup={this.props.removeFollowup}
@@ -117,7 +117,7 @@ var TemplateFollowup = React.createClass({
           {(this.props.currentTemplate) ? this.props.currentTemplate.name : ""}
         </h6>
         <button className="win-btn btn btn-success btn-xs"
-        onClick={(this.props.hasBatch) ? this.setCurrentTemplate : this.waitForBatch}
+          onClick={(this.props.hasBatch) ? this.setCurrentTemplate : this.waitForBatch}
                 data-toggle="modal">
           <i className="fa fa-paper-plane"/>&nbsp;Send</button>&nbsp;
         <button onClick={this.editFollowup}
@@ -143,7 +143,6 @@ var TemplateFollowup = React.createClass({
 var BatchStage = React.createClass({
   // Different Stages of People Added to Prospect List
   getInitialState: function() {
-    // 
     return {
       initialBatchCount: this.props.batchCount
     }
@@ -167,6 +166,7 @@ var BatchStage = React.createClass({
             batches: _batches
           }),
           count: true,
+          limit:1000,
         },
         headers: appConfig.headers,
         success: function(res) { 

@@ -80,8 +80,6 @@ module.exports = React.createClass({
                 {this.props.currentProfile.name}
                 {territory}
           </h4>
-          
-
         </div>
         <div className="col-md-12" style={{paddingLeft:0,paddingRight:0,
                                            height:356,overflow:'auto'}}>

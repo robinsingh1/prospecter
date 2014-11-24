@@ -34,7 +34,6 @@ module.exports = React.createClass({
               <th style={{width:'170px'}}>City</th>
               <th>Email</th>
               <th>&nbsp;</th>
-              <th>&nbsp;</th>
             </tr>
     );
   }

@@ -279,5 +279,3 @@ module.exports = React.createClass({
     this.setState({currentTemplate: template })
   }
 });
-
-

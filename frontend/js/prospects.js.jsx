@@ -13,6 +13,8 @@ var Messenger = require('./messenger.js.min.js')
 
 var DeleteListModal = require('./delete_list_modal.js.min.js')
 var RenameListModal = require('./rename_list_modal.js.min.js')
+var CreateProspectListFromCompanyListModal = require('./create_prospect_list_from_company_list.js.min.js')
+var CreateProspectProfileModal = require('./create_title_mining_job.js.min.js')
 
 module.exports = React.createClass({
   getInitialState: function() {
@@ -30,7 +32,7 @@ module.exports = React.createClass({
               lists : [],
               masterCheckboxChecked: false,
               keyboardActiveProspect: 0, //first
-              selectedProspects: [],
+              //selectedProspects: [],
               totalCount  : "~", 
               count       : "~", }
   },
@@ -144,9 +146,7 @@ module.exports = React.createClass({
       headers: appConfig.parseHeaders,
       async: true,
       data: qry,
-      ajaxStart: function() {
-        console.log('started list')
-      },
+      ajaxStart: function() { console.log('started list') },
       success: function(res){
         thisss.setState({prospects: res.results})
         thisss.setState({count: res.count})
@@ -179,7 +179,7 @@ module.exports = React.createClass({
     selectedProspects = _.uniq(selectedProspects)
     console.log(selectedProspects)
     localStorage.selectedProspects = JSON.stringify(selectedProspects)
-    this.setState({selectedProspects: selectedProspects})
+    //this.setState({selectedProspects: selectedProspects})
   },
 
   masterCheckboxChanged: function(masterCheckboxValue) {
@@ -197,7 +197,7 @@ module.exports = React.createClass({
 
       if(url != "no linkedin website" && typeof(url) != "undefined" && url != ""){
         url = url.replace('http://','')
-        the_link = <a href={'http://'+url}><i className="fa fa-globe"/></a>
+        the_link = <a href={'http://'+url} className="btn btn-xs btn-primary btn-gradient"><i className="fa fa-globe"/></a>
       } else {
         the_link = ""
       }
@@ -223,10 +223,14 @@ module.exports = React.createClass({
                       key={this.generate_id()}
                       link={the_link} 
                       keyboardSelected={keyboardSelected}
-                      checkboxAction={this.checkboxAction}
                       alreadyChecked={alreadyChecked}
-                      liProfile={'http://'+profile}
-                      />)
+                      checkboxAction={this.checkboxAction}
+                      liProfile={'http://'+profile} />)
+
+      $('#prospectDetailButtons').click(function(e) {
+        //e.stopPropagation()
+        //setTimeout(function(){ $('.dropdown').show() }, 30);
+      })
     }
 
     listType = (this.state.currentList == "All") ? {display:'none'} : {float:'left'}
@@ -258,7 +262,7 @@ module.exports = React.createClass({
                   currentListName={this.state.currentList}
                   currentList={this.state.currentListObjectId}/>
 
-                <div className="dropdown" style={{display:'none'}}>
+                <div className="dropdown">
                   <a href="javascript:" 
                      className="btn btn-primary btn-xs list-options" 
                      id=""
@@ -267,40 +271,52 @@ module.exports = React.createClass({
                   </a>
                 </div>
 
-                <div className="dropdown">
+                <div className="dropdown1 copyList" style={{display:'block'}}>
                   <a data-toggle="dropdown" 
                      id="copyToList"
                      href="javascript:" 
                      className="drop-target btn btn-primary btn-xs list-options">
-                     <i className="fa fa-copy" /> 
-                       &nbsp; Copy To List &nbsp; 
-                     <i className="fa fa-caret-down" />
-                </a>
-                <CurrentListsTwo lists={this.state.lists} 
-                                 copyDropdownStyle={copyDropdownStyle}
-                                 listAction={this.copySelectedProspects} />
+                     <i className="fa fa-copy" /> &nbsp; Copy To List &nbsp; 
+                     <i className="fa fa-caret-down" /></a>
+                  <CurrentListsTwo lists={this.state.lists} 
+                                   copyDropdownStyle={copyDropdownStyle}
+                                   listAction={this.copySelectedProspects} />
                 </div>
   
-                <div className="dropdown">
+                <div className="dropdown1 moveList">
                   <a data-toggle="dropdown" 
                      href="javascript:"  
                      id="moveToList"
                      style={listOptions} 
                      className="btn btn-primary btn-xs list-options" >
-                     <i className="fa fa-share" /> 
-                     &nbsp; Move To List &nbsp; 
+                     <i className="fa fa-share" /> &nbsp; Move To List &nbsp; 
                      <i className="fa fa-caret-down" />
                 </a>
                 <CurrentLists lists={this.state.lists} 
                               listAction={this.moveSelectedProspects} />
                 </div>
-
                 <a onClick={this.downloadFile} 
                    href="javascript:" 
                    id="downloadProspects"
                    className="drop-target btn btn-primary btn-xs list-options">
                    {downloadIcon}
                    &nbsp; Download CSV &nbsp; 
+                </a>
+
+                <a href="javascript:" 
+                   onClick={this.removeSelectedProspects}
+                   id="downloadProspects"
+                   className="drop-target btn btn-primary btn-xs list-options">
+                   <i className="fa fa-archive" />
+                   &nbsp; Archive &nbsp; 
+                </a>
+
+                <a href="javascript:" 
+                   onClick={this.launchProspectProfileModal}
+                   id="downloadProspects"
+                   className="drop-target btn btn-primary btn-xs list-options">
+                   <i className="fa fa-cloud-download" />
+                   &nbsp; Find Prospects By Title &nbsp; 
                 </a>
               </div>
         
@@ -318,6 +334,8 @@ module.exports = React.createClass({
           </div>
         </div>
       </div>
+      <CreateProspectListFromCompanyListModal currentList={this.state.currentList} currentListObjectId={this.state.currentListObjectId}/>
+      <CreateProspectProfileModal currentList={this.state.currentList} currentListObjectId={this.state.currentListObjectId}/>
 
       <PanelFooting currentPage={this.state.currentPage}
                     count={this.state.count}
@@ -328,6 +346,13 @@ module.exports = React.createClass({
       <Messenger />
     </div>
     );
+  },
+
+  launchProspectProfileModal: function() {
+    console.log('launch')
+    //$('#createProspectListFromCompanyListModal').modal()
+    $('#createProspectProfileModal').modal()
+
   },
 
   paginate: function(newProspects, newPage) {
@@ -369,6 +394,7 @@ module.exports = React.createClass({
       qry = {
         limit: 1000,
         skip: 1,
+        order:'-createdAt',
         include: 'email_guesses,email_guesses.pattern'
       }
       $.ajax({
@@ -829,12 +855,17 @@ module.exports = React.createClass({
 
   },
 
+  componentDidUpdate: function() {
+    $('.dropdown').show()
+  },
+
   componentDidMount: function() {
     /* OnLoad For The First Time Function */
     var thisss = this;
     localStorage.selectedProspects = JSON.stringify([])
     currentUser = JSON.parse(localStorage.currentUser)
     user = appConfig.pointer('User', currentUser.objectId)
+    $('.dropdown').show()
 
     archiveList = JSON.stringify({ 
       'objectId':'SerPQjckve', // TODO - Differente For Watch User
@@ -864,6 +895,7 @@ module.exports = React.createClass({
         count: 1
       }
     }
+
 
     $.ajax({
       url: 'https://api.parse.com/1/classes/Prospect',
@@ -1032,7 +1064,7 @@ var CurrentListsTwo = React.createClass({
 
   render: function() {
     lists = [] 
-    for(i=0;i<this.props.lists.length;i++) {
+    for(i=0;i< this.props.lists.length;i++) {
       lists.push(
         <li><a style={{fontWeight:'bold',fontSize:'10px'}}
                className="dropdown-list-name"

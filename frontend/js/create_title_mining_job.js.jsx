@@ -37,7 +37,7 @@ module.exports = React.createClass({
     }
 
     if(nonemptyProfiles.length) {
-      this.props.addProfile(newProfile)
+      //this.props.addProfile(newProfile)
       this.persistSignal(nonemptyProfiles, newProfile)
       $('.modal').click()
       $('.prospect-profile-title').val('')
@@ -80,7 +80,11 @@ module.exports = React.createClass({
               type:'PUT',
               headers: appConfig.headers,
               data: JSON.stringify({'prospect_list':prospectList}),
-              success: function(res){ console.log(res) },
+              success: function(res){ 
+                console.log(res) 
+                $('.modal').click()
+                location.href="#signals" 
+              },
               error: function(err){ console.log(err) }
             })
           },
@@ -90,7 +94,9 @@ module.exports = React.createClass({
         // Start Mining Job
         if(newProfile.type == 'prospect_profile') {
           $.ajax({
-            url: 'https://nameless-retreat-3525.herokuapp.com/title_mining_job',
+            //url:'https://nameless-retreat-3525.herokuapp.com/mining_job/title',
+            ///url:'https://nameless-retreat-3525.herokuapp.com/title_mining_job',
+            url:'https://nameless-retreat-3525.herokuapp.com/title_mining_job',
             //url:'http://127.0.0.1:5000/title_mining_job',
             type:'GET',
             data: {prospect_profile: ress.objectId},
@@ -124,7 +130,7 @@ module.exports = React.createClass({
           })
         });
 
-        thiss.props.updateProfileWithObjectId(newProfile.timestamp, ress.objectId)
+        //thiss.props.updateProfileWithObjectId(newProfile.timestamp, ress.objectId)
       }
     })
   },

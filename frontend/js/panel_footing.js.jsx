@@ -10,6 +10,7 @@ module.exports = React.createClass({
         company: appConfig.company,
         archived: true,
       }),
+      order: '-createdAt',
       count: 1,
       skip: (thiss.props.currentPage-2)*thiss.props.prospectsPerPage,
       limit: thiss.props.prospectsPerPage
@@ -65,6 +66,7 @@ module.exports = React.createClass({
         //user: appConfig.user,
         archived: true
       }),
+      order: '-createdAt',
       count: 1,
       skip: thiss.props.currentPage*thiss.props.prospectsPerPage,
       limit: thiss.props.prospectsPerPage,

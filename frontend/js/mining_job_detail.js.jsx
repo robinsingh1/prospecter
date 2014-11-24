@@ -4,7 +4,7 @@ module.exports = React.createClass({
   // SignalDetail
   getInitialState: function() {
     return {
-      currentSignal: 'CompanySignal',
+      currentSignal: 'PeopleSignal',
       signals: [],
       //allProspected: this.props.currentProfileReport.prospected,
       companyCount: '~',
@@ -16,15 +16,18 @@ module.exports = React.createClass({
     var thissss = this;
     currentReport = this.props.currentProfileReport.objectId
     currentProfileReport = appConfig.pointer('SignalReport', currentReport)
+    currentProfile = appConfig.pointer('ProspectProfile', 
+                                   this.props.currentProfile.objectId)
 
     qry = {
-      where:JSON.stringify({ report: currentProfileReport }),
+      //where:JSON.stringify({ profile: currentProfile }),
+      where:JSON.stringify({ report: currentProfileReport}),
       include:'company_signal,company_signal.signals,signals',
-      order:'-createdAt',
+      order:'createdAt',
       limit:100
     }
 
-    $.ajax({
+   $.ajax({
       url: 'https://api.parse.com/1/classes/'+currentSignal,
       data: qry,
       type:'GET',
@@ -46,8 +49,10 @@ module.exports = React.createClass({
   componentDidMount: function() {
     console.log(this.props.currentProfileReport.objectId)
     this.getSignals(this.state.currentSignal)
+    currentProfile = appConfig.pointer('ProspectProfile', 
+                                   this.props.currentProfile.objectId)
     qry = {
-      where:JSON.stringify({ report: currentProfileReport }),
+      where:JSON.stringify({ profile: currentProfile }),
       count: 1
     }
     var thiss = this;
@@ -78,12 +83,6 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    console.log('ALL PROSPECTED')
-    console.log(this.state.allProspected)
-    console.log('CURRENT SIGNAL')
-    console.log(this.state.currentSignal)
-    console.log('SIGNAL')
-    console.log(this.state.signals)
     signals = []
     for(i=0;i< this.state.signals.length; i++) {
       if(this.state.currentSignal == 'CompanySignal')
@@ -124,20 +123,20 @@ module.exports = React.createClass({
                                         marginRight:10,marginTop:10}}
              onClick={this.prospectAll}
              className="btn btn-success btn-xs">
-            Prospect All
+            Prospect
           </a>
           }
 
           <div className="btn-group" 
                style={{float:'right',marginTop:10,marginRight:10}}
                data-toggle="buttons">
-            <label className={peopleBtn} style={{width:50}}
+            <label className={peopleBtn} style={{}}
                  onClick={this.setPersonState}>
               <input type="checkbox"/>
               <i className="fa fa-user"/> &nbsp;
               {this.state.peopleCount}
             </label>
-            <label className={companyBtn} style={{width:50}} 
+            <label className={companyBtn} style={{}} 
               onClick={this.setCompanyState}>
               <input type="checkbox"/>
               <i className="fa fa-building"/> &nbsp;
@@ -159,9 +158,7 @@ module.exports = React.createClass({
                     "Companies" : "People" }
                 </th>
 
-                <th>Signal</th>
-
-                <th>Source </th>
+                <th>Company</th>
 
                 <th style={{width:90,textAlign:'center'}}> </th>
 
@@ -175,11 +172,14 @@ module.exports = React.createClass({
       </div>
     );
   },
+
   prospectAll: function() {
+    console.log('PROSPECT')
     console.log(this.state.currentSignal)
     console.log(this.props.currentProfileReport.objectId)
     report_id = this.props.currentProfileReport.objectId
     var thiss = this;
+
     $.ajax({
       //url: 'http://127.0.0.1:5000/signal_to_prospect',
       url: 'https://nameless-retreat-3525.herokuapp.com/signal_to_prospect',
@@ -210,15 +210,6 @@ var CompanyHiringSignalRow = React.createClass({
           <h6>{company.city}</h6>
         </td>
 
-        <td >
-          <h6>{company.signals[0].className}</h6>
-          <h6>{company.signals[0].job_title}</h6>
-          <h6>{company.signals[0].summary}</h6>
-        </td>
-        <td>
-          {moment(company.timestamp).format('ll')}
-        </td>
-
         <td>
           {(this.props.allProspected) ? 
           <a href="javascript:" className="btn btn-success btn-xs disabled"
@@ -230,6 +221,7 @@ var CompanyHiringSignalRow = React.createClass({
             Prospect
           </a> }
         </td>
+
       </tr>
     )
   },
@@ -264,12 +256,11 @@ var PeopleSignalRow = React.createClass({
   render: function() {
     //console.log(company)
     people = (this.props.signal) ? this.props.signal : {}
-    company = people.company_signal
-    title = (people.title) ? people.title.split('-')[1] : ""
-    title = title.split(' at')[0]
+    company = (people.company_signal) ? people.company_signal : {}
+    name = people.link_text.split('|')[0]
     //city = people.split('-')[0]
     city = ""
-    console.log(people)
+    //console.log(people)
     return (
       <tr style={{}}>
         <td style={{textAlign:'center',width:120}}>
@@ -279,21 +270,16 @@ var PeopleSignalRow = React.createClass({
         </td>
 
         <td>
-          <h6>{people.link_text + " - "} <span style={{fontStyle:'italic'}}>
-              {title}</span></h6>
-          <h6><a href="javascript:" >{company.websiteUrl}</a></h6>
-          <h6>{company.name}</h6>
-          <h6>{company.city}</h6>
+          <h6>{name + " - "} <span style={{fontStyle:'italic'}}>
+              {people.title}</span></h6>
         </td>
 
-        <td >
-          <h6>{company.signals[0].className}</h6>
-          <h6>{company.signals[0].job_title}</h6>
-          <h6>{company.signals[0].summary}</h6>
-        </td>
         <td>
-          {company.timestamp}
-          {moment(company.timestamp).format('ll')}
+          <h6>{people.prospect_company + " - "} <span style={{fontStyle:'italic'}}>
+              {people.industry}</span></h6>
+          <h6>{people.company_size} <span style={{fontStyle:'italic'}}>
+          </span><a href={people.website}>{people.website}</a></h6>
+          
         </td>
 
         <td>

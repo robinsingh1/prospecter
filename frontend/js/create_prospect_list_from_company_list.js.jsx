@@ -94,7 +94,7 @@ module.exports = React.createClass({
                                     className:'ProspectList',objectId:res.objectId } }),
               success: function(res){ console.log(res); 
                 $('.modal').click()
-                //location.href="#signals" 
+                location.href="#signals" 
               },
               error: function(err){ console.log(err) }
             })
@@ -144,6 +144,12 @@ module.exports = React.createClass({
   },
 
   render: function() {
+    console.log('PROSPECT LIST FROM COMPANY LIST')
+    console.log(this.props)
+    options = _.map(this.props.lists, function(list) {
+      return <option>{list.name}</option>
+    })
+    title = (this.props.currentList == "All") ? "Find Prospects At From Company Lists" : <span>Find Prospects from <i className="fa fa-list-alt" />{" "+this.props.currentList}</span>
     return (
       <div className="modal fade " tabIndex="-1" role="dialog" 
            aria-labelledby="mySmallModalLabel" aria-hidden="true" 
@@ -153,7 +159,7 @@ module.exports = React.createClass({
               <div className="modal-content">
                 <div className="modal-header">
                   <h4 className="modal-title" id="myModalLabel">
-                    Find Prospects At These Companies
+                    {title}
                   </h4>
                   <a href="javascript:" className="btn btn-success btn-sm" 
                      onClick={this.createProfile}
@@ -162,6 +168,14 @@ module.exports = React.createClass({
                   </a>
                 </div>
                 <div className="modal-body">
+                  <div style={(this.props.currentList == "All") ? {display:'block'} : {display: 'none'}}>
+                  <span style={{display:'inline',fontSize:12,fontWeight:'bold'}}>Company List: </span>
+                  <select className="form-control input-sm company-prospect-list-select-form" style={{width:400}}>
+                    {options}
+                  </select>
+                  </div>
+
+
                   <ProspectProfile />
                 </div>
               </div>
