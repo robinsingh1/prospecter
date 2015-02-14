@@ -170,7 +170,7 @@ var SignalReportRow = React.createClass({
           <div className="double-bounce2" style={{backgroundColor:'#5cb85c'}}></div>
           </div> : <a href="javascript:" onClick={this.prospectSignalReport}
              style={{fontWeight:'bold',marginTop:5}}
-     className={(prospected) ? "btn btn-xs btn-success disabled" : "btn btn-xs btn-success"}>
+     className={(prospected) ? "btn btn-xs btn-primary disabled" : "btn btn-xs btn-primary"}>
              {(prospected) ? 'Prospected' : 'Prospect All'}
           </a>
     // if done  - loading

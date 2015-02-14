@@ -5,8 +5,8 @@ theData = require('../lib/data.min.js')
 module.exports = React.createClass({
   // SignUp
   componentDidMount: function() {
-    $('body').css({overflow:'hidden'})
-    $('body').css({overflow:'hidden'})
+    //$('body').css({overflow:'hidden'})
+    //$('body').css({overflow:'hidden'})
     var thiss = this;
     $("input").keypress(function(event) {
         if (event.which == 13) {
@@ -60,11 +60,14 @@ module.exports = React.createClass({
             'username':email,
             'password': password,
             'accountType':'trial',
-            'company':{
+            'user_company':{
               '__type'    : 'Pointer',
-              'className' : 'Company',
+              'className' : 'UserCompany',
               'objectId'  : res.objectId,
             }
+            // people_archive_list
+            // company_archive_list
+            // ClearSpark - api_key
           }),
           success:function(res) {
             // Do another request to get current user
@@ -97,10 +100,9 @@ module.exports = React.createClass({
 
   console.log(data)
     return (
-      <div>
-      <div id="signup"> </div>
+      <div id="signup" style={{marginTop:0}}>
 
-      <div>
+      <div style={{paddingTop:100}}>
         <h1 className="title">Customero.</h1>
         <h5 className="tagline">Generate high quality prospect lists. Accelerate Sales.</h5>
           <div className="panel panel-default login-info" style={{display:'block',marginTop:50}}>

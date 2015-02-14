@@ -26,6 +26,12 @@ module.exports = React.createClass({
     e.stopPropagation()
   },
 
+  analyticsClick:function(e) {
+    this.props.setCurrentProfile(this.props.profile)
+    this.props.setCurrentView('Analytics')
+    e.stopPropagation()
+  },
+
   setCurrentProfile: function() {
     this.props.setCurrentProfile(this.props.profile)
     if(this.props.profile.type == "prospect_profile") {
@@ -137,8 +143,8 @@ module.exports = React.createClass({
     for(i=0;i< this.props.profile.profiles.length; i++) {
       signalDetails.push(<ProfileType profile={this.props.profile.profiles[i]} />)
     }
-    console.log(this.props.profile.list_type)
-    console.log(this.props.profile.list_type == "territory")
+    //console.log(this.props.profile.list_type)
+    //console.log(this.props.profile.list_type == "territory")
     if(this.props.profile.list_type == "signal") 
       icon = <i className="fa fa-wifi" style={{marginRight:5}}/>
     else if(this.props.profile.list_type == "territory") 
@@ -189,9 +195,15 @@ module.exports = React.createClass({
              onClick={this.removeProfile}>
             <i className="fa fa-archive" /></a>
           <a href="javascript:" 
-            style={{display:'none'}}
-            className="btn btn-primary btn-xs signal-detail-btn">
-            <i className="fa fa-cog" /></a>
+            style={{display:'block'}}
+            className="btn btn-primary btn-xs signal-detail-btn"
+             onClick={this.analyticsClick}>
+            <i className="fa fa-pie-chart" /></a>
+          <a href="javascript:" 
+            style={{display:'block'}}
+            className="btn btn-primary btn-xs signal-detail-btn"
+             onClick={this.settingsClick}>
+            <i className="fa fa-wrench" /></a>
           <a href="javascript:" className="btn btn-primary btn-xs signal-detail-btn"
              style={{display:'none'}}
              onClick={this.calendarClick}>

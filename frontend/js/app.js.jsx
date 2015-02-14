@@ -15,9 +15,7 @@
  */
 
 var Prospects = require('./prospects.js.min.js');
-var CompanyProspect = require('./company.js.min.js');
-var CompanyProspects = require('./company_prospects.js.min.js');
-var DataTable = require('./data_table.js.min.js');
+var DataTable = require('./prospects.js.min.js');
 var MiningJob = require('./mining_job.js.min.js');
 var Campaigns = require('./email.js.min.js');
 var Analytics = require('./analytics.js.min.js');
@@ -29,7 +27,10 @@ var FreeTrial = require('./free_trial.js.min.js');
 var Pricing = require('./pricing.js.min.js');
 var Signals = require('./signals.js.min.js');
 var MouseTrap = require('../lib/mousetrap.min.min.js')
+var Headhesive = require('../lib/headhesive.min.js')
 var UpgradePlanModal = require('./upgrade_plan_modal.js.min.js')
+var LandingPageFeatures = require('./landing_page_features.js.min.js')
+var LandingPageServices = require('./landing_page_services.js.min.js')
 //var checkAuth = require('./auth.min.js')
 
 var Home = React.createClass({
@@ -157,17 +158,21 @@ var Home = React.createClass({
 
     switch (this.state.selectedScreen) {
       case 'Prospects':
-        currentScreen = <Prospects />
+        currentScreen = <Prospects listClassName={'ProspectList'}
+                                   className={'Prospect'}> 
+                                   </Prospects>
+        //currentScreen = <Prospects><ProspectRow /></Prospects>
         prospects = "choose btn btn-primary app-active"
         location.href= "#prospects"
         break;
       case 'Companies':
-        currentScreen = <CompanyProspects  />
-        currentScreen = <DataTable listClassName={'CompanyProspectList'}
-                                   tableHeader={['Name','Added On','Industry',
-                                                 '# of Prospects','Signals',
-                                                 '','' ]}
-                                   className={'CompanyProspect'} />
+        currentScreen = <Prospects listClassName={'CompanyProspectList'}
+                                   className={'CompanyProspect'} >
+                        </Prospects>
+                                    // paginationLimit
+                                    // Add Lists
+                                    // Adding Customizable Rows
+                                    // Make Editable For NoSQL DataBases
         location.href= "#companies"
         companyProspects = "choose btn btn-primary app-active"
         break;
@@ -216,7 +221,7 @@ var Home = React.createClass({
     daysLeft = moment().diff(moment(currentUser.createdAt),'days')
     daysLeft = (daysLeft > 14) ? "" : (14 - daysLeft)+" days left. "
 
-    if(currentUser.accountType == "trial")
+    if(currentUser.accountType != "trial")
       upgradeBtn = <a href="javascript:" 
             style={{marginTop:0, marginRight:10,
                     backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%)' , backgroundImage: 'linear-gradient(#8add6d, #60b044)'}}
@@ -236,7 +241,9 @@ var Home = React.createClass({
             style={{ height:32,
               marginRight:5, }}
           />
-          <span style={{fontWeight:'bold',fontSize:32,fontFamily:'Proxima-Nova' }}>Customero </span>
+          <span style={{fontWeight:'bold',fontSize:32,fontFamily:'Proxima-Nova' }}>Customero 
+            <h6 className="beta-label">BETA</h6>
+          </span>
 
           {upgradeBtn}
         </h1>
@@ -245,7 +252,6 @@ var Home = React.createClass({
         <h6 style={{marginTop:'20px',float:'right',display:'inline'}}>Welcome </h6>
       </span>
       <span style={{float:'right', marginRight:'0px'}}>
-        <h6 style={{marginTop:'20px',float:'right',display:'none',}}><a href="javascript:" onClick={this.logout} style={{color:'#1ca3fd'}}>Logout</a></h6>
         <h6 style={{marginTop:'20px',float:'right',display:'none',marginRight:'10px'}}><a href="#pricing" style={{color:'#1ca3fd'}}>Pricing</a></h6>
           <a href="javascript:" 
             style={{marginTop:15, float:'right',marginRight:10,
@@ -255,18 +261,29 @@ var Home = React.createClass({
             <i className="fa fa-download" /> &nbsp;
             Download Chrome Social Prospecter
           </a>
+        <h6 style={{marginTop:'20px',float:'right',display:'inline', marginRight:10}}><a href="javascript:" onClick={this.logout} style={{color:'#1ca3fd'}}>
+            <i className="fa fa-sign-out" />
+            Logout</a></h6>
           <h6 style={{marginTop:'20px',float:'right',display:'inline', marginRight:'10px'}}> <a href="http://resources.customerohq.com/v1.0/discuss" style={{color:'#1ca3fd'}}>
 
               <i className="fa fa-question-circle" />
               <span style={{paddingLeft:2}}>{'Support'}</span>
         </a> </h6>
-          <h6 style={{marginTop:'20px',float:'right',display:'inline', marginRight:'10px'}}> <a href="http://resources.customerohq.com" style={{color:'#1ca3fd'}}>
+        <h6 style={{marginTop:'20px',float:'right',display:'inline', marginRight:'10px'}}> 
+          <a href="http://resources.customerohq.com/v1.0/docs" style={{color:'#1ca3fd'}}>
               <i className="fa fa-book" />
               <span style={{paddingLeft:2}}>Resources</span>
           </a> </h6>
-          <h6 style={{marginTop:'20px',float:'right',display:'inline', marginRight:'20px'}}> <a href="javascript:" style={{color:'#1ca3fd'}}>
+          <h6 style={{marginTop:'20px',float:'right',display:'inline', marginRight:'20px',display:'none'}}> 
+            <a href="javascript:" style={{color:'#1ca3fd'}}>
               <i className="fa fa-bell" />
               <span style={{paddingLeft:2}}>Notifications </span>
+              <div className="label notification-badge">0</div>
+          </a></h6>
+          <h6 style={{marginTop:'20px',float:'right',display:'inline', marginRight:'20px',display:'none'}}> 
+            <a href="javascript:" style={{color:'#1ca3fd'}}>
+              <i className="fa fa-cloud-download" />
+              <span style={{paddingLeft:2}}>Mining Jobs </span>
               <div className="label notification-badge">0</div>
           </a></h6>
 
@@ -337,10 +354,13 @@ var Home = React.createClass({
   }
 });
 
-
 var Workspace = Backbone.Router.extend({
   routes: {
     //landing_page
+    "product/features"    : "features",
+    "services"            : "services",
+    
+    // App
     ""            : "prospects",
     "get_started" : "landing_page",
     "free_trial"  : "free_trial",
@@ -396,10 +416,15 @@ var Workspace = Backbone.Router.extend({
   landing_page: function() {
     React.renderComponent(LandingPage(), document.getElementById('content'));
   },
+  features: function() {
+    React.renderComponent(LandingPageFeatures(), document.getElementById('content'));
+  },
+  services: function() {
+    React.renderComponent(LandingPageServices(), document.getElementById('content'));
+  },
   free_trial: function() {
     React.renderComponent(FreeTrial(), document.getElementById('content'));
   },
-
   signup: function() {
     React.renderComponent(SignUp(), document.getElementById('content'));
   },
@@ -415,4 +440,6 @@ $(document).ready(function(){
   checkAuth()
   var workspace = new Workspace;
   Backbone.history.start();
+  // Add to linkedin
+  // Add To Base
 });

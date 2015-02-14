@@ -16,8 +16,6 @@ module.exports = React.createClass({
             </a>
   */
 
-  console.log
-
   //<td><a href="javascript:" onClick={this.deleteProspect}><i className="fa fa-times-circle" /></a></td>
     return (
         <tr>
@@ -29,20 +27,22 @@ module.exports = React.createClass({
             <h6 style={{margin:'0px'}}>{moment(prospect.createdAt,'YYYY-MM-DDTh:mm:ss').fromNow()}</h6></td>
           <td>
             <h6 style={{margin:'0px'}}>{prospect.industry}</h6>
+            <h6 style={{margin:'0px'}}>{prospect.industry}</h6>
           </td>
           <td style={{textAlign:'center',width:137,display:'none'}}>
             <span className="label label-primary" style={{display: 'block', width: 'auto', marginRight: 'auto', marginLeft: 'auto', width: '25px'}}>0</span>
           </td>
-          <td style={{display:'none'}}>
-            <span className="label label-info">Hiring</span></td>
-          <td style={{width:320}}>
-            &nbsp; &nbsp;
+          <td style={{display:'none'}}> 
+            <span className="label label-info">Hiring</span>
+          </td>
+          <td style={{width:320}}> &nbsp; &nbsp;
             <a href="javascript:" className="btn btn-success btn-xs"
               onClick={this.openLinkedinCompanyProfile}
               style={{backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%)'}}> 
               <i className="fa fa-search" /> &nbsp;
               Search Profiles
             </a>
+
             &nbsp; &nbsp;
             <a href="javascript:" className="btn btn-success btn-xs"
               onClick={this.openSimilarCompanies}
@@ -51,6 +51,7 @@ module.exports = React.createClass({
               Find Similar Companies
             </a>
           </td>
+          
           <td> {linkedin_profile} &nbsp; {website} </td>
         </tr>
     );

@@ -5,7 +5,7 @@ theData = require('../lib/data.min.js')
 module.exports = React.createClass({
   // SignUp
   componentDidMount: function() {
-    $('body').css({overflow:'hidden'})
+    //$('body').css({overflow:'hidden'})
     var thiss = this;
     $("input").keypress(function(event) {
         if (event.which == 13) {
@@ -50,9 +50,8 @@ module.exports = React.createClass({
 
   console.log(data)
     return (
-      <div>
-      <div id="signup"> </div>
-      <div>
+      <div style={{height:'100%'}}>
+      <div id="signup" style={{paddingTop:50}}>
         <h1 className="title">Customero.</h1>
         <h5 className="tagline">Generate high quality prospect lists. Accelerate Sales.</h5>
           <div className="panel panel-default login-info" style={{display:'block'}}>

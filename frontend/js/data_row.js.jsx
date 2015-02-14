@@ -39,6 +39,9 @@ module.exports = React.createClass({
     }
 
     prospect = this.props.prospect
+    company = (prospect.company) ? prospect.company : prospect.company_info
+    company = (company) ? company : {}
+    console.log(prospect)
 
     if(this.props.masterCheckboxChecked && this.state.checked)
       checked = true
@@ -51,16 +54,26 @@ module.exports = React.createClass({
     else
       checked = false
 
-    //console.log(this.state.checked)
-    //console.log(checked)
-    //{prospect.employeeCountRange.name + " employees" }
+    // console.log(this.state.checked)
+    // console.log(checked)
+    // {prospect.employeeCountRange.name + " employees" }
+    // Today
     
     color = {}
     if(this.state.checked || this.props.alreadyChecked)
       color = {backgroundColor: '#eef8ff'}
       
     rowCl = (this.props.keyboardSelected) ? "prospects-tr keySelect" : "prospects-tr"
-    websiteBtn = (prospect.websiteUrl) ?  <a href={"http://"+prospect.websiteUrl.replace('http://','')} > <i className="fa fa-globe" /> </a> : ""
+    websiteBtn = (prospect.website) ?  <a href={"http://"+prospect.website.replace('http://','')} className="btn btn-xs btn-primary btn-gradient" style={{float:'right',marginLeft:5}}> <i className="fa fa-globe" /> </a> : ""
+    //if(parseInt(prospect.linkedin_url.split('/').pop())){
+    if(company.linkedin_url){
+      btnClass = "btn btn-primary btn-xs btn-gradient"
+    } else {
+      btnClass = "btn btn-primary btn-xs btn-gradient disabled"
+    }
+    if(company.logo)
+      logo = company.logo
+
     return (
       <tr className={rowCl} 
           onClick={this.rowClick}
@@ -70,60 +83,70 @@ module.exports = React.createClass({
                      onChange={this.clickCheck} 
                      checked={checked}/>
           </td>
-
-          <td style={color}
-              className="fixed-data-column">
-            <span style={{fontWeight:'bold'}}>{prospect.name}</span>
-            <h6 style={{fontWeight:'400',margin:'0px'}}>{prospect.headcount}</h6>
+          <td style={color}>
+              <div style={{backgroundImage: "url("+company.logo+")"}} 
+              className="company-img-thumbnail"/>
           </td>
 
           <td style={color}
               className="fixed-data-column">
-            <h6 style={{margin:'0px'}}>{moment(prospect.createdAt,'YYYY-MM-DDTh:mm:ss').fromNow()}</h6>
+            <span style={{fontWeight:'bold',fontSize:15}}>{company.company_name}</span>
+            <h6 style={{fontWeight:'400',margin:'0px',fontSize:11}}>
+              {company.headcount}</h6>
           </td>
+
 
           <td style={color}
               className="fixed-data-column">
-            <h6 style={{margin:'0px'}}>{prospect.industry}</h6>
+            <h6 style={{margin:'0px',fontSize:13}}>{company.industry}</h6>
+            <h6 style={{margin:'0px',fontStyle:'italic',marginTop:5,fontSize:11}}>
+              {company.city}</h6>
           </td>
 
           <td style={color}>
             &nbsp; &nbsp;
-            <a href="javascript:" className="btn btn-primary btn-xs"
-              onClick={this.openLinkedinCompanyProfile}
-              style={{backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%)'}}> 
+            <div style={{width:290,marginTop:-15}}>
+            <a href="javascript:" className={btnClass}
+              onClick={this.openLinkedinCompanyProfile}>
               <i className="fa fa-search" /> &nbsp;
               Search Profiles
             </a>
             &nbsp; &nbsp;
-            <a href="javascript:" className="btn btn-primary btn-xs"
-              onClick={this.openSimilarCompanies}
-              style={{backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%)'}}> 
+            <a href="javascript:" className={btnClass}
+              onClick={this.openSimilarCompanies}>
               <i className="fa fa-copy" /> &nbsp;
               Find Similar Companies
             </a>
+            </div>
+          </td>
+          <td style={color}
+              className="fixed-data-column">
+            <h6 style={{margin:'0px',fontSize:11,paddingTop:5}}>{moment(company.createdAt).fromNow()}</h6>
           </td>
 
-          <td style={color}>
-            <h6 style={{margin:'0px'}}>{prospect.city}</h6>
-          </td>
+          <td style={color}> <h6 style={{margin:'0px'}}>{""}</h6> </td>
 
           <td style={color}>
-            {this.props.li}&nbsp;{this.props.link}
-            {websiteBtn}
+            <div style={{width:92, paddingTop:5}}>
+              {this.props.li}&nbsp;
+              {websiteBtn}
+            </div>
           </td>
         </tr>
     );
   },
 
   openLinkedinCompanyProfile: function(e) {
-    cid = this.props.prospect.profile.split('?')[0].split('/company/')[1]
+    console.log(this.props.prospect.linkedin_url)
+    cid = this.props.prospect.company_info.linkedin_url.split('?')[0].split('/company/')[1]
+    console.log(cid)
     window.open("https://www.linkedin.com/vsearch/p?f_CC="+cid)
     e.stopPropagation()
   },
 
   openSimilarCompanies: function(e) {
-    cid = this.props.prospect.profile.split('?')[0].split('/company/')[1]
+    cid = this.props.prospect.company_info.linkedin_url.split('?')[0].split('/company/')[1]
+    //window.open("https://www.linkedin.com/vsearch/c?rsid=526440371409184768175&pivotType=sim&pid="+cid+"&trk=sim_companies_res_sim&trkInfo=VSRPsearchId%3A526440371409184768175%2CVSRPtargetId%3A1025%2CVSRPcmpt%3Aprimary")
     window.open("https://www.linkedin.com/vsearch/c?rsid=526440371409184768175&pivotType=sim&pid="+cid+"&trk=sim_companies_res_sim&trkInfo=VSRPsearchId%3A526440371409184768175%2CVSRPtargetId%3A1025%2CVSRPcmpt%3Aprimary")
     e.stopPropagation()
   },

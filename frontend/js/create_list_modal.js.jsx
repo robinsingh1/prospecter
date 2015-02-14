@@ -6,20 +6,29 @@ module.exports = React.createClass({
     console.log($('#listTitle').val())
 
     currentUser = JSON.parse(localStorage.currentUser)
+    _id = Date.now()
     data =  {
       name : $('#listTitle').val().trim(),
       user : appConfig.pointer('_User', currentUser.objectId),
-      company: currentUser.company
+      user_company: Parse._user_company,
+      count: 0,
+      tmp: _id
     }
+    console.log(data)
 
     thiss = this;
     listClassName = (this.props.listClassName) ? this.props.listClassName : 'ProspectList'
+    var _this = this;
     $.ajax({
       url:'https://api.parse.com/1/classes/'+listClassName,
       type:'POST',
       headers: appConfig.parseHeaders,
       data: JSON.stringify(data),
-      success: function(res) { console.log(res) },
+      success: function(res) { 
+        console.log(res) 
+        console.log("should be updating")
+        _this.props.updateList(_id, res.objectId)
+      },
       error: function(err) { console.log(err) }
     });
 

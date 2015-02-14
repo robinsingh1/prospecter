@@ -53,7 +53,8 @@ module.exports = React.createClass({
                                    this.props.currentProfile.objectId)
     qry = {
       where:JSON.stringify({ profile: currentProfile }),
-      count: 1
+      count: 1,
+      limit:100
     }
     var thiss = this;
     $.ajax({
@@ -153,7 +154,7 @@ module.exports = React.createClass({
                   <i className="fa fa-clock-o" />
                 </th>
 
-                <th style={{width:200}}>
+                <th style={{width:300}}>
                   {(this.state.currentSignal == 'CompanySignal') ?  
                     "Companies" : "People" }
                 </th>
@@ -270,13 +271,13 @@ var PeopleSignalRow = React.createClass({
         </td>
 
         <td>
-          <h6>{name + " - "} <span style={{fontStyle:'italic'}}>
-              {people.title}</span></h6>
+          <h6 style={{fontSize:13, fontWeight:'bold'}}>{name}</h6>
+          <h6 style={{fontStyle:'italic'}}> {people.title}</h6>
         </td>
 
         <td>
-          <h6>{people.prospect_company + " - "} <span style={{fontStyle:'italic'}}>
-              {people.industry}</span></h6>
+          <h6 style={{fontSize:13, fontWeight:'bold'}}>{people.prospect_company} </h6>
+          <h6 style={{fontStyle:'italic'}}>{people.industry}</h6>
           <h6>{people.company_size} <span style={{fontStyle:'italic'}}>
           </span><a href={people.website}>{people.website}</a></h6>
           

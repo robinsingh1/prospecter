@@ -116,9 +116,9 @@ gulp.task('watch', ['clean'], function() {
   gulp.watch('frontend/**/*', function() {
     gulp.run('javascript');
     gulp.run('react-jsx -> js');
+    gulp.run('browserify');
     gulp.run('styles');
     gulp.run('images');
-    gulp.run('browserify');
   });
 });
 

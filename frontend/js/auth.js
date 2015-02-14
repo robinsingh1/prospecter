@@ -9,8 +9,12 @@ function checkAuth(){
 
       //location.href = "#"            
   } else {
-    if(window.location.hash != "#free_trial" || window.location.hash != "#login" || window.location.href=="#signup")
-      location.href = "#get_started"
+    console.log(window.location.hash)
+    if(window.location.hash != "#free_trial" || window.location.hash != "#login" || window.location.hash != "#signup" || window.location.hash != "#product/features" || window.location.hash != "#services"){
+      //location.href = "#get_started"
+    } else {
+      console.log('ELSE')
+    }
       //location.href = "#signup"
   }
 }

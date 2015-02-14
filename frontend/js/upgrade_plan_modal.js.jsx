@@ -107,21 +107,22 @@ module.exports = React.createClass({
         </div>
     )
   },
+
   launchCheckout: function(e) {
     plan = $(e.target).parent().parent().parent().find('.panel-heading').text()
+    user = JSON.parse(localStorage.currentUser)
+    user.plan = plan
+    localStorage.currentUser = JSON.stringify(user)
     console.log('log checkout')
     handler.open({
       name: 'Customero',
+      email:JSON.parse(localStorage.currentUser).username,
+      allowRememberMe:false,
       description: 'Upgrade Today!',
       amount: 0,
       panelLabel: "Upgrade To "+plan+" Plan",
-      opened: function() {
-
-      },
-      closed: function() {
-        console.log("closed")
-        //location.reload()
-      }
+      opened: function() { },
+      closed: function() { console.log("closed") }
     });
   }
 })

@@ -2,21 +2,13 @@
 
 module.exports = React.createClass({
   render: function() {
-    $('body').css({overflow:'hidden'})
+    //$('body').css({overflow:'hidden'})
     return (
       <div>
-        <div className="background-image"></div>
-        <nav className="thenavbar navbar navbar-default navbar-fixed-top" role="navigation">
-          <div className="container-fluid">
-            <a className="the-title tk-foco brand navbar-brand" style={{fontWeight:'100'}}
-                href="#">
-            <img className="" src="build/img/full-logo-5.png" style={{width:220}}/>
-              <span style={{fontSize:'22px',marginLeft:'30px'}}>Supercharge your sales! </span>
-            </a>
-          </div>
-        </nav>
+        <div className="pricing-background-image"></div>
+          <Header/>
           <PricingTables />
-        <div className="gradient"> </div>
+        <div className="the-gradient-1" style={{height:'100%'}}> </div>
       </div>
     )
     /*
@@ -29,7 +21,7 @@ var PricingTables = React.createClass({
   render: function() {
     return (
       <div>
-    <div className="container" style={{marginTop:150}}>
+        <div className="container" >
         <div className="row flat">
           <div className="col-lg-3 col-md-3 col-xs-6">
                 <ul className="signal-card plan plan2">
@@ -117,3 +109,37 @@ var PricingTables = React.createClass({
     );
   },
 });
+
+var Header = React.createClass({
+  render: function() {
+    return (
+        <nav className="thenavbar navbar navbar-default" role="navigation" style={{padding:70}}>
+          <div className="container-fluid" style={{fontFamily:'proxima-nova', fontSize:12}}>
+            <a href="#">
+            <img className="" src="build/img/full-logo-5.png" style={{width:220}}/>
+          </a>
+              <ul className="nav nav-pills landing-page-nav" role="tablist" style={{marginRight:0,fontSize:11,marginTop:-70}}>
+                <li ><a className="landing-page-nav-tab" style={{display:'block'}} href="#login">LOGIN</a></li>
+                <li><a className="landing-page-nav-tab" style={{display:'block'}} href="http://resources.customerohq.com/v1.0/blog">BLOG</a></li>
+                <li><a className="landing-page-nav-tab" href="http://resources.customerohq.com">RESOURCES</a></li>
+                <li><a className="landing-page-nav-tab" href="http://resources.customerohq.com/v1.0/discuss">KNOWLEDGE BASE</a></li>
+                <li><a className="landing-page-nav-tab" href="#">+1905-616-7602 <i className="fa fa-phone"/></a></li>
+              </ul>
+          </div>
+          <a href="#signup" className="btn-lg btn login-btn" style={{fontFamily:'proxima-nova'}}>TRY IT</a>
+              <ul className="nav nav-pills landing-page-nav" role="tablist" style={{width:600,fontSize:13,marginRight:100,marginTop:-45}}>
+                <li style={{width:'24%',textAlign:'center',display:'block'}}>&nbsp;</li>
+                <li style={{width:'24%',textAlign:'center',display:'none'}}>
+                  <a className="landing-page-nav-tab lp-bottom-nav" style={{display:'block'}} href="#">PRODUCT</a></li>
+                <li style={{width:'24%',textAlign:'center',display:'none'}}>
+                  <a className="landing-page-nav-tab lp-bottom-nav" style={{display:'block'}} href="#">DATA</a></li>
+                <li style={{width:'24%',textAlign:'center'}}><a className="landing-page-nav-tab lp-bottom-nav" style={{display:'block'}} href="#product/features">FEATURES</a></li>
+                <li style={{width:'24%',textAlign:'center',display:'none'}}>
+                  <a className="landing-page-nav-tab lp-bottom-nav" style={{display:'block'}} href="#">INTEGRATIONS</a></li>
+                <li style={{width:'24%',textAlign:'center'}}><a className="landing-page-nav-tab lp-bottom-nav" style={{display:'block'}}href="#pricing">PRICING</a></li>
+                <li  style={{width:'24%',textAlign:'center'}}><a className="landing-page-nav-tab lp-bottom-nav" style={{display:'block'}} href="#services">SERVICES</a></li>
+              </ul>
+        </nav>
+    )
+  }
+})

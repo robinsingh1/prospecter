@@ -15,11 +15,11 @@ module.exports = React.createClass({
     
     $.ajax({
       //url:'https://nameless-retreat-3525.herokuapp.com/send_email',
-      url:'http://127.0.0.1:5000/send_email',
+      url:'http://127.0.0.1:5000/v1/campaign/email',
       data: {
-        template_id : template_id,
-        campaign_id : campaign_id,
-        prospectlist_id : prospectlist_id,
+        template : template_id,
+        campaign : campaign_id,
+        //batch: batch_id
       },
       success: function(res) { console.log(res.results) },
       error: function(err) { console.log(err) }

@@ -214,7 +214,8 @@ module.exports = React.createClass({
     //activeTab = "active-campaign-tab campaign tab-link"
       
 
-    list_type = this.props.selectedCampaign.prospect_list.list_type
+    //list_type = this.props.selectedCampaign.prospect_list.list_type
+    list_type = ""
     if(list_type == "mining_job")
       list_type = <span><i className="fa fa-cloud-download" />&nbsp;</span>
     else if(list_type == "signal_list")

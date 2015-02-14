@@ -60,15 +60,13 @@ module.exports = React.createClass({
         
         user_id = JSON.parse(localStorage.currentUser).objectId
         newProfile.user = appConfig.pointer('_User', user_id) 
-        newProfile.company = JSON.parse(localStorage.currentUser).company
-        console.log('CREATED NEW PROSPECT PROFILE')
-        console.log(ress.result)
+        newProfile._user_company = Parse._user_company
 
         $.ajax({
-          url: 'https://api.parse.com/1/classes/ProspectList',
-          type: 'POST',
+          url:     'https://api.parse.com/1/classes/ProspectList',
+          type:    'POST',
           headers: appConfig.headers,
-          data:JSON.stringify(_.pick(newProfile, 
+          data:    JSON.stringify(_.pick(newProfile, 
                                      'name','user','list_type',
                                      'open_people', 'company',
                                      'mining_job_list')),

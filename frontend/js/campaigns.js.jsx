@@ -83,7 +83,8 @@ var CampaignRow = React.createClass({
 
   componentDidMount: function() {
     var thiss = this;
-    list = this.props.campaign.prospect_list.objectId
+    list = this.props.campaign.prospect_list
+    list = (list) ? list.objectId : ""
     qry = {
       where: JSON.stringify({lists: appConfig.pointer('ProspectList',list)}),
       count: true

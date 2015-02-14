@@ -144,8 +144,8 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    console.log('PROSPECT LIST FROM COMPANY LIST')
-    console.log(this.props)
+    //console.log('PROSPECT LIST FROM COMPANY LIST')
+    //console.log(this.props)
     options = _.map(this.props.lists, function(list) {
       return <option>{list.name}</option>
     })

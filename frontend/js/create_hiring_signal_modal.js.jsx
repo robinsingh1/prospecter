@@ -45,7 +45,7 @@ module.exports = React.createClass({
         className:'_User',
         objectId:JSON.parse(localStorage.currentUser).objectId
       },
-      company: JSON.parse(localStorage.currentUser).company
+      user_company: JSON.parse(localStorage.currentUser).user_company
     }
 
     if(nonemptyProfiles.length) {
@@ -143,9 +143,9 @@ module.exports = React.createClass({
           //url:'https://nameless-retreat-3525.herokuapp.com/mining_job/title',
           ///url:'https://nameless-retreat-3525.herokuapp.com/title_mining_job',
           //url:'http://127.0.0.1:5000/signal/hiring',
-          url:'https://nameless-retreat-3525.herokuapp.com/signal/hiring',
+          url:'https://nameless-retreat-3525.herokuapp.com/v1/signal/hiring',
           type:'GET',
-          data: {prospect_profile: ress.objectId},
+          data: {profile: ress.objectId, type: "signal"},
           success: function(res) { console.log(res) },
           error: function(err) { console.log(err) }
         })

@@ -6,27 +6,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google-site-verification" content="u1CRJsIFLTakmLI9kW-sszIG89ZO1mBBwOoSK3YmJ6I" />
   <link rel="shortcut icon" href="build/imgfavicon.ico" />
-  <!--
+  <!--,
   <link rel="stylesheet" href="//code.jquery.com/mobile/1.4.0/jquery.mobile-1.4.0.min.css" />
   <link rel="stylesheet" href="//demos.jquerymobile.com/1.4.0/_assets/css/jqm-demos.css" />
   -->
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.min.css" />
+  <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/ofcalkjbogaiipekcocdefjenclioeci">
+
   <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.13/d3.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.11/crossfilter.js"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/dc/1.7.0/dc.js"></script>
   <link href="http://cdnjs.cloudflare.com/ajax/libs/dc/1.7.0/dc.css" />
 
-  <script src="//www.parsecdn.com/js/parse-1.2.18.min.js"></script>
   <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="/build/js/lib/parse.min.js"></script>
+  <script src="/js/lib/parse.min.js"></script>
   <script src="//js.pusher.com/2.2/pusher.min.js"></script>
-
+  <script type="text/javascript">
+    var pusher = new Pusher('950f66be1f764448120e');
+    var channel = pusher.subscribe('customero');
+  </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/0.8.1/mustache.js"></script>
   <script src="//use.typekit.net/wzk7jom.js"></script>
   <script>try{Typekit.load();}catch(e){}</script>
-
-  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.min.css" />
-  <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/ofcalkjbogaiipekcocdefjenclioeci">
-  
   <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
   <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.6.0/moment.min.js"></script>
@@ -68,11 +71,31 @@
     });
 
     var handler = StripeCheckout.configure({
-      key: 'pk_live_4T5PmRncolAcAa6sZH1jxflY',
+      //key: 'pk_live_4T5PmRncolAcAa6sZH1jxflY',
+      key: 'pk_test_4T5Pftl4ho0EgFVo1G7OKRda',
       image: '/square-image.png',
       token: function(token) {
         // Use the token to create the charge with a server-side script.
         // You can access the token ID with `token.id`
+        plan = JSON.parse(localStorage.currentUser).plan
+        user = JSON.parse(localStorage.currentUser).objectId
+        email = JSON.parse(localStorage.currentUser).username
+        $.ajax({
+          //url:'https://nameless-retreat-3525.herokuapp.com/stripe_charge',
+          url:'http://localhost:5000/stripe_charge',
+          type:'GET',
+          data: {token: JSON.stringify(token), user: user, plan: plan, email: email},
+          success: function(res) { 
+            console.log(res) 
+            if(successfully_charged){
+              console.log('UI Change')
+            } else {
+              console.log('UI Change')
+            }
+          },
+          error: function(err) { console.log(err) }
+        })
+
         console.log(token)
         currentUser = JSON.parse(localStorage.currentUser)
         $.ajax({
@@ -85,8 +108,7 @@
           },
           error: function(err) {
             console.log()
-          }
-        });
+          } });
       }
     });
 
@@ -108,7 +130,6 @@
         }
       })
     }
-
 
     currentUser = localStorage.getItem('Parse/N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ/currentUser')
     /* Auth */ 
@@ -138,6 +159,18 @@
       'X-Parse-REST-API-Key'    : 'VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb',
       'Content-Type' : 'application/json'
     }
+    _.mixin({
+      capitalize: function(string) {
+        return string.charAt(0).toUpperCase() + string.substring(1).toLowerCase();
+      },
+      title: function(words) {
+        string = _.map(words.split(' '), function(word) {
+          return word.charAt(0).toUpperCase() + word.substring(1).toLowerCase();
+        })
+        return string.join(' ')
+      }
+
+    });
 
   </script>
   <script type="text/javascript"> </script>
@@ -146,24 +179,13 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.10.0/react.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.10.0/JSXTransformer.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js"></script>
+  <!---
   <script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=true"></script>
-
-  <!-- -->
+  -->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.js"></script>
 
   <!-- inject:js -->
-  <script src="/build/js/lib/FileSaver.min.js"></script>
-  <script src="/build/js/lib/alertify.min.js"></script>
-  <script src="/build/js/lib/auth.min.js"></script>
-  <script src="/build/js/lib/bootstrap-tagsinput.min.js"></script>
-  <script src="/build/js/lib/data.min.js"></script>
-  <script src="/build/js/lib/drop.min.js"></script>
-  <script src="/build/js/lib/jquery.dropdown.min.js"></script>
-  <script src="/build/js/lib/mousetrap.min.min.js"></script>
-  <script src="/build/js/lib/papaparse.min.min.js"></script>
-  <script src="/build/js/lib/renderjson.min.js"></script>
-  <script src="/build/js/lib/routes.min.js"></script>
-  <script src="/build/js/lib/summernote.min.min.js"></script>
-  <script src="/build/js/lib/sweet-alert.min.js"></script>
+  <script src="/build/js/components/_signal_analytics.js.min.js"></script>
   <script src="/build/js/components/analytics.js.min.js"></script>
   <script src="/build/js/components/app.js.min.js"></script>
   <script src="/build/js/components/batch_stage.js.min.js"></script>
@@ -186,8 +208,11 @@
   <script src="/build/js/components/create_prospect_profile_modal.js.min.js"></script>
   <script src="/build/js/components/create_signal_modal.js.min.js"></script>
   <script src="/build/js/components/create_template.js.min.js"></script>
+  <script src="/build/js/components/create_territory_strategy_modal.js.min.js"></script>
+  <script src="/build/js/components/create_title_mining_job.js.min.js"></script>
   <script src="/build/js/components/data_row.js.min.js"></script>
   <script src="/build/js/components/data_table.js.min.js"></script>
+  <script src="/build/js/components/data_table_v2.js.min.js"></script>
   <script src="/build/js/components/delete_list_modal.js.min.js"></script>
   <script src="/build/js/components/edit_template.js.min.js"></script>
   <script src="/build/js/components/email.js.min.js"></script>
@@ -197,11 +222,15 @@
   <script src="/build/js/components/horizantal_spinner.js.min.js"></script>
   <script src="/build/js/components/landing_page.js.min.js"></script>
   <script src="/build/js/components/landing_page_concept.js.min.js"></script>
+  <script src="/build/js/components/landing_page_features.js.min.js"></script>
+  <script src="/build/js/components/landing_page_services.js.min.js"></script>
   <script src="/build/js/components/loading_spinner.js.min.js"></script>
   <script src="/build/js/components/login.js.min.js"></script>
+  <script src="/build/js/components/marketing_footer.js.min.js"></script>
   <script src="/build/js/components/messenger.js.min.js"></script>
   <script src="/build/js/components/mining_job.js.min.js"></script>
   <script src="/build/js/components/mining_job_calendar.js.min.js"></script>
+  <script src="/build/js/components/mining_job_detail.js.min.js"></script>
   <script src="/build/js/components/mining_job_loading.js.min.js"></script>
   <script src="/build/js/components/panel_footing.js.min.js"></script>
   <script src="/build/js/components/people_signal_card.js.min.js"></script>
@@ -213,6 +242,7 @@
   <script src="/build/js/components/sent_mail.js.min.js"></script>
   <script src="/build/js/components/settings.js.min.js"></script>
   <script src="/build/js/components/side_menu_user_prospects.js.min.js"></script>
+  <script src="/build/js/components/signal_analytics.js.min.js"></script>
   <script src="/build/js/components/signal_calendar.js.min.js"></script>
   <script src="/build/js/components/signal_detail.js.min.js"></script>
   <script src="/build/js/components/signal_loading.js.min.js"></script>
@@ -222,10 +252,34 @@
   <script src="/build/js/components/spinner.js.min.js"></script>
   <script src="/build/js/components/templates.js.min.js"></script>
   <script src="/build/js/components/templates_menu.js.min.js"></script>
+  <script src="/build/js/components/territory_detail.js.min.js"></script>
+  <script src="/build/js/components/territory_overview.js.min.js"></script>
   <script src="/build/js/components/timeline_day_element.js.min.js"></script>
+  <script src="/build/js/components/upgrade_plan_modal.js.min.js"></script>
   <script src="/build/js/components/user_prospect.js.min.js"></script>
   <script src="/build/js/components/user_prospect_header.js.min.js"></script>
   <script src="/build/js/components/user_side_menu_list.js.min.js"></script>
+  <script src="/build/js/lib/FileSaver.min.js"></script>
+  <script src="/build/js/lib/alertify.min.js"></script>
+  <script src="/build/js/lib/auth.min.js"></script>
+  <script src="/build/js/lib/bootstrap-tagsinput.min.js"></script>
+  <script src="/build/js/lib/data.min.js"></script>
+  <script src="/build/js/lib/drop.min.js"></script>
+  <script src="/build/js/lib/headhesive.min.js"></script>
+  <script src="/build/js/lib/jquery.dropdown.min.js"></script>
+  <script src="/build/js/lib/mousetrap.min.min.js"></script>
+  <script src="/build/js/lib/papaparse.min.min.js"></script>
+  <script src="/build/js/lib/parse.min.js"></script>
+  <script src="/build/js/lib/particles.min.js"></script>
+  <script src="/build/js/lib/paths.min.js"></script>
+  <script src="/build/js/lib/renderjson.min.js"></script>
+  <script src="/build/js/lib/routes.min.js"></script>
+  <script src="/build/js/lib/sankey.min.js"></script>
+  <script src="/build/js/lib/summernote.min.min.js"></script>
+  <script src="/build/js/lib/sweet-alert.min.js"></script>
   <!-- endinject -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/2.1.9/echarts.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/2.1.9/echarts-all.js"></script>
+
 </body>
 </html>

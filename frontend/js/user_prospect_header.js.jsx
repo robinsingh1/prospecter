@@ -29,10 +29,12 @@ module.exports = React.createClass({
               <th style={{paddingLeft:11}}>
                 <input type="checkbox" onChange={this.checkboxAction}/>
               </th>
+              <th style={{width:20}}></th>
+              <th></th>
               <th>Name</th>
               <th >Company</th>
               <th style={{width:'170px'}}>City</th>
-              <th>Email</th>
+              <th style={{width:300}}>Email</th>
               <th>&nbsp;</th>
             </tr>
     );

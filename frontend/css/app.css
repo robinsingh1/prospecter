@@ -1,4 +1,26 @@
 /* * * App * * */
+.the-background-image {
+  position:absolute;
+  bottom:0px;
+  top:0px;
+  width:100%;
+  background-image: url('/build/img/goldslider.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  height: 490px !important;
+  margin:0px !important;
+  background-position: top right;
+    -webkit-filter: blur(10px);
+    -moz-filter: blur(20px);
+    -o-filter: blur(20px);
+    -ms-filter: blur(20px);
+    filter: blur(20px);
+  z-index:-2;
+}
+.green-gradient {
+  background-image: linear-gradient(#8add6d, #60b044) !important;
+}
+
 #navbar { position:relative;
   z-index:100;
   background: #eff2f5;
@@ -68,6 +90,7 @@ body {
 }
 .landing-page-nav-tab {
   color:white;
+  padding-left:30px;
 }
 .landing-page-nav-tab :hover{
   background-color:rgba(0,0,0,0)
@@ -169,15 +192,62 @@ tr.prospects-tr:hover{
   padding-left:30px;
 }
 
-.background-image {
+.the-title-pricing{
+  font-size: 40px;
+  font-weight: bold;
+  color:#1ca3fd !important;
+  padding:0px !important;
+}
+
+.features-background-image {
   position:absolute;
   bottom:0px;
+  top:0px;
   width:100%;
-  background-image: url(../img/goldslider.jpg);
+  background-image: url(/build/img/top-sales.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  height: 490px !important;
+  margin:0px !important;
+  background-position: left;
+    -webkit-filter: blur(6px);
+    -moz-filter: blur(20px);
+    -o-filter: blur(20px);
+    -ms-filter: blur(20px);
+    filter: blur(20px);
+  z-index:-2;
+}
+
+.services-background-image {
+  position:absolute;
+  bottom:0px;
+  top:0px;
+  width:100%;
+  background-image: url(/build/img/handshake.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  height: 490px !important;
+  margin:0px !important;
+  background-position: top;
+    -webkit-filter: blur(6px);
+    -moz-filter: blur(20px);
+    -o-filter: blur(20px);
+    -ms-filter: blur(20px);
+    filter: blur(20px);
+  z-index:-2;
+}
+
+.pricing-background-image {
+  position:absolute;
+  bottom:0px;
+  top:0px;
+  width:100%;
+  background-image: url('/build/img/goldslider.jpg');
   background-size: cover;
   background-repeat: no-repeat;
   height: 100% !important;
-  background-position: bottom right;
+  margin:0px !important;
+  background-position: top right;
     -webkit-filter: blur(10px);
     -moz-filter: blur(20px);
     -o-filter: blur(20px);
@@ -185,13 +255,14 @@ tr.prospects-tr:hover{
     filter: blur(20px);
   z-index:-2;
 }
+
 .thenavbar {
-border-bottom: 2px solid #007ee5;
-background-color: white;
-height: 71px;
-background-color: rgba(0,0,0,0);
-border-color: rgba(0,0,0,0);
-padding:30px
+  border-bottom: 2px solid #007ee5;
+  background-color: white;
+  height: 71px;
+  background-color: rgba(0,0,0,0);
+  border-color: rgba(0,0,0,0);
+  padding:70px !important
 }
 .tagline {
   text-align: center;
@@ -199,7 +270,7 @@ padding:30px
   font-family: proxima-nova;
 }
 
-.gradient {
+.the-gradient-1 {
 padding-top: 160px;
 /*background-image: linear-gradient(180deg, rgba(33, 48, 123, 0) 0%, #1ca3fd 100%);*/
 background-image: linear-gradient(180deg, rgba(33, 48, 123, 0) 0%, #ffffff 100%);
@@ -209,7 +280,7 @@ background-image: linear-gradient(#1f2c65,#1ca3fd);
 opacity:0.7;
 background-position: bottom;
 background-repeat: no-repeat;
-height: 100%;
+height: 500px;
 position:absolute;
 bottom:0px;
 width:100%;
@@ -518,11 +589,6 @@ a.prospect-list-select:hover{
 }
 
 #signup {
-position:absolute;
-top:0;
-left:0;
-height:100%;
-width:100%;
 background-color: #0160b1;
 background-attachment: fixed;
 background-image: -webkit-radial-gradient(70% 11%,1300px 1300px,rgba(255,255,255,0.3) 0%,rgba(33,69,112,0.3) 100%);
@@ -531,13 +597,13 @@ background-image: -o-radial-gradient(70% 11%,1300px 1300px,rgba(255,255,255,0.3)
 background-image: radial-gradient(70% 11%,1300px 1300px,rgba(255,255,255,0.3) 0%,rgba(33,69,112,0.3) 100%);
 z-index:-1;
 opacity:0.94;
+height:100%
 }
 
 .title{
 font-weight: bold;
 color: white;
 text-align: center;
-margin-top: 100px;
 font-size: 31px;
 text-shadow: rgba(255, 255, 255, 0.776471) 0px 0px 40px;
 font-family: proxima-nova;
@@ -565,7 +631,8 @@ font-family: proxima-nova;
   -webkit-box-shadow: 0px 0px 0px 1px rgba(14, 41, 57, 0.117647), 0px 2px 5px rgba(14, 41, 57, 0.439216), inset 0px -1px 2px rgba(14, 41, 57, 0.14902);
   -o-box-shadow: 0px 0px 0px 1px rgba(14, 41, 57, 0.117647), 0px 2px 5px rgba(14, 41, 57, 0.439216), inset 0px -1px 2px rgba(14, 41, 57, 0.14902);
   box-shadow: 0px 0px 0px 1px rgba(14, 41, 57, 0.117647), 0px 2px 5px rgba(14, 41, 57, 0.439216), inset 0px -1px 2px rgba(14, 41, 57, 0.14902);
-  padding: 0px;
+  padding-top: 30px;
+  padding-left: 30px;
   border: none;
   margin-top: 30px;
   border-radius: 2px;
@@ -863,12 +930,14 @@ font-family: proxima-nova;
   
   -webkit-animation: bounce 2.0s infinite ease-in-out;
   animation: bounce 2.0s infinite ease-in-out;
+  transform: translateZ(0) !important;
 }
 
 .double-bounce2 {
   background-color: #1ca3fd;
   -webkit-animation-delay: -1.0s;
   animation-delay: -1.0s;
+  transform: translateZ(0) !important;
 }
 
 @-webkit-keyframes bounce {
@@ -892,7 +961,7 @@ font-family: proxima-nova;
 }
 
 .loading-two-balls {
-  margin: 100px auto;
+  /*margin: 100px auto;*/
   width: 40px;
   height: 40px;
   position: relative;
@@ -908,7 +977,7 @@ font-family: proxima-nova;
   display: inline-block;
   position: absolute;
   top: 0;
-  background-color: #333;
+  background-color:#1ca3fd;
   border-radius: 100%;
   
   -webkit-animation: bounce 2.0s infinite ease-in-out;
@@ -947,7 +1016,7 @@ font-family: proxima-nova;
   box-shadow: rgba(255, 255, 255, 0.0588235) 0px 2px 0px 0px inset, rgba(0, 0, 0, 0.2) 0px 2px 3px 0px;
 }
 .list-name {
-  width: 74%;
+  width: 70%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -956,7 +1025,7 @@ font-family: proxima-nova;
 }
 
 .icon-list-name {
-  width: 120px;
+  width: 60%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -989,6 +1058,7 @@ font-family: proxima-nova;
   width: 100%;
   background-color: rgba(0,0,0,0.6);
   margin-top: 38px;
+  z-index:3;
 }
 
 .campaign-tab {
@@ -1001,6 +1071,10 @@ font-weight: bold;
 
 .campaign-tabs > li{
   width:20%;
+}
+
+.detail-tab > li{
+  width:14%;
 }
 .campaign-tabs{
   margin-bottom: -1px;
@@ -1095,3 +1169,199 @@ font-weight: bold;
   }
 }
 /*** ****************** ***/
+.notification-badge {
+  font-size: 8px !important;
+  padding: 2px 5px !important;
+  margin-left: 5px !important;
+  display:block;
+  float:right;
+  margin-top: 1px !important;
+  width: 15px !important;
+  line-height: 8px !important;
+  background-color: #1ca3fd !important;
+}
+.company-prospect-list-select-form {
+  width: 414px;
+  display: inline;
+  margin-left: 58px;
+  margin-bottom: 15px;
+}
+.gradient-2{
+  background-image: -o-radial-gradient(53% 167%, #006AFF 63%, #008AFF 100%);
+  background-image: -moz-radial-gradient(53% 167%, #006AFF 63%, #008AFF 100%);
+  background-image: -webkit-radial-gradient(53% 167%, #006AFF 63%, #008AFF 100%);
+  background-image: -ms-radial-gradient(53% 167%, #006AFF 63%, #008AFF 100%);
+  background-image: radial-gradient(53% 167%, #006AFF 63%, #008AFF 100%);
+  position:absolute;
+  position: absolute;
+  bottom: 0px;
+  top: 0px;
+  width: 100%;
+  height:500px;
+  opacity:0.78;
+  z-index:-1;
+}
+
+.gradient-3{
+  background-image: -webkit-radial-gradient(closest-corner,rgba(16,47,70,0)60%,rgba(16,47,70,.1)),-webkit-linear-gradient(108deg,#d2f3ff 10%,#346db6 90%);
+  position:absolute;
+  position: absolute;
+  bottom: 0px;
+  top: 0px;
+  width: 100%;
+  height:500px;
+  opacity:0.78;
+  z-index:-1;
+}
+.company-img-thumbnail{
+  height: 45px;
+  width: 45px;
+  float: left;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.10);
+  margin-right: 5px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+#chart {
+  height: 500px;
+}
+
+.node rect {
+  cursor: move;
+  fill-opacity: .9;
+  shape-rendering: crispEdges;
+}
+
+.node text {
+  pointer-events: none;
+  text-shadow: 0 1px 0 #fff;
+}
+title {
+  font-family:'Proxima-nova';
+}
+
+#chart{
+overflow: auto;
+display: block;
+height: 356px;
+}
+
+.link {
+  fill: none;
+  stroke: #000;
+  stroke-opacity: .2;
+}
+
+.link:hover {
+  stroke-opacity: .5;
+}
+
+.chrome-bar {
+  background: #eff2f5;
+  background-image: -moz-linear-gradient(270deg, #eff2f5 0%, #cfd8e0 100%);
+  background-image: -webkit-linear-gradient(270deg, #eff2f5 0%, #cfd8e0 100%);
+  background-image: -o-linear-gradient(270deg, #eff2f5 0%, #cfd8e0 100%);
+  background-image: linear-gradient(180deg, #eff2f5 0%, #cfd8e0 100%);
+  border-radius: 0px;
+  -moz-box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.701961), 0px 1px 1px rgba(0, 0, 0, 0.0980392);
+  -webkit-box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.701961), 0px 1px 1px rgba(0, 0, 0, 0.0980392);
+  -o-box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.701961), 0px 1px 1px rgba(0, 0, 0, 0.0980392);
+  box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.701961), 0px 1px 1px rgba(0, 0, 0, 0.0980392);
+  height: 70px !important;
+  padding-top: 29px !important;
+  width:100% !important;
+}
+
+.lp-icon {
+  font-size: 200px;
+  background: -webkit-linear-gradient(#eee, #333);
+  background-image: -o-linear-gradient(90deg, #003CFF 0%, #0FB3FA 100%);
+  background-image: -moz-linear-gradient(90deg, #003CFF 0%, #0FB3FA 100%);
+  background-image: -webkit-linear-gradient(90deg, #003CFF 0%, #0FB3FA 100%);
+  background-image: -ms-linear-gradient(90deg, #003CFF 0%, #0FB3FA 100%);
+  background-image: linear-gradient(0deg, #003CFF 0%, #0FB3FA 100%);
+  -moz-box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.50), inset 0px 1px 3px 0px rgba(255,255,255,0.50);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  padding: 50px;
+}
+.tmp-footer {
+  display: block;
+  height: 20px;
+  width: 100%;
+  background-color: black;
+  background-image: linear-gradient(0deg, #003CFF 0%, #0FB3FA 100%);
+}
+.prospects-container {
+  width:100%;
+  padding:0;
+  background: linear-gradient(#dae8ff,#dae8ff); 
+  background-image: radial-gradient(circle at center center,#fff,#dff1fd 900px)
+}
+
+.cnt-bg {
+  background-color:#999 !important;
+  float:right;
+  margin-top:2.25
+}
+
+.beta-label {
+  display: inline-block;
+  margin-left: 5px;
+  margin-right: 5px;
+  font-style: italic;
+  font-weight: bold;
+}
+.strategy-app {
+  width: 100px;
+  height: 100px;
+  display: inline-block;
+  opacity: 1;
+  z-index: 4;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-transform-origin: 50% 50% 0px;
+  -webkit-perspective: 0;
+  /*
+  -webkit-transform: translate3d(372px, 0px, 0px) scale(1.2) scale3d(1, 1, 1) skew(0deg, 0deg) skewX(0deg) skewY(0deg) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  */
+  box-shadow: rgba(0, 0, 0, 0.14902) 0px 6px 16px 0px;
+  border-radius: 4px;
+  background-color: rgb(255, 255, 255);
+  margin:10px
+}
+.signal-gradient-bg {
+  /* Rectangle 94: */
+
+  /* Rectangle 94: */
+  /* Rectangle 94: */
+  background-image: -o-linear-gradient(90deg, #40A6FC 0%, #2537AC 100%);
+  background-image: -moz-linear-gradient(90deg, #40A6FC 0%, #2537AC 100%);
+  background-image: -webkit-linear-gradient(90deg, #40A6FC 0%, #2537AC 100%);
+  background-image: -ms-linear-gradient(90deg, #40A6FC 0%, #2537AC 100%);
+  /*
+  background-image: linear-gradient(0deg, #40A6FC 0%, #2537AC 100%);
+  */
+  height:100%;
+}
+.company_detail_overlay {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-color: rgb(0, 122, 265);
+  opacity: 0.5;
+}
+.company_detail_mode {
+  position: absolute;
+  height: 100%;
+  width: 70%;
+  background-color: white;
+  right: 0px;
+  -webkit-box-shadow: -8px -3px 10px -6px rgba(0, 0, 0, 0.3);
+  /* position: relative; */
+  z-index: 1;
+}

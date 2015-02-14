@@ -1,5 +1,7 @@
 /** @jsx React.DOM */
 
+var CompanyDetail = require('./company_detail.js.min.js')
+
 module.exports = React.createClass({
   // SignalDetail
   getInitialState: function() {
@@ -8,7 +10,9 @@ module.exports = React.createClass({
       signals: [],
       //allProspected: this.props.currentProfileReport.prospected,
       companyCount: '~',
-      peopleCount: '~'
+      peopleCount: '~',
+      detailMode: false,
+      detailCompany: {},
     }
   },
 
@@ -19,7 +23,7 @@ module.exports = React.createClass({
 
     qry = {
       where:JSON.stringify({ report: currentProfileReport }),
-      include:'company_signal,company_signal.signals,signals',
+      include:'company,signal.signal,signal',
       order:'-createdAt',
       limit:100
     }
@@ -44,11 +48,14 @@ module.exports = React.createClass({
   setPersonState: function() { this.setState({currentSignal: 'PeopleSignal'}) }, 
 
   componentDidMount: function() {
+    console.log('detail')
     console.log(this.props.currentProfileReport.objectId)
     this.getSignals(this.state.currentSignal)
     qry = {
       where:JSON.stringify({ report: currentProfileReport }),
-      count: 1
+      count: 1,
+      limit:100,
+      order:'createdAt'
     }
     var thiss = this;
     $.ajax({
@@ -88,6 +95,7 @@ module.exports = React.createClass({
     for(i=0;i< this.state.signals.length; i++) {
       if(this.state.currentSignal == 'CompanySignal')
         signals.push(<CompanyHiringSignalRow signal={this.state.signals[i]} 
+                                       toggleDetailMode={this.toggleDetailMode}
                                        allProspected={this.state.allProspected}/>)
       else
         signals.push(<PeopleSignalRow signal={this.state.signals[i]} 
@@ -97,8 +105,10 @@ module.exports = React.createClass({
     currentProfileReport = this.props.currentProfileReport
     companyBtn = (this.state.currentSignal == "CompanySignal") ? "btn btn-xs btn-default active" : "btn btn-xs btn-default"
     peopleBtn = (this.state.currentSignal == "PeopleSignal") ? "btn btn-xs btn-default active" : "btn btn-xs btn-default"
+    score_column=(this.state.currentSignal == "PeopleSignal") ? <th>Score</th> : ""
+    logo_column=(this.state.currentSignal == "CompanySignal") ? <th></th> : ""
     return (
-      <div className="container" style={{height:356,paddingLeft:0,
+      <div className="container" style={{height:456,paddingLeft:0,
                                          paddingRight:0,width:'100%'}}>
         <div style={{height:44,borderBottom:'solid 1px rgb(221, 221, 221)'}}>
           <h4 onClick={this.returnToCalendarView}
@@ -123,7 +133,7 @@ module.exports = React.createClass({
           <a href="javascript:" style={{fontWeight:'bold',float:'right',
                                         marginRight:10,marginTop:10}}
              onClick={this.prospectAll}
-             className="btn btn-success btn-xs">
+             className="btn btn-success btn-xs green-gradient">
             Prospect All
           </a>
           }
@@ -147,21 +157,23 @@ module.exports = React.createClass({
         </div>
 
         <div className="col-md-12" style={{paddingLeft:0,paddingRight:0}}>
-          <div style={{overflow:'auto',height:356}}>
+          {(this.state.detailMode) ? <CompanyDetail toggleDetailMode={this.toggleDetailMode} detailCompany={this.state.detailCompany}/> : ""}
+          <div style={{overflow:'auto',height:456}}>
             <table className="table table-striped">
               <thead>
                 <th style={{textAlign:'center',width:90}}>
                   <i className="fa fa-clock-o" />
                 </th>
 
+                {logo_column}
                 <th style={{width:200}}>
                   {(this.state.currentSignal == 'CompanySignal') ?  
                     "Companies" : "People" }
                 </th>
 
-                <th>Signal</th>
-
+                <th style={{width:200}}>Signal</th>
                 <th>Source </th>
+                {score_column}
 
                 <th style={{width:90,textAlign:'center'}}> </th>
 
@@ -175,6 +187,7 @@ module.exports = React.createClass({
       </div>
     );
   },
+
   prospectAll: function() {
     console.log(this.state.currentSignal)
     console.log(this.props.currentProfileReport.objectId)
@@ -188,13 +201,21 @@ module.exports = React.createClass({
       success: function(res) { console.log(res)},
       error: function(err) { console.log(err.responseText)},
     })
+  },
+  toggleDetailMode: function(company) {
+    this.setState({detailMode: !this.state.detailMode})
+    this.setState({detailCompany: company})
   }
 });
 
 var CompanyHiringSignalRow = React.createClass({
+  toggleDetailMode: function() {
+    this.props.toggleDetailMode(this.props.signal.company)
+  },
+
   render: function() {
-    //console.log(company)
-    company = (this.props.signal) ? this.props.signal : {}
+    company = this.props.signal.company
+    signal = this.props.signal.signal[0]
     return (
       <tr style={{}}>
         <td style={{textAlign:'center',width:120}}>
@@ -204,27 +225,37 @@ var CompanyHiringSignalRow = React.createClass({
         </td>
 
         <td>
-          <h6>{company.name}</h6>
+          <div style={{backgroundImage: "url("+company.logo+")",height:60,width:60}} 
+          className="company-img-thumbnail"/>
+        </td>
+        <td style={{width:200}}>
+          <a href="javascript:" onClick={this.toggleDetailMode}>{company.name}</a>
+          <h6>{company.industry}</h6>
+          <h6>{(company.address) ? company.address.normalizedLocation : ""}</h6>
           <h6>{company.revenue}</h6>
-          <h6><a href="javascript:" >{company.websiteUrl}</a></h6>
+          <h6>{company.headcount}</h6>
+          <h6><a href="javascript:" >{company.website}</a></h6>
           <h6>{company.city}</h6>
         </td>
 
-        <td >
-          <h6>{company.signals[0].className}</h6>
-          <h6>{company.signals[0].job_title}</h6>
-          <h6>{company.signals[0].summary}</h6>
+        <td style={{width:200}}>
+          <h6>{signal.job_title}</h6>
+          <h6>{signal.company_name}</h6>
+          <h6>{signal.location}</h6>
+          <h6>{signal.summary}</h6>
         </td>
-        <td>
-          {moment(company.timestamp).format('ll')}
+        <td> 
+          {signal.source} 
+          <h6>{moment(signal.timestamp*1000).fromNow()}</h6>
         </td>
-
         <td>
           {(this.props.allProspected) ? 
-          <a href="javascript:" className="btn btn-success btn-xs disabled"
+            <a href="javascript:" 
+               className="btn btn-success btn-xs disabled green-gradient"
             style={{fontWeight:'bold'}}>
             Prospected
-          </a> : <a href="javascript:" className="btn btn-success btn-xs"
+            </a> : <a href="javascript:" 
+                      className="btn btn-success btn-xs green-gradient"
                   onClick={this.turnCompanySignalToProspect}
             style={{fontWeight:'bold'}}>
             Prospect
@@ -264,11 +295,8 @@ var PeopleSignalRow = React.createClass({
   render: function() {
     //console.log(company)
     people = (this.props.signal) ? this.props.signal : {}
-    company = people.company_signal
-    title = (people.title) ? people.title.split('-')[1] : ""
-    title = title.split(' at')[0]
-    //city = people.split('-')[0]
-    city = ""
+    company = people.company
+    signal = people.signal.signal[0]
     console.log(people)
     return (
       <tr style={{}}>
@@ -279,29 +307,33 @@ var PeopleSignalRow = React.createClass({
         </td>
 
         <td>
-          <h6>{people.link_text + " - "} <span style={{fontStyle:'italic'}}>
-              {title}</span></h6>
-          <h6><a href="javascript:" >{company.websiteUrl}</a></h6>
+          {people.title_score}
+        </td>
+        <td>
+          <h6>{people.name + " - "} <span style={{fontStyle:'italic'}}>
+              {people.title}</span></h6>
+          <h6><a href="javascript:" >{company.website}</a></h6>
           <h6>{company.name}</h6>
           <h6>{company.city}</h6>
         </td>
 
         <td >
-          <h6>{company.signals[0].className}</h6>
-          <h6>{company.signals[0].job_title}</h6>
-          <h6>{company.signals[0].summary}</h6>
+          <h6>{signal.job_title}</h6>
+          <h6>{signal.company_name}</h6>
+          <h6>{signal.location}</h6>
+          <h6>{signal.summary}</h6>
         </td>
         <td>
-          {company.timestamp}
-          {moment(company.timestamp).format('ll')}
+          {signal.source} 
+          <h6>{moment(signal.timestamp*1000).fromNow()}</h6>
         </td>
 
         <td>
           {(this.props.allProspected) ? 
-          <a href="javascript:" className="btn btn-success btn-xs disabled"
+          <a href="javascript:" className="btn btn-success btn-xs green-gradient disabled"
             style={{fontWeight:'bold'}}>
             Prospected
-            </a> : <a href="javascript:" className="btn btn-success btn-xs"
+            </a> : <a href="javascript:" className="btn btn-success btn-xs green-gradient"
                       onClick={this.turnSignalIntoProspect}
             style={{fontWeight:'bold'}}>
             Prospect

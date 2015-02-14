@@ -1,27 +1,38 @@
 /** @jsx React.DOM */
 
 //TODO - abstract lists
-var SideMenuProspects = require('./side_menu_user_prospects.js.min.js');
+//TODO - rename this
+var Lists = require('./side_menu_user_prospects.js.min.js'); 
 
-var UserProspect = require('./user_prospect.js.min.js');
 var UserProspectHeader = require('./user_prospect_header.js.min.js');
-var SideMenuListOption = require('./user_side_menu_list.js.min.js');
+var UserProspectRow = require('./user_prospect.js.min.js');
+
+//var CompanyProspectHeader
+var CompanyProspectRow = require('./data_row.js.min.js');
 var LoadingSpinner = require('./loading_spinner.js.min.js')
 var Spinner = require('./spinner.js.min.js')
-var PanelFooting = require('./panel_footing.js.min.js')
 var Messenger = require('./messenger.js.min.js')
+var PanelFooting = require('./panel_footing.js.min.js')
 
-var DeleteListModal = require('./delete_list_modal.js.min.js')
-var RenameListModal = require('./rename_list_modal.js.min.js')
-var CreateProspectListFromCompanyListModal = require('./create_prospect_list_from_company_list.js.min.js')
-var CreateProspectProfileModal = require('./create_title_mining_job.js.min.js')
+//var CreateProspectListFromCompanyListModal = require('./create_prospect_list_from_company_list.js.min.js')
+//var CreateProspectProfileModal = require('./create_title_mining_job.js.min.js')
+/*
+      <CreateProspectListFromCompanyListModal 
+        currentList={this.state.currentList} 
+        currentListObjectId={this.state.currentListObjectId}/>
+      <CreateProspectProfileModal 
+        currentList={this.state.currentList} 
+        currentListObjectId={this.state.currentListObjectId}/>
+      <RenameListModal renameList={this.props.renameList}/>
+      <DeleteListModal deleteList={this.props.deleteList}/>
+*/
 
 module.exports = React.createClass({
   getInitialState: function() {
     return {  prospects   : [],
               currentPage : 1,
-              className: 'Prospect',
-              listClassName: 'ProspectList',
+              className: this.props.className,
+              listClassName: this.props.listClassName,
               pages       : 1,
               currentList : 'All',
               currentListObjectId : '',
@@ -34,147 +45,97 @@ module.exports = React.createClass({
               keyboardActiveProspect: 0, //first
               //selectedProspects: [],
               totalCount  : "~", 
+              detailMode: false,
+              detailCompany: {},
               count       : "~", }
   },
 
-  createList: function(data) {
-    lists = this.state.lists
-    lists = [data].concat(lists)
-    this.setState({ lists: lists })
-  },
-
-  renameList: function(newListName) {
-    // Update Local State
-    thiss = this;
-    var filtered = _.filter(this.state.lists, function(item) {
-      if(item.name == thiss.state.currentList){
-        item.name = newListName
-        return item
+  setPaginate: function(value) { this.setState({paginating: value}) },
+  setDownloading: function(value) { this.setState({downloading: value}) },
+  removeProspects: function(objArray) {
+    _prospects = _.map(this.state.prospects, function(prospect) {
+      console.log(objArray.indexOf(prospect.objectId) == -1)
+      if(objArray.indexOf(prospect.objectId) == -1){
+          return prospect
       }
-      return item
-    });
-
-    this.setState({lists : filtered, currentList: newListName})
-
-    $('.modal').click()
-    $('#newListName').val('')
-    $('.modal-backdrop').click()
-
-    // Persist / Ajax
-    $.ajax({
-      url:'https://api.parse.com/1/classes/ProspectList/'+thiss.state.currentListObjectId,
-      headers: appConfig.parseHeaders,
-      type:'PUT',
-      data:JSON.stringify({'name':newListName}),
-      success: function(res) { console.log(res) },
-      error: function(err) { console.log(err) }
-    });
+    })
+    this.setState({prospects: _.compact(_prospects)})
   },
 
-  deleteList: function() {
-    var filtered = _.filter(this.state.lists, function(item) {
-      if(item.objectId == thiss.state.currentListObjectId)
-        return false
-      return true
-    });
+  archiveProspects: function(objects) {
+    console.log('ARCHIVE')
+    objects = (objects) ? objects : []
+    selectedProspects = JSON.parse(localStorage.selectedProspects)
+    selectedProspects = selectedProspects.concat(objects)
+    qry = {'archived':true}
+    console.log('starting parse archive')
+    Parse.batchUpdate(this.state.className, selectedProspects, qry).done(function(res) {
+      console.log(res)
+    })
+    this.removeProspects(selectedProspects)
+    totalCount = this.state.totalCount
+    this.setState({totalCount : totalCount - 1})
 
-    this.setState({lists: filtered, currentList: 'All'})
-    this.changeList('All', '')
+    selected = _.map(this.state.prospects, function(prospect) {
+      if(selectedProspects.indexOf(prospect.objectId) != -1)
+        return prospect
+    })
 
-    // Remove
-    appConfig.closeModal()
-    $('#newListName').val('')
+    selected = _.compact(selected)
+    selected = _.pluck(selected, 'lists')
+    selected = _.flatten(selected)
+    selected = _.pluck(selected, 'objectId')
+    selected = _.compact(selected)
 
-    // Persist / Ajax
-    var thiss = this;
-    $.ajax({
-      url: appConfig.url+'ProspectList/'+thiss.state.currentListObjectId,
-      headers: appConfig.parseHeaders,
-      type:'DELETE',
-      success: function(res) { console.log(res) },
-      error: function(err) { console.log(err) }
-    });
-  },
-
-  setPaginate: function(value) {
-    this.setState({paginating: value})
-  },
-
-  setDownloading: function(value) {
-    this.setState({downloading: value})
-  },
-
-  changeList: function(newListName,objectId) {
-    // add overlay loading
-    //console.log(newListName)
-    //console.log(objectId)
-
-    localStorage.selectedProspects = JSON.stringify([])
-
-    this.setState({currentList : newListName})
-    this.setState({currentListObjectId : objectId})
-    this.setState({prospects  : []    })
-    this.setState({count      : '~'   })
-    this.setState({pages      : 1     })
-    this.setState({loading    : true  })
-    this.setState({currentPage: 1})
-    this.setState({keyboardActiveProspect: 0})
-
-    company = JSON.stringify(JSON.parse(localStorage.currentUser).company)
-    qry = 'where={"company":'+company+',"archived":true}&count=1&order=-createdAt'
-    console.log(newListName)
-
-    if(this.state.currentList != 'All' || typeof(objectId) != "undefined" && newListName != 'Archived'){
-      currentList = JSON.stringify({
-        'objectId'  : objectId, 
-        '__type'    : 'Pointer', 
-        'className' : 'ProspectList' 
+    _.map(selected, function(list_id) {
+      decrement = {count: {__op: 'Increment', amount: -1}}
+      Parse.put('ProspectList/'+list_id, decrement, function(res) {
+        console.log(res)
       })
-
-      company = JSON.stringify(JSON.parse(localStorage.currentUser).company)
-      qry = 'where={"company":'+company+'}&count=1'
-      qry = 'where={"lists":'+currentList+'}&count=1&order=-createdAt&include=email_guesses,email_guesses.pattern'
-    } else if (newListName == 'Archived') {
-      qry = 'where={"company":'+company+',"archived":false}&count=1&order=-createdAt&include=email_guesses,email_guesses.pattern'
-    }
-    console.log(qry)
-    var thisss = this;
-
-    $.ajax({
-      url: 'https://api.parse.com/1/classes/Prospect',
-      type:'GET',
-      headers: appConfig.parseHeaders,
-      async: true,
-      data: qry,
-      ajaxStart: function() { console.log('started list') },
-      success: function(res){
-        thisss.setState({prospects: res.results})
-        thisss.setState({count: res.count})
-        //thisss.setState({totalCount: res.count})
-        thisss.setState({pages: Math.ceil(res.count/thisss.props.prospectsPerPage)})
-        thisss.setState({loading: false})
-      },
-      error: function(res){
-        //console.log('error')
-        //console.log(res)
-      }
     })
   },
 
-  checkboxAction: function(checkedState, objId) {
-    /* Storing Checked Prospects In LocalStorage To Make it Easier To
-     * Copy and Move Prospects 
-     *
-     * Move To User_Prospects?
-     */
-    
+  changeList: function(newListName, objectId) {
+    localStorage.selectedProspects = JSON.stringify([])
+    this.setState({
+      currentList : newListName,
+      currentListObjectId : objectId,
+      prospects  : [],    
+      count      : '~',
+      pages      : 1,
+      loading    : true,
+      currentPage: 1,
+      keyboardActiveProspect: 0
+    })
+
+    qry = {include: 'company', limit: this.state.prospectsPerPage, count: true}
+    qry.where = {}
+    qry.where.archived = {$in:[null, false]}
+    if (newListName == 'Archived')
+      qry.where.archived = true
+    else if(newListName != "All")
+      qry.where.lists = Parse._pointer(this.state.listClassName, objectId)
+    qry.where = JSON.stringify(qry.where)
+    console.log(qry)
+
+    var _this = this;
+    Parse.get(this.state.className, qry).done(function(res) {
+      console.log(res)
+      _this.setState({
+        prospects: res.results,
+        count: res.count,
+        pages: Math.ceil(res.count/_this.props.prospectsPerPage),
+        loading: false,
+      })
+    })
+  },
+
+  checkboxAction: function(checkedState, obj) {
     selectedProspects = JSON.parse(localStorage.selectedProspects)
-    //console.log(checkedState)
     if(checkedState)
-      selectedProspects.push(objId)
+      selectedProspects.push(obj)
     else
-      selectedProspects = _.reject(selectedProspects, 
-                                   function(id){return id == objId})
+      selectedProspects = _.reject(selectedProspects,function(id){return id == obj})
 
     selectedProspects = _.uniq(selectedProspects)
     console.log(selectedProspects)
@@ -195,17 +156,6 @@ module.exports = React.createClass({
       url = this.state.prospects[i].url
       prospect = this.state.prospects[i]
 
-      if(url != "no linkedin website" && typeof(url) != "undefined" && url != ""){
-        url = url.replace('http://','')
-        the_link = <a href={'http://'+url} className="btn btn-xs btn-primary btn-gradient"><i className="fa fa-globe"/></a>
-      } else {
-        the_link = ""
-      }
-
-      _prospect = (this.state.prospects[i].linkedin_url) ? this.state.prospects[i].linkedin_url : ""
-      profile = _prospect.replace('http://','')
-      profile = _prospect.replace('https://','')
-
       keyboardSelected = (i == this.state.keyboardActiveProspect)
 
       selectedProspects = JSON.parse(localStorage.selectedProspects)
@@ -214,18 +164,33 @@ module.exports = React.createClass({
         if(prospect.objectId == selectedProspects[ii])
           alreadyChecked = true
 
-        //console.log(alreadyChecked)
+      //console.log(alreadyChecked)
 
+      if(this.state.className == "Prospect") { 
       prospects.push(
-        <UserProspect deleteProspect={this.deleteProspect} 
+        <UserProspectRow deleteProspect={this.deleteProspect} 
                       prospect={this.state.prospects[i]} 
                       masterCheckboxChecked={this.state.masterCheckboxChecked}
                       key={this.generate_id()}
-                      link={the_link} 
+                      link={""}
+                      archiveProspects={this.archiveProspects}
                       keyboardSelected={keyboardSelected}
                       alreadyChecked={alreadyChecked}
                       checkboxAction={this.checkboxAction}
-                      liProfile={'http://'+profile} />)
+                    />
+      )
+      } else { 
+        prospects.push(
+          <CompanyProspectRow deleteProspect={this.deleteProspect} 
+                            prospect={this.state.prospects[i]} 
+                            masterCheckboxChecked={this.state.masterCheckboxChecked}
+                            key={this.generate_id()}
+                            link={""}
+                            keyboardSelected={keyboardSelected}
+                            alreadyChecked={alreadyChecked}
+                            checkboxAction={this.checkboxAction} />
+        )
+      }
 
       $('#prospectDetailButtons').click(function(e) {
         //e.stopPropagation()
@@ -233,27 +198,41 @@ module.exports = React.createClass({
       })
     }
 
-    listType = (this.state.currentList == "All") ? {display:'none'} : {float:'left'}
-    listNameStyle = (this.state.currentList == "All") ? {display:'none'} : {float:'left',display:'inline-block', fontWeight: 200, marginTop: 1, paddingRight: 10, marginLeft: -10}
-    listBtn = (this.state.currentList == "All") ? {display:'none'} : {float:'left',marginLeft:5}
-    listOptions = (this.state.currentList == "All") ? {display:'none'} : {float:'right'}
-    copyDropdownStyle = (this.state.currentList == "All") ? {width:114, right:4} : {width:114, right:36}
-    currentList = this.state.currentList
-    paginateOverlay = (this.state.paginating) ? <PaginateOverlay /> : ""
+    if(this.state.currentList == "All"){
+      listType = {display:'none'}
+      listNameStyle = {display:'none'}
+      listBtn = {display:'none'}
+      listOptions = {display:'none'}
+      copyDropdownStyle = {width:114, right:4}
+    } else {
+      listType = {float:'left'}
+      listNameStyle = {float:'left',display:'inline-block', fontWeight: 200, marginTop: 1, paddingRight: 10, marginLeft: -10}
+      listBtn = {float:'left',marginLeft:5}
+      listOptions = {float:'right'}
+      copyDropdownStyle = {width:114, right:36}
+    }
 
-    downloadIcon = (!this.state.downloading) ? <i className="fa fa-download" /> : <Spinner circleStyle={{backgroundColor:'white',height:4,width:4}} spinnerStyle={{height:13, width:13,margin:0,display:'inline-block',paddingTop:2}}/>
+    currentList     = this.state.currentList
+    paginateOverlay = (this.state.paginating) ? <PaginateOverlay /> : ""
+    downloadIcon    = (!this.state.downloading) ? <i className="fa fa-download" /> : <Spinner circleStyle={{backgroundColor:'white',height:4,width:4}} spinnerStyle={{height:13, width:13,margin:0,display:'inline-block',paddingTop:2}}/>
+    prospectTableStyle = (this.state.count == 0) ? {display:'none'} :{height:'400px',overflow:'auto'}
+
+    header = (this.props.className == "Prospect") ? <UserProspectHeader masterCheckboxChanged={this.masterCheckboxChanged}/> : <CompanyProspectHeader masterCheckboxChanged={this.masterCheckboxChanged}/>
+
     return (
         <div>
-      <div className="container" style={{width:'100%',padding:'0', background: 'linear-gradient(#dae8ff,#dae8ff)', backgroundImage: 'radial-gradient(circle at center center,#fff,#dff1fd 900px)'}}>
-        <SideMenuProspects currentList={this.state.currentList} 
-                           count={this.state.count} 
-                           totalCount={this.state.totalCount} 
-                           changeList={this.changeList} 
-                           createList={this.createList}
-                           lists={this.state.lists}/>
+      <div className="container prospects-container" >
+        <Lists currentList={this.state.currentList} 
+               count={this.state.count} 
+               listClassName={this.state.listClassName}
+               currentListObjectId={this.state.currentListObjectId}
+               totalCount={this.state.totalCount} 
+               removeProspects={this.removeProspects}
+               changeList={this.changeList} 
+               createList={this.createList}
+               lists={this.state.lists}/>
 
-        <div className="col-ld-10 col-md-10 col-sm-10 col-xs-10" 
-             style={{padding:'0'}}>
+      <div className="col-lg-10 col-md-10 col-sm-10 col-xs-10" style={{padding:'0'}}>
               {paginateOverlay}
               <div id="prospectDetailButtons">
                 <ListDetailButtons 
@@ -271,30 +250,29 @@ module.exports = React.createClass({
                   </a>
                 </div>
 
-                <div className="dropdown1 copyList" style={{display:'block'}}>
+                <div className="dropdown1 copyList" style={{display:'inline-block',float:'right'}}>
                   <a data-toggle="dropdown" 
                      id="copyToList"
                      href="javascript:" 
                      className="drop-target btn btn-primary btn-xs list-options">
-                     <i className="fa fa-copy" /> &nbsp; Copy To List &nbsp; 
+                     <i className="fa fa-copy" /> &nbsp;Copy To List&nbsp;
                      <i className="fa fa-caret-down" /></a>
                   <CurrentListsTwo lists={this.state.lists} 
                                    copyDropdownStyle={copyDropdownStyle}
-                                   listAction={this.copySelectedProspects} />
+                               copySelectedProspects={this.copySelectedProspects} />
                 </div>
   
-                <div className="dropdown1 moveList">
+                <div className="dropdown1 moveList" style={{display:'inline-block',float:'right'}}>
                   <a data-toggle="dropdown" 
                      href="javascript:"  
                      id="moveToList"
-                     style={listOptions} 
                      className="btn btn-primary btn-xs list-options" >
-                     <i className="fa fa-share" /> &nbsp; Move To List &nbsp; 
-                     <i className="fa fa-caret-down" />
-                </a>
+                     <i className="fa fa-share" /> &nbsp;Move To List&nbsp;
+                     <i className="fa fa-caret-down" /></a>
                 <CurrentLists lists={this.state.lists} 
-                              listAction={this.moveSelectedProspects} />
+                              moveSelectedProspects={this.moveSelectedProspects} />
                 </div>
+
                 <a onClick={this.downloadFile} 
                    href="javascript:" 
                    id="downloadProspects"
@@ -304,7 +282,7 @@ module.exports = React.createClass({
                 </a>
 
                 <a href="javascript:" 
-                   onClick={this.removeSelectedProspects}
+                   onClick={this.archiveProspects}
                    id="downloadProspects"
                    className="drop-target btn btn-primary btn-xs list-options">
                    <i className="fa fa-archive" />
@@ -313,33 +291,32 @@ module.exports = React.createClass({
 
                 <a href="javascript:" 
                    onClick={this.launchProspectProfileModal}
+                   style={{display:'none'}}
                    id="downloadProspects"
                    className="drop-target btn btn-primary btn-xs list-options">
                    <i className="fa fa-cloud-download" />
                    &nbsp; Find Prospects By Title &nbsp; 
                 </a>
               </div>
-        
-
-          <div id="autoscroll" style={{height:'400px',overflow:'auto'}}>
-            <table className="prospects-table table table-striped" style={{marginBottom:'0px'}}>
+          {(this.state.count == 0) ? <EmptyPeopleProspectsPanel className={this.props.className}/>  : ""}
+          <div id="autoscroll" style={prospectTableStyle}>
+            <table className="prospects-table table table-striped" 
+                style={{marginBottom:'0px'}}>
               <thead style={{backgroundColor:'white'}}>
-                <UserProspectHeader masterCheckboxChanged={this.masterCheckboxChanged}/>
+                {header}
               </thead>
               <tbody>
                 {prospects}
               </tbody>
-            </table>
-            {(this.state.loading) ? <LoadingSpinner /> : ""}
+            </table> {(this.state.loading) ? <LoadingSpinner /> : ""}
           </div>
         </div>
       </div>
-      <CreateProspectListFromCompanyListModal currentList={this.state.currentList} currentListObjectId={this.state.currentListObjectId}/>
-      <CreateProspectProfileModal currentList={this.state.currentList} currentListObjectId={this.state.currentListObjectId}/>
-
       <PanelFooting currentPage={this.state.currentPage}
                     count={this.state.count}
+                    totalCount={this.state.totalCount}
                     paginate={this.paginate}
+                    prospectType={'Prospect'}
                     prospectsPerPage={this.state.prospectsPerPage}
                     setPaginate={this.setPaginate}
                     pages={this.state.pages}/>
@@ -348,12 +325,7 @@ module.exports = React.createClass({
     );
   },
 
-  launchProspectProfileModal: function() {
-    console.log('launch')
-    //$('#createProspectListFromCompanyListModal').modal()
-    $('#createProspectProfileModal').modal()
-
-  },
+  launchProspectProfileModal: function(){ $('#createProspectProfileModal').modal() },
 
   paginate: function(newProspects, newPage) {
     this.setState({
@@ -365,669 +337,162 @@ module.exports = React.createClass({
     document.getElementById('autoscroll').scrollTop = 0
   },
 
+  _make_email: function(name, pattern) {
+    name = name.trim()
+    vars = {
+      first_name: _.first(name.split(' ')),
+      last_name: _.last(name.split(' ')),
+      first_initial: _.first(name.split(' '))[0],
+      last_initial: _.last(name.split(' '))[0],
+      domain: prospect.company.domain
+    }
+    pattern = (pattern[0]) ? pattern[0].pattern : ""
+    prospect_email = Mustache.render(pattern, vars).toLowerCase()
+    //console.debug('PROSPECT EMAIL')
+    //console.debug(prospect_email)
+    return prospect_email
+  },
+
   downloadFile: function() {
-    list = appConfig.pointer('ProspectList', 
-                             this.state.currentListObjectId)
-    localStorage.download_total = Math.ceil(this.state.count/1000)
-    localStorage.downloads      = 0
-
-    if(this.state.currentList == "All") {
-      qry = {
-        where : JSON.stringify({
-          company: appConfig.company
-        }),
-        count: 1,
-        archived: true,
-      }
-    } else {
-      qry = {
-        where: JSON.stringify({
-          lists: list
-        }),
-        count: 1,
-        archived: true,
-      }
-    }
-
-    var thiss = this;
-    for(i=0;i< Math.ceil(this.state.count/1000); i++){
-      qry = {
-        limit: 1000,
-        skip: 1,
-        order:'-createdAt',
-        include: 'email_guesses,email_guesses.pattern'
-      }
-      $.ajax({
-        url: 'https://api.parse.com/1/classes/Prospect',
-        data: qry,
-        type:'GET',
-        headers: appConfig.parseHeaders,
-        beforeSend: function() {
-          thiss.setState({downloading: true})
-        },
-        downloadFile: 'download_'+i,
-        data: qry,
-        success: function(res){
-          results = _.map(res.results, function(result) {
-            /*
-            if(result.email == "no_email") {
-              if(result.email_guesses) {
-                guess = _.findWhere(result.email_guesses, {tried: false})
-                name = result.name.toLowerCase()
-
-                vars = {
-                  first: _.first(name.split(' ')),
-                  last: _.last(name.split(' ')),
-                  fi: _.first(name.split(' '))[0],
-                  li: _.last(name.split(' '))[0]
-                }
-                if(guess){
-                  prospect_email = Mustache.render(guess.pattern.pattern, vars)
-                  prospect_email = prospect_email+"@"+result.domain
-                }
-              }
-            }
-            result.email = prospect_email
-            */
-            values =  _.pick(result, ['name', 'company_name', 'company_size',
-                            'industry', 'linkedin_profile','website','email'])
-            //values = _.values(values)
-            //values = _.object(['Name','Company','Company Size', 
-            //                 'Industry', 'Linkedin Profile', 'Email'], values)
-            return values
-          })
-
-          // Add Results To LocalStorage
-          localStorage.downloads = JSON.parse(localStorage.downloads) + 1 
-          localStorage.setItem(this.downloadFile, JSON.stringify(results))
-
-          // Check to see if all ajax reqs in for loop are complete
-          if(localStorage.downloads == localStorage.download_total) {
-            console.log('matched')
-            // Merge all localStorage results
-            prospects = []
-            for(ii=0;ii < JSON.parse(localStorage.download_total); ii++){
-              prospects = prospects.concat(JSON.parse(localStorage.getItem('download_'+ii)))
-              console.log(prospects)
-            }
-
-            console.log(prospects)
-            // Output as CSV
-            var blob = new Blob([Papa.unparse(prospects)], {type: "text/plain;charset=utf-8"});
-            console.log(blob)
-            saveAs(blob, "prospects.csv");
-            thiss.setState({downloading: false})
-          }
-      },
-
-      error: function(res){
-        console.log(res)
-      }
-      });
-    }
-    
-    company = JSON.stringify(JSON.parse(localStorage.currentUser).company)
-    
-
-  },
-
-  removeSelectedProspects: function() {
-    // If List Type is All Archive the prospect
-    parseHeaders = {
-      'X-Parse-Application-Id'  : 'N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ', 
-      'X-Parse-REST-API-Key'    : 'VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb',
-      "Content-Type" : "application/json"
-    }
-
-    selectedProspects = JSON.parse(localStorage.selectedProspects)
-    batchData = []
-
-    for(i=0;i< selectedProspects.length;i++){
-      if(this.state.currentList != 'All'){
-        tmp = {
-          method:'PUT',
-          path:'/1/classes/Prospect/'+selectedProspects[i],
-          body: {
-            lists: {
-              '__op'    : 'Remove',
-              "objects" : [{ 
-                  '__type':'Pointer',
-                  'className':'ProspectList',
-                  'objectId':this.state.currentListObjectId
-              }]
-            }
-          }
-        }
-      }else{
-        tmp = {
-          method:'PUT',
-          path:'/1/classes/Prospect/'+selectedProspects[i],
-          body: {
-            archived:false,
-          }
-        }
-      }
-      batchData.push(tmp)
-    }
-
-    thiss = this;
-    $.ajax({
-      url:'https://api.parse.com/1/batch',
-      type:'POST',
-      headers:parseHeaders,
-      data: JSON.stringify({requests: batchData}),
-      success:function(res) {
-        console.log(res)
-        lists = thiss.state.lists
-
-        for(i=0;i< lists.length; i++) { 
-          // Subtract From Old List - Not Working For Archive
-          if(lists[i].objectId == thiss.state.currentListObjectId)
-            lists[i].count = parseInt(lists[i].count) - parseInt(selectedProspects.length)
-        }
-        // Update local list count
-        thiss.setState({lists: lists})
-
-        // remove from current list ui
-        selectedProspects = JSON.parse(localStorage.selectedProspects)
-        console.log('remove selected prospects')
-        console.log(selectedProspects)
-        console.log(thiss.state.prospects)
-        var filtered = _.filter(thiss.state.prospects, function(item) {
-          for(i=0;i< selectedProspects.length;i++) 
-            if(item.objectId == selectedProspects[i])
-              return false
-          return true
-        });
-        console.log(filtered)
-        thiss.setState({prospects: filtered})
-        localStorage.selectedProspects = JSON.stringify([])
-
-        // add alert to inform user
-      },
-      error: function(err) {
-        console.log(err)
-      }
-    });
-  },
-
-  moveSelectedProspects: function(listObjectId) {
-    parseHeaders = {
-      'X-Parse-Application-Id'  : 'N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ', 
-      'X-Parse-REST-API-Key'    : 'VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb',
-      "Content-Type" : "application/json"
-    }
-
-    // get the selected objectId from selectedProspects state
-    selectedProspects = JSON.parse(localStorage.selectedProspects)
-    batchData = []
-
-
-    // Batch Update Parse
-    // - Remove All Selected Prospects From Current List
-    for(i=0;i< selectedProspects.length;i++){
-      tmp = {
-        method:'PUT',
-        path:'/1/classes/Prospect/'+selectedProspects[i],
-        body: {
-          lists: {
-            '__op'    : 'Remove',
-            "objects" : [{ 
-                '__type':'Pointer',
-                'className':'ProspectList',
-                'objectId':this.state.currentListObjectId
-            }]
-          }
-        }
-      }
-      batchData.push(tmp)
-    }
-    
-    // - Add Other List 
-    for(i=0;i< selectedProspects.length;i++){
-      tmp = {
-        method:'PUT',
-        path:'/1/classes/Prospect/'+selectedProspects[i],
-        body: {
-          lists: {
-            '__op'    : 'AddUnique',
-            "objects" : [{ 
-                '__type':'Pointer',
-                'className':'ProspectList',
-                'objectId':listObjectId
-            }]
-          }
-        }
-      }
-      batchData.push(tmp)
-    }
-
-    thiss = this;
-    $.ajax({
-      url:'https://api.parse.com/1/batch',
-      type:'POST',
-      headers:parseHeaders,
-      data: JSON.stringify({requests: batchData}),
-      success:function(res) {
-        console.log(res)
-        lists = thiss.state.lists
-
-        for(i=0;i< lists.length; i++) { 
-          // Add To New List
-          if(lists[i].objectId == listObjectId)
-            lists[i].count = parseInt(lists[i].count) + parseInt(selectedProspects.length)
-          // Subtract From Old List
-          if(lists[i].objectId == thiss.state.currentListObjectId)
-            lists[i].count = parseInt(lists[i].count) - parseInt(selectedProspects.length)
-        }
-        // Update local list count
-        thiss.setState({lists: lists})
-
-        // remove from current list ui
-        console.log('selectedProspects')
-        console.log(thiss.state.prospects)
-        var filtered = _.filter(thiss.state.prospects, function(item) {
-          is_selected = true
-          for(i=0;i< selectedProspects.length;i++) 
-            if(item.objectId == selectedProspects[i])
-              is_selected = false
-          return is_selected
-        });
-        console.log(filtered)
-        thiss.setState({prospects: filtered})
-        localStorage.selectedProspects = JSON.stringify([])
-
-        // add alert to inform user
-      },
-      error: function(err) {
-        console.log(err)
-      }
-    });
-  },
-
-  copySelectedProspects: function(listObjectId) {
-    console.log(listObjectId)
-    
-    // make batch ajax request to parse
-    parseHeaders = {
-      'X-Parse-Application-Id'  : 'N85QOkteEEQkuZVJKAvt8MVes0sjG6qNpEGqQFVJ', 
-      'X-Parse-REST-API-Key'    : 'VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb',
-      "Content-Type" : "application/json"
-    }
-
-    // Add Loading Sign To List
-
-    selectedProspects = JSON.parse(localStorage.selectedProspects)
-    batchData = []
-    for(i=0;i< selectedProspects.length;i++){
-      tmp = {
-        method:'PUT',
-        path:'/1/classes/Prospect/'+selectedProspects[i],
-        body: {
-          lists: {
-            '__op'    : 'AddUnique',
-            "objects" : [{ 
-                '__type':'Pointer',
-                'className':'ProspectList',
-                'objectId':listObjectId
-            }]
-          }
-        }
-      }
-      batchData.push(tmp)
-    }
-
-    thiss = this;
-    $.ajax({
-      url:'https://api.parse.com/1/batch',
-      type:'POST',
-      headers:parseHeaders,
-      data: JSON.stringify({requests: batchData}),
-      success:function(res) {
-        console.log(res)
-        // Update With the number of successes
-        // Update local list count
-        lists = thiss.state.lists
-        for(i=0;i< lists.length; i++) { 
-          if(lists[i].objectId == listObjectId)
-            lists[i].count = parseInt(lists[i].count) + parseInt(res.length)
-        }
-        thiss.setState({lists: lists})
-        localStorage.selectedProspects = "[]"
-        thiss.setState({selectedProspects : [] })
-        
-        // add alert to inform user
-        // Unselect all selected
-      },
-      error: function(err) {
-        console.log(err)
-      }
-    });
-
-  },
-
-  hideAlert: function() {
-    $('.alert').hide()
-  },
-
-  adjustHeight: function(whichOne) {
-    prospectWindowTop = $('#prospectDetailButtons').position().top
-    prospectWindowTop = prospectWindowTop + $('#prospectDetailButtons').height()
-    prospectWindowBottom = $('#autoscroll').position().top + $('#autoscroll').height()
-
-    if(whichOne == 'j')
-      activeProspect = this.state.keyboardActiveProspect +1 
+    if(this.state.className == "Prospect")
+      this.downloadProspects()
     else
-      activeProspect = this.state.keyboardActiveProspect -1 
-
-    activeTop = $($('.prospects-tr')[activeProspect]).position().top
-    selectedHeight = $($('.prospects-tr')[activeProspect]).height()
-    activeBottom = $($('.prospects-tr')[activeProspect]).position().top+selectedHeight
-
-    console.log(prospectWindowTop, prospectWindowBottom)
-    console.log(activeTop, activeBottom)
-
-    scrollTop = document.getElementById('autoscroll').scrollTop
-    if(activeBottom > prospectWindowBottom)
-      document.getElementById('autoscroll').scrollTop = scrollTop + activeBottom - prospectWindowBottom
-
-    if(activeTop < 0)
-      document.getElementById('autoscroll').scrollTop = scrollTop + activeTop - 37
-    else if(activeTop == $($('.prospects-tr')[0]).position().top)
-      document.getElementById('autoscroll').scrollTop = 0
-      
-    // Get Postion of Top
-    // Get Position of Bottom 
-    // Get Position of Current Selected
-    // Adjust by scrolling down or up
+      this.downloadCompanies()
   },
 
-  startKeyboardShortcuts: function() {
-    /* Keyboard Shortcuts */
-    Mousetrap.reset()
-    //Mousetrap.unbind(['j','k','o'])
-    thiss = this;
+  downloadCompanies: function() {
+    console.log('download file')
+    _list = Parse._pointer('CompanyProspectList', this.state.currentListObjectId)
 
-    /* Prospect Table Shortcuts */
-    Mousetrap.bind('j', function() { 
-      keyboard = thiss.state.keyboardActiveProspect
-      if(keyboard != thiss.state.prospectsPerPage+1)
-        thiss.adjustHeight('j')
-        thiss.setState({keyboardActiveProspect: keyboard+1})
-    });
-
-    Mousetrap.bind('k', function() { 
-      keyboard = thiss.state.keyboardActiveProspect
-      if(keyboard != 1)
-        thiss.adjustHeight('k')
-        thiss.setState({keyboardActiveProspect: keyboard-1})
-    });
-
-    Mousetrap.bind('s', function() { 
-      console.log('open current prospect')
-      console.log($($('.keySelect').find('a.linkedin_link')[0]).attr('href'))
-      link = $($('.keySelect').find('a.similar_link')[0]).attr('href')
-      /*
-      window.open(link, '_blank')
-      console.log('new')
-      */
-      //popupWindow.blur();
-      //window.focus();
-      // keyboard = thiss.state.keyboardActiveProspect
-      
-      var a = document.createElement("a");
-      a.href = link
-      var evt = document.createEvent("MouseEvents");
-      //the tenth parameter of initMouseEvent sets ctrl key
-      // For Mac This Works Check For - Windows
-      evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0,
-                                  false, false, false, true, 0, null);
-      a.dispatchEvent(evt);
-    });
-
-    Mousetrap.bind('o', function() { 
-      console.log('open current prospect')
-      console.log($($('.keySelect').find('a.linkedin_link')[0]).attr('href'))
-      link = $($('.keySelect').find('a.linkedin_link')[0]).attr('href')
-      /*
-      window.open(link, '_blank')
-      console.log('new')
-      */
-      //popupWindow.blur();
-      //window.focus();
-      // keyboard = thiss.state.keyboardActiveProspect
-      
-      var a = document.createElement("a");
-      a.href = link
-      var evt = document.createEvent("MouseEvents");
-      //the tenth parameter of initMouseEvent sets ctrl key
-      // For Mac This Works Check For - Windows
-      evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0,
-                                  false, false, false, true, 0, null);
-      a.dispatchEvent(evt);
-    });
-
-
-
-    /* List Modification Shortcuts */
-    Mousetrap.bind('tab+r', function(){
-      //console.log('reload')
-      $('#renameListBtn').click()
+    var _this = this;
+    results = _.map([0,1,2,3,4,5,6,7,8,9], function(num) {
+      qry = { count: 1, archived: {$in:[null, false]}, limit: 1000, skip: num*1000}
+      qry.include = 'company,company.email_guess'
+      if(_this.state.currentList != "All")
+        qry.where = JSON.stringify({lists: _list})
+      return Parse.get(_this.state.className, qry)
     })
 
-    Mousetrap.bind('tab+d', function(){
-      //console.log('reload')
-      $('#deleteListModal').click()
+    $.when.apply(this, results).then(function (res) {
+      prospects = _.flatten(_.map(arguments, function(arg) { return arg[0].results}))
+      prospects = _.map(prospects, function(prospect) {
+        // TODO - add email
+        if(prospect.company) {
+          company = prospect.company
+          delete company.name
+          _keys = _.keys(prospect).concat(_.keys(company))
+          _values = _.values(prospect).concat(_.values(company))
+          obj = _.object(_keys, _values)
+          obj.address = obj.normalizedLocation
+
+          console.log(obj)
+          delete obj.company; delete obj.createdAt; delete obj.updatedAt; delete obj.objectId;
+          delete obj.lists; delete obj.loading; delete obj.user; delete obj.user_company;
+          delete obj.api_key; delete obj.className;
+          return obj;
+        } else {
+          //console.log(prospect)
+          return prospect
+        }
+      })
+      prospects = [Papa.unparse(prospects)]
+      var blob = new Blob(prospects, {type: "text/plain;charset=utf-8"});
+      console.log(blob)
+      saveAs(blob, _this.state.className+".csv");
+      _this.setState({downloading: false})
     })
-
-    Mousetrap.bind('tab+s', function(){
-      //console.log('reload')
-      //$('#downloadProspects').click()
-      thiss.downloadFile()
-    })
-
-    Mousetrap.bind('shift+l', function(){
-      //console.log('reload')
-      //$('#downloadProspects').click()
-      //thiss.downloadFile()
-      $('.new-list-btn').click()
-    })
-
-    Mousetrap.bind('e', function(){
-      console.log('reload')
-      //$('#downloadProspects').click()
-      thiss.removeSelectedProspects()
-    })
-
-    Mousetrap.bind('c', function() { 
-      console.log('copy')
-      $('#copyToList').click()
-    });
-
-    Mousetrap.bind('m', function() { 
-      console.log('copy')
-      $('#moveToList').click()
-    });
-
-    //Mousetrap.bind('e', function() { console.log('e'); });
-    Mousetrap.bind('right', function() { console.log('right'); });
-    Mousetrap.bind('left', function() { console.log('left'); });
-
   },
 
-  componentDidUpdate: function() {
-    $('.dropdown').show()
+  downloadProspects: function() {
+    console.log('download file')
+    _list = Parse._pointer('ProspectList', this.state.currentListObjectId)
+
+    var _this = this;
+    results = _.map([0,1,2,3,4,5,6,7,8,9], function(num) {
+      qry = { count: 1, archived: {$in:[null, false]}, limit: 1000, skip: num*1000}
+      qry.include = 'company,company.email_guess'
+      if(_this.state.currentList != "All")
+        qry.where = JSON.stringify({lists: _list})
+      return Parse.get(_this.state.className, qry)
+    })
+
+    $.when.apply(this, results).then(function (res) {
+      prospects = _.flatten(_.map(arguments, function(arg) { return arg[0].results}))
+      prospects = _.map(prospects, function(prospect) {
+        // TODO - add email
+        if(prospect.company) {
+          company = prospect.company
+          delete company.name
+          _keys = _.keys(prospect).concat(_.keys(company))
+          _values = _.values(prospect).concat(_.values(company))
+          obj = _.object(_keys, _values)
+          obj.address = obj.normalizedLocation
+          if(obj.email_pattern && !_.isEqual(obj.email_pattern, []))
+            obj.email = _this._make_email(prospect.name, prospect.company.email_pattern)
+          else
+            obj.email = ""
+
+          console.log(obj)
+          delete obj.company; delete obj.createdAt; delete obj.updatedAt; delete obj.objectId;
+          delete obj.lists; delete obj.loading; delete obj.user; delete obj.user_company;
+          delete obj.api_key; delete obj.className;
+          return obj;
+        } else {
+          //console.log(prospect)
+          return prospect
+        }
+      })
+      prospects = [Papa.unparse(prospects)]
+      var blob = new Blob(prospects, {type: "text/plain;charset=utf-8"});
+      console.log(blob)
+      saveAs(blob, _this.state.className+".csv");
+      _this.setState({downloading: false})
+    })
   },
+
+
+  hideAlert: function() { $('.alert').hide() },
+  startKeyboardShortcuts: function() { /*KeyboardShortcuts.initialize()*/ },
+  componentDidUpdate: function() { $('.dropdown').show() },
 
   componentDidMount: function() {
-    /* OnLoad For The First Time Function */
-    var thisss = this;
-    localStorage.selectedProspects = JSON.stringify([])
-    currentUser = JSON.parse(localStorage.currentUser)
-    user = appConfig.pointer('User', currentUser.objectId)
-    $('.dropdown').show()
+    $('.dropdown').show(); 
+    localStorage.selectedProspects = JSON.stringify([]);
 
-    archiveList = JSON.stringify({ 
-      'objectId':'SerPQjckve', // TODO - Differente For Watch User
-      '__type':'Pointer', 
-      'className' : 'ProspectList' 
-    })
-
-    qry = {
-      where: JSON.stringify({
-        company: currentUser.company,
-        user: appConfig.pointer('User',currentUser.objectId),
-        archived: true,
-      }),
-      count: 1,
-      order: '-createdAt',
-      limit: this.state.prospectsPerPage,
-      include: 'email_guesses,email_guesses.pattern'
-    }
-
-    if(this.state.currentList != 'All'){
-      currentList=appConfig.pointer('ProspectList',this.state.currentListObjectId)
+    qry = { lists: currentList }
+    if(this.state.currentList == 'All'){
       qry = {
-        where: JSON.stringify({
-          company: currentUser.company,
-          lists: currentList
-        }),
-        count: 1
+        count: true, order: '-createdAt',
+        limit: this.state.prospectsPerPage,
+        include: 'email_guesses,email_guesses.pattern,company'
       }
+      qry.where = JSON.stringify({ archived: {'$in':[false, null]}, })
     }
 
-
-    $.ajax({
-      url: 'https://api.parse.com/1/classes/Prospect',
-      type:'GET',
-      headers: appConfig.parseHeaders,
-      cache: true,
-      data: qry,
-      success: function(res){
-        console.log(res)
-        thisss.setState({
-          prospects: res.results,
-          count: res.count,
-          totalCount: res.count,
-          pages: Math.ceil(res.count/thisss.props.prospectsPerPage),
-          loading: false,
-        })
-      },
-      error: function(res){ console.log(res) }
+    var _this = this;
+    Parse.get(_this.state.className, {count: true,limit:0}).done(function(res) {
+      console.log(res)
+    })
+    Parse.get(_this.state.className, qry).done(function(res) {
+      console.log(res)
+      res.prospects = res.results
+      res.loading = false; 
+      res.pages = Math.ceil(res.count/_this.props.prospectsPerPage);
+      res.totalCount = res.count
+      _this.setState(res)
     })
 
-    currentUser = { 
-      '__type'   : 'Pointer',
-      'className': '_User',
-      'objectId' : JSON.parse(localStorage.currentUser).objectId
-    }
-
-    thiss = this;
-    qry = {
-      where: JSON.stringify({
-        user: appConfig.pointer('_User', currentUser.objectId)
-      }),
-      count: 1,
-      order: '-createdAt',
-    }
-    $.ajax({
-      url: 'https://api.parse.com/1/classes/ProspectList',
-      type: 'GET',
-      headers: appConfig.parseHeaders,
-      data: qry,
-      success: function(res) {
-        console.log(res)
-        results = res.results
-        for(i=0;i< results.length; i++) {
-          results.count = '~'
-        }
-        thiss.setState({lists: results})
-        // Make batch request to get list counts after they are loaded
-        for(i=0;i < res.results.length; i++) {
-          localStorage.setItem(res.results[i].objectId, "")
-        }
-
-        for(i=0;i< res.results.length; i++) {
-          list = {
-            '__type'    : 'Pointer',
-            'objectId'  : res.results[i].objectId,
-            'className' : 'ProspectList', 
-          }
-
-          $.ajax({
-            url:'https://api.parse.com/1/classes/Prospect',
-            type:'GET',
-            headers: appConfig.parseHeaders,
-            listObjectId: res.results[i].objectId,
-            data: 'where={"lists":'+JSON.stringify(list)+'}&count=1',
-            success: function(res) {
-              //console.log(this.listObjectId)
-              localStorage.setItem(this.listObjectId, res.count)
-              amount = 0
-              for(ii=0;ii< results.length;ii++){
-                if(localStorage.getItem(results[ii].objectId) == "")
-                  amount = amount + 1
-              }
-
-              if(amount == 0) {
-                for(ii=0;ii< results.length;ii++)
-                  results[ii].count = localStorage.getItem(results[ii].objectId)
-
-                thiss.setState({lists: results})
-                //console.log('Got Counts')
-              }
-
-              // updated res.count
-              //thiss.setState({count: res.count})
-            },
-            error: function(err) {
-              console.log(err)
-            }
-          })
-        }
-      },
-      error: function(err) { console.log(err) }
-    });
+    Parse.get(this.props.listClassName, { order: '-createdAt'}).done(function(res) {
+      _this.setState({lists: res.results})
+    })
   },
 
   generate_id : function () {
-    return '_' + Math.random().toString(36).substr(2, 9);
+    return '_' + Math.random().toString(36).substr(2,9); 
   },
 });
 
 /*  Dropdown Menus */
-
-var CurrentLists = React.createClass({
-  listAction: function(e) {
-    listName = $(e.target).text()
-    
-    var listSelect = _.filter(this.props.lists, function(item) {
-       return item.name == listName
-    });
-
-    this.props.listAction(listSelect[0].objectId)
-  },
-
-  render: function() {
-    lists = [] 
-    for(i=0;i< this.props.lists.length;i++) {
-      lists.push(
-        <li><a style={{fontWeight:'bold',fontSize:'10px'}} 
-            className="dropdown-list-name"
-            href="javascript:" 
-            onClick={this.listAction}>{this.props.lists[i].name}</a></li>
-      )
-    }
-    //console.log(this.props.copyDropdownStyle)
-    return (
-      <ul className="dropdown-menu drop-test" id="dropdown" 
-          style={{right:158}}>
-        {lists}
-      </ul>
-    );
-  }
-});
-
 var ListsMenu = React.createClass({
   render: function() {
     return (
@@ -1046,37 +511,6 @@ var ListsMenu = React.createClass({
         <li><a href="#podcasts"> 
           Rename Lists
         </a></li>
-      </ul>
-    );
-  }
-});
-
-var CurrentListsTwo = React.createClass({
-  listAction: function(e) {
-    listName = $(e.target).text()
-    
-    var listSelect = _.filter(this.props.lists, function(item) {
-       return item.name == listName
-    });
-
-    this.props.listAction(listSelect[0].objectId)
-  },
-
-  render: function() {
-    lists = [] 
-    for(i=0;i< this.props.lists.length;i++) {
-      lists.push(
-        <li><a style={{fontWeight:'bold',fontSize:'10px'}}
-               className="dropdown-list-name"
-               href="javascript:" 
-               onClick={this.listAction}>
-          {this.props.lists[i].name}</a></li>
-      )
-    }
-    return (
-      <ul className="dropdown-menu drop-test" id="dropdown" 
-          style={this.props.copyDropdownStyle}>
-        {lists}
       </ul>
     );
   }
@@ -1102,33 +536,30 @@ var ListDetailButtons = React.createClass({
     return (
 
           <div>
-            <h4 style={{margin:0}}>
-              {stuff}
+            <h4 style={{margin:0}}> {stuff}
               <a href="javascript:" 
                 style={listBtn}
                 data-toggle="modal"
                 id="renameListBtn"
                 data-target=".bs-renameList-modal-sm"
+                style={{display:'none'}}
                 className="btn btn-xs btn-default">
                 <i className="fa fa-pencil" />
               </a>
               <a href="javascript:" 
                 onClick={this.deleteList}
                 style={listBtn}
+                style={{display:'none'}}
                 className="btn btn-xs btn-default">
                 <i className="fa fa-trash-o" />
               </a>
             </h4>
 
-            <RenameListModal renameList={this.props.renameList}/>
-            <DeleteListModal deleteList={this.props.deleteList}/>
           </div>
       );
   },
 
-  renameList: function(newListName) {
-    this.props.renameList(newListName)
-  },
+  renameList: function(newListName) { this.props.renameList(newListName) },
 
   deleteList: function(){
     thiss = this;
@@ -1146,12 +577,8 @@ var ListDetailButtons = React.createClass({
       });
   },
 
-  toggleEdit: function() {
-    this.setState({editMode: !this.state.editMode })
-  }
+  toggleEdit: function() { this.setState({editMode: !this.state.editMode }) }
 });
-
-
 
 var PaginateOverlay = React.createClass({
   render: function() {
@@ -1159,8 +586,118 @@ var PaginateOverlay = React.createClass({
         <div id="paginate-overlay" style={{paddingTop:70}}>
           <Spinner circleStyle={{backgroundColor:'white'}}/>
         </div>
-
     )
   }
 })
 
+var EmptyPeopleProspectsPanel = React.createClass({
+  openLinkedinWindow: function() {
+    if(this.props.className == "Prospect")
+      window.open('https://www.linkedin.com/vsearch/p?type=people')
+    else
+      window.open('https://www.linkedin.com/vsearch/c')
+  },
+
+  render: function() {
+
+    name = (this.props.className == "Prospect") ? "Prospects" : "Companies"
+    return (
+      <div className="col-md-offset-3 col-md-6" style={{height:400}}>
+      <div className="panel panel-default" style={{marginTop:100,height:200}}>
+        <div className="panel-body">
+          <h1 className="lead" style={{textAlign:'center'}}>Start Prospecting On Linkedin</h1>
+          <a href="javascript:" onClick={this.openLinkedinWindow} className="btn btn-primary" style={{backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%) !important',display:'block',marginRight:'auto',marginLeft:'auto',width:200, marginTop:50}}>
+            <i className="fa fa-search" /> &nbsp;
+            {"Search for "+name+"!"}</a>
+        </div>
+      </div>
+    </div>
+    );
+  }
+});
+
+var CompanyProspectHeader = React.createClass({
+  render: function() {
+    return (
+      <tr>
+        <th></th>
+        <th></th>
+        <th style={{width:400}}>Name</th>
+        <th style={{width:500}}>Industry</th>
+        <th style={{width:137,display:'none'}}># of Prospects</th>
+        <th >&nbsp; </th>
+        <th style={{display:'none'}}>Signals</th>
+        <th style={{width:100}}>Added</th>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+      </tr>
+    );
+  }
+});
+
+var CurrentLists = React.createClass({
+  listAction: function(e) {
+    var listSelect = _.filter(this.props.lists, function(item) {
+       return item.name == $(e.target).text()
+    });
+
+    this.props.moveSelectedProspects(listSelect[0].objectId)
+  },
+
+  componentDidMount: function() {
+    //$(this.getDOMNode().data()
+  },
+
+  render: function() {
+    lists = [] 
+    for(i=0;i< this.props.lists.length;i++) {
+      console.log(this.props.lists[i].objectId)
+      lists.push(
+        <li><a style={{fontWeight:'bold',fontSize:'10px'}} 
+            className="dropdown-move-list-name dropdown-list-name"
+            href="javascript:" 
+            data-move-objectId={"this.props.lists[i].objectId"}>
+           {this.props.lists[i].name}</a></li>
+      )
+    }
+    //console.log(this.props.copyDropdownStyle)
+    return (
+      <ul className="dropdown-menu drop-test" id="dropdown" 
+          style={{right:123,top:27}}>
+        {lists}
+      </ul>
+    );
+  }
+});
+
+var CurrentListsTwo = React.createClass({
+  listAction: function(e) {
+    listName = $(e.target).text()
+    
+    var listSelect = _.filter(this.props.lists, function(item) {
+       return item.name == listName
+    });
+
+    this.props.copySelectedProspects(listSelect[0].objectId)
+  },
+
+  render: function() {
+    lists = [] 
+    for(i=0;i< this.props.lists.length;i++) {
+      lists.push(
+        <li><a style={{fontWeight:'bold',fontSize:'10px'}}
+               className="dropdown-copy-list-name dropdown-list-name"
+               href="javascript:" 
+               data-objectId={this.props.lists[i].objectId}>
+               
+          {this.props.lists[i].name}</a></li>
+      )
+    }
+    return (
+      <ul className="dropdown-menu drop-test" id="dropdown" 
+          style={{width:114,right:6,top:27}}>
+        {lists}
+      </ul>
+    );
+  }
+});

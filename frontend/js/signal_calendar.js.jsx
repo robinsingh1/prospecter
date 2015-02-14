@@ -9,27 +9,21 @@ module.exports = React.createClass({
   },
 
   getSignalReport: function() {
-    thissss = this;
-    qry = {'where' : JSON.stringify({profile:{
-      __type:'Pointer',
-      className:'ProspectProfile',
-      objectId:this.props.currentProfile.objectId
-    }})}
+    var _this = this;
+    qry = {
+      where : JSON.stringify({profile:{
+          __type:'Pointer',
+          className:'ProspectProfile',
+          objectId:this.props.currentProfile.objectId
+      }}),
+      order:'-createdAt',
+      limit:10
+    }
 
-    // Get Signal Reports Of Current Profile
-    $.ajax({
-      url: 'https://api.parse.com/1/classes/SignalReport?order=-createdAt',
-      type:'GET',
-      data: qry,
-      headers:appConfig.parseHeaders,
-      success: function(res) {
-        console.log(res.results)
-        thissss.setState({reports: res.results})
-      },
-      error: function(err) {
-        console.log(err)
-      }
-    });
+    Parse.get('SignalReport', qry).done(function(res) {
+      console.log(res)
+      _this.setState({reports: res.results})
+    })
   },
 
   componentDidMount: function() {
@@ -43,10 +37,12 @@ module.exports = React.createClass({
   render: function() {
     reports = []
     for(i=0;i< this.props.reports.length; i++) {
-      reports.push(<SignalReportRow setCurrentReport={this.setCurrentReport}
+      if(this.props.reports[i]) {
+          reports.push(<SignalReportRow setCurrentReport={this.setCurrentReport}
                                     prospectSignalReport={this.prospectSignalReport}
-                                    setCurrentView={this.setCurrentView}
-                                    report={this.props.reports[i]} />)
+                                        setCurrentView={this.setCurrentView}
+                                        report={this.props.reports[i]} />)
+      }
     }
 
     return (
@@ -59,11 +55,9 @@ module.exports = React.createClass({
                 <i className="fa fa-calendar" style={{marginRight:5}}/> 
                 {this.props.currentProfile.name}
           </h4>
-          
-
         </div>
         <div className="col-md-12" style={{paddingLeft:0,paddingRight:0,
-                                           height:356,overflow:'auto'}}>
+                                           height:456,overflow:'auto'}}>
           <div style={{overflow:'auto'}}>
             <table className="table table-striped" style={{marginBottom:0}}>
               <thead>
@@ -71,7 +65,7 @@ module.exports = React.createClass({
                 <th style={{textAlign:'center'}}>
                   <i className="fa fa-clock-o" /> Last Ran
                 </th>
-                <th style={{textAlign:'center'}}>Posted Job Listing</th>
+                <th style={{textAlign:'center', display:'none'}}>Posted Job Listing</th>
                 <th>Company Signals</th>
                 <th style={{display:'block'}}>Prospect Signals</th>
                 <th style={{width:150,textAlign:'center'}}></th>
@@ -116,12 +110,14 @@ var SignalReportRow = React.createClass({
   },
 
   componentDidMount: function() { 
+    console.log('calendar')
     report = appConfig.pointer('SignalReport', this.props.report.objectId)
     qry = {
       where:JSON.stringify({ report: report }),
       count: 1
     }
     var thiss = this;
+    /*
     $.ajax({
       url:'https://api.parse.com/1/classes/PeopleSignal',
       data: qry,
@@ -137,6 +133,7 @@ var SignalReportRow = React.createClass({
       success: function(res) { thiss.setState({companyCount: res.count})},
       error: function(err) { console.log(err.responseText) },
     })
+    */
   },
 
   render: function() {
@@ -152,7 +149,7 @@ var SignalReportRow = React.createClass({
           </div> : <a href="javascript:" 
                     onClick={this.prospectSignalReport}
              style={{fontWeight:'bold',marginTop:5}}
-     className={(prospected) ? "btn btn-xs btn-success disabled" : "btn btn-xs btn-success"}>
+     className={(prospected) ? "btn btn-xs btn-success disabled green-gradient" : "btn btn-xs btn-success green-gradient"}>
              {(prospected) ? 'Prospected' : 'Prospect All'}
           </a>
     // Make an Alert when somebody clicks on in progress signal report
@@ -166,14 +163,14 @@ var SignalReportRow = React.createClass({
             {moment(this.props.report.createdAt).fromNow()}
           </h6>
         </td>
-        <td style={{textAlign:'center'}}>
+        <td style={{textAlign:'center',display:'none'}}>
           <h6>
           {'lol'}
           </h6>
         </td>
         <td>
           <span className="label label-success">
-            {this.state.companyCount}
+            {this.props.report.company_count}
           </span>
           <h6 style={{display:'inline-block'}}>
             &nbsp; Companies found.

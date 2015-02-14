@@ -1,5 +1,6 @@
 /** @jsx React.DOM */
 
+var PanelFooting = require('./panel_footing.js.min.js')
 var SignalProfile = require('./signal_profile.js.min.js')
 var SignalLoading = require('./signal_loading.js.min.js')
 var MiningJobLoading = require('./mining_job_loading.js.min.js')
@@ -11,6 +12,8 @@ var SignalsDetail = require('./signal_detail.js.min.js')
 var TerritoryOverview = require('./territory_overview.js.min.js')
 var TerritoryDetail = require('./territory_detail.js.min.js')
 var MiningJobDetail = require('./mining_job_detail.js.min.js')
+var SignalAnalytics = require('./signal_analytics.js.min.js')
+var SignalApps = require('./signal_apps.js.min.js')
 
 var CreateHiringSignalModal = require('./create_hiring_signal_modal.js.min.js')
 var CreateFundingSignalModal = require('./create_funding_signal_modal.js.min.js')
@@ -27,7 +30,7 @@ module.exports = React.createClass({
       currentProfileObjectId: {},
       currentProfileReport: {},
       signals: [],
-      currentView: 'Calendar',
+      currentView: 'Apps',
       profiles: [],
     }
   },
@@ -87,7 +90,9 @@ module.exports = React.createClass({
     console.log('CURRENT VIEW')
     console.log(this.state.currentView)
     if(currentProfile.name == "All" || currentProfile.done){
-      if(this.state.currentView == "Feed") {
+      if(this.state.currentView == "Apps") {
+        signalView = <SignalApps />
+      } else if(this.state.currentView == "Feed") {
         signalView = <div>
             <SignalDetailButtons signalType={this.state.signalType} 
                                  currentProfile={this.state.currentProfile}
@@ -99,6 +104,12 @@ module.exports = React.createClass({
             </div>
       } else if(this.state.currentView == "Calendar"){
         signalView = <SignalCalendar currentProfile={this.state.currentProfile}
+                                    prospectSignalReport={this.prospectSignalReport}
+                                     reports={reports}
+                                     setCurrentReport={this.setCurrentReport}
+                                     setCurrentView={this.setCurrentView} />
+      } else if(this.state.currentView == "Analytics"){
+        signalView = <SignalAnalytics currentProfile={this.state.currentProfile}
                                     prospectSignalReport={this.prospectSignalReport}
                                      reports={reports}
                                      setCurrentReport={this.setCurrentReport}
@@ -151,7 +162,8 @@ module.exports = React.createClass({
     }
 
    return (
-      <div style={{height:400}}>
+     <div>
+      <div style={{height:500}}>
         <div className="container" style={{padding:0, width:'100%', height:'100%'}}>
           <div className="col-md-3 signal-list" 
                style={{ height:'102.8%', padding:0}}>
@@ -166,6 +178,7 @@ module.exports = React.createClass({
           <div className="col-md-9" style={{height:'100%',padding:0}}>
             {signalView}
           </div>
+
         </div>
 
         <CreateMiningJobModal createMiningJob={this.createMiningJob}
@@ -178,8 +191,19 @@ module.exports = React.createClass({
         <CreateTerritoryStrategyModal addProfile={this.addProfile} 
                       updateProfileWithObjectId={this.updateProfileWithObjectId}/>
       </div>
+      </div>
+
     )
   },
+  /*
+      <PanelFooting currentPage={this.state.currentPage}
+                    count={this.state.count}
+                    paginate={this.paginate}
+                    prospectType={'Prospect'}
+                    prospectsPerPage={this.state.prospectsPerPage}
+                    setPaginate={this.setPaginate}
+                    pages={this.state.pages}/>
+  */
 
   createMiningJob: function(theProfile, date) {
     console.log('create mining job')
@@ -223,6 +247,7 @@ module.exports = React.createClass({
 
   addProfile: function(newProfile) {
     profiles = this.state.profiles
+    console.debug(newProfile)
     this.setState({profiles: [newProfile].concat(profiles)})
     this.setCurrentProfile(newProfile)
   },
@@ -296,28 +321,13 @@ module.exports = React.createClass({
 
   componentDidMount: function() {
     this.getSignals(this.state.signalType)
-    currentUser = JSON.parse(localStorage.currentUser)
-    user = JSON.stringify(appConfig.pointer('_User', currentUser.objectId))
-    company = JSON.stringify(currentUser.company)
-    qry = 'where={"company":'+company+',"user":'+user+'}'
-    qry = qry+'&include=profiles,reports,prospect_list&order=-createdAt'
-  
-    thisss = this
-    $.ajax({
-      url: 'https://api.parse.com/1/classes/ProspectProfile',
-      type:'GET',
-      data: qry,
-      headers:appConfig.parseHeaders,
-      success: function(res) {
-        console.log('Prospect Profile')
-        console.log(res.results)
-        //thisss.setCurrentProfile(res.results[0])
-        thisss.setState({profiles: res.results})
-      },
-      error: function(err) {
-        console.log(err)
-      }
-    });
+    qry = {'include':'profiles,reports,prospect_list&order=-createdAt'}
+
+    var _this = this;
+    Parse.get('ProspectProfile', qry).done(function(res) {
+      console.log(res)
+      _this.setState({profiles: res.results})
+    })
   },
 
   setSignalType: function(labelText) {
@@ -439,6 +449,7 @@ var SignalsOptions = React.createClass({
   render: function() {
     profs = []
     //console.log('signals render')
+    console.debug(this.props.profiles)
     for(i=0; i< this.props.profiles.length;i++) {
       select= this.props.profiles[i].objectId == this.props.currentProfile.objectId
       profs.push(<SignalProfile setCurrentProfile={this.setCurrentProfile} 
@@ -522,7 +533,7 @@ var SignalsOptions = React.createClass({
             </li>
           </ul>
         </li>
-        <div id="profiles-menu" style={{height:356, overflow:'auto',marginTop:1}}>
+        <div id="profiles-menu" style={{height:456, overflow:'auto',marginTop:1}}>
           {profs}
         </div>
       </div>
@@ -566,7 +577,7 @@ var SignalsFeed = React.createClass({
     content = signalCards
 
     return (
-      <div className="container signal-card-background" style={{height:356, overflow:'auto'}}>
+      <div className="container signal-card-background" style={{height:456, overflow:'auto'}}>
         <div className="col-md-8 col-md-offset-2">
           {content}
         </div>

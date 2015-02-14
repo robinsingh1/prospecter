@@ -5,6 +5,7 @@ var SideMenuProspects = require('./side_menu_user_prospects.js.min.js');
 
 var UserProspect = require('./user_prospect.js.min.js');
 var DataRow = require('./data_row.js.min.js');
+var Spinner = require('./spinner.js.min.js')
 
 var UserProspectHeader = require('./user_prospect_header.js.min.js');
 var SideMenuListOption = require('./user_side_menu_list.js.min.js');
@@ -25,6 +26,7 @@ module.exports = React.createClass({
               pages       : 1,
               currentList : 'All',
               currentListObjectId : '',
+              paginating: false,
               loading: true,
               lists : [],
               masterCheckboxChecked: false,
@@ -38,7 +40,7 @@ module.exports = React.createClass({
 
   createList: function(data) {
     lists = this.state.lists
-    lists.push(data)
+    lists = [data].concat(lists)
     this.setState({ lists: lists })
   },
 
@@ -142,21 +144,16 @@ module.exports = React.createClass({
     this.setState({currentPage: 1})
     this.setState({keyboardActiveProspect: 0})
 
-    qry = 'where={"company":'+company+',"archived":true}&count=1&order=-createdAt'
+    qry = 'where={"company":'+company+',"archived":true}&count=1&order=-createdAt&limit=50'
     console.log(newListName)
 
     if(this.state.currentList != 'All' || typeof(objectId) != "undefined" && newListName != 'Archived'){
-      currentList = JSON.stringify({
-        'objectId'  : objectId, 
-        '__type'    : 'Pointer', 
-        'className' : this.state.listClassName
-      })
-
+      currentList = JSON.stringify(appConfig.pointer(this.state.className+"List", objectId))
       company = JSON.stringify(JSON.parse(localStorage.currentUser).company)
       qry = 'where={"company":'+company+'}&count=1'
       qry = 'where={"lists":'+currentList+'}&count=1&order=-createdAt'
     } else if (newListName == 'Archived') {
-      qry = 'where={"company":'+company+',"archived":false}&count=1&order=-createdAt'
+      qry = 'where={"company":'+company+',"archived":false}&count=1&order=-createdAt&limit=50'
     }
     console.log(qry)
 
@@ -172,15 +169,18 @@ module.exports = React.createClass({
         console.log('started list')
       },
       success: function(res){
+        console.log(res)
         thisss.setState({prospects: res.results})
         thisss.setState({count: res.count})
         //thisss.setState({totalCount: res.count})
         thisss.setState({pages: Math.ceil(res.count/thisss.props.prospectsPerPage)})
         thisss.setState({loading: false})
       },
-      error: function(res){
+      error: function(err){
         //console.log('error')
         //console.log(res)
+        console.log('error')
+        console.log(err.responseText)
       }
     })
   },
@@ -209,6 +209,10 @@ module.exports = React.createClass({
     this.setState({masterCheckboxChecked: masterCheckboxValue})
   },
 
+  setPaginate: function(value) {
+    this.setState({paginating: value})
+  },
+
   render: function() {
 
 
@@ -220,9 +224,10 @@ module.exports = React.createClass({
       url = this.state.prospects[i].url
       prospect = this.state.prospects[i]
 
+      the_link = ""
       if(url != "no linkedin website" && typeof(url) != "undefined" && url != ""){
         url = url.replace('http://','')
-        the_link = <a href={'http://'+url}><i className="fa fa-globe"/></a>
+        the_link = <a className="btn btn-xs btn-primary btn-gradient" style={{float: 'right', marginLeft: 5}} href={'http://'+url}><i className="fa fa-globe"/></a>
       } else {
         the_link = ""
       }
@@ -233,7 +238,7 @@ module.exports = React.createClass({
       profile = profile.replace('http://','')
       profile = profile.replace('https://','')
       profile = (typeof(profile) != "undefined") ? profile : ""
-      li = <a href={profile} className="btn btn-xs btn-primary btn-gradient linkedin_link"><i className="fa fa-linkedin-square" /></a>
+      li = <a href={"http://"+profile} style={{float: 'right', marginLeft: 5}} className="btn btn-xs btn-primary btn-gradient linkedin_link"><i className="fa fa-linkedin-square" /></a>
 
       keyboardSelected = (i == this.state.keyboardActiveProspect)
 
@@ -261,6 +266,8 @@ module.exports = React.createClass({
     listOptions = (this.state.currentList == "All") ? {display:'none'} : {float:'right'}
     copyDropdownStyle = (this.state.currentList == "All") ? {width:114, right:4} : {width:114, right:36}
     currentList = this.state.currentList
+    paginateOverlay = (this.state.paginating) ? <PaginateOverlay /> : ""
+    prospectTableStyle = (this.state.count == 0) ? {display:'none'} :{height:'400px',overflow:'auto'}
     return (
         <div>
       <div className="container" style={{width:'100%',padding:'0', background: 'linear-gradient(#dae8ff,#dae8ff)', backgroundImage: 'radial-gradient(circle at center center,#fff,#dff1fd 900px)'}}>
@@ -273,6 +280,7 @@ module.exports = React.createClass({
                            lists={this.state.lists}/>
 
         <div className="col-md-10" style={{padding:'0'}}>
+              {paginateOverlay}
               <div id="prospectDetailButtons">
                 <ListDetailButtons 
                   renameList={this.renameList}
@@ -280,7 +288,7 @@ module.exports = React.createClass({
                   currentListName={this.state.currentList}
                   currentList={this.state.currentListObjectId}/>
 
-                <div className="dropdown">
+                <div className="dropdown1">
                   <a href="javascript:" 
                      className="btn btn-primary btn-xs list-options" 
                      id=""
@@ -290,7 +298,7 @@ module.exports = React.createClass({
                   </a>
                 </div>
 
-                <div className="dropdown">
+                <div className="dropdown1">
                   <a data-toggle="dropdown" 
                      id="copyToList"
                      href="javascript:" 
@@ -304,7 +312,7 @@ module.exports = React.createClass({
                                  listAction={this.copySelectedProspects} />
                 </div>
   
-                <div className="dropdown">
+                <div className="dropdown1">
                   <a data-toggle="dropdown" 
                      href="javascript:"  
                      id="moveToList"
@@ -328,13 +336,15 @@ module.exports = React.createClass({
                 <a onClick={this.launchProspectListFromCompanyListModal} 
                    href="javascript:" 
                    id="downloadProspects"
+                   style={{display:'none'}}
                    className="drop-target btn btn-primary btn-xs list-options">
                   <i className="fa fa-cloud-download" /> &nbsp; Find Prospects  &nbsp; 
                 </a>
               </div>
         
 
-          <div id="autoscroll" style={{height:'400px',overflow:'auto'}}>
+          {(this.state.count == 100) ? <EmptyCompanyProspectsPanel />  : ""}
+          <div id="autoscroll" style={prospectTableStyle}>
             <table className="prospects-table table table-striped" style={{marginBottom:'0px'}}>
               <thead style={{backgroundColor:'white'}}>
                 <CompanyProspectHeader masterCheckboxChanged={this.masterCheckboxChanged}/>
@@ -350,6 +360,8 @@ module.exports = React.createClass({
 
       <PanelFooting currentPage={this.state.currentPage}
                     count={this.state.count}
+                    setPaginate={this.setPaginate}
+                    prospectType={'CompanyProspect'}
                     paginate={this.paginate}
                     prospectsPerPage={this.state.prospectsPerPage}
                     pages={this.state.pages}/>
@@ -828,18 +840,16 @@ module.exports = React.createClass({
       'X-Parse-REST-API-Key'    : 'VN6EwVyBZwO1uphsBPsau8t7JQRp00UM3KYsiiQb'
     }
 
-    company = JSON.stringify(JSON.parse(localStorage.currentUser).company)
+    company = JSON.stringify(JSON.parse(localStorage.currentUser).user_company)
     cuid = JSON.parse(localStorage.currentUser).objectId
-    user = JSON.stringify({'__type':'Pointer',
-                           'objectId':cuid, 
-                           'className': 'User'})
+    user= JSON.stringify({'__type':'Pointer', 'objectId':cuid, 'className': 'User'})
     archiveList = JSON.stringify({ //hardCode
       'objectId':'SerPQjckve',
       '__type':'Pointer', 
       'className' : this.state.listClassName
     })
 
-    qry = 'where={"company":'+company+',"archived":true}&count=1&order=-createdAt'
+   qry='where={"user_company":'+company+',"archived":true}&count=1&order=-createdAt'
 
     if(this.state.currentList != 'All'){
       currentList = {
@@ -853,10 +863,11 @@ module.exports = React.createClass({
                              'className':'User'})
 
       // add company to prospects added through mining job
-      qry = 'where={"company":'+company+',"lists":'+currentList+'}&count=1'
+      qry = 'where={"user_company":'+company+',"lists":'+currentList+'}&count=1'
     }
 
     className = this.state.className
+    console.log(qry)
     $.ajax({
       url: 'https://api.parse.com/1/classes/'+className+'?limit='+thisss.state.prospectsPerPage,
       type:'GET',
@@ -873,10 +884,7 @@ module.exports = React.createClass({
         thisss.setState({pages: Math.ceil(res.count/thisss.props.prospectsPerPage)})
         thisss.setState({loading: false})
       },
-      error: function(res){
-        console.log('error')
-        console.log(res)
-      }
+      error: function(err){ console.log(err.responseText) }
     })
 
     parse_headers = {
@@ -1108,15 +1116,48 @@ var CompanyProspectHeader = React.createClass({
     return (
       <tr>
         <th></th>
-        <th style={{width:300}}>Name</th>
-        <th style={{width:100}}>Added On</th>
-        <th>Industry</th>
+        <th></th>
+        <th style={{width:400}}>Name</th>
+        <th style={{width:500}}>Industry</th>
         <th style={{width:137,display:'none'}}># of Prospects</th>
+        <th >&nbsp; </th>
         <th style={{display:'none'}}>Signals</th>
-        <th style={{width:600}}>&nbsp;</th>
+        <th style={{width:100}}>Added</th>
         <th>&nbsp;</th>
         <th>&nbsp;</th>
       </tr>
+    );
+  }
+});
+
+var PaginateOverlay = React.createClass({
+  render: function() {
+    return (
+        <div id="paginate-overlay" style={{paddingTop:70}}>
+          <Spinner circleStyle={{backgroundColor:'white'}}/>
+        </div>
+
+    )
+  }
+})
+
+var EmptyCompanyProspectsPanel = React.createClass({
+  openLinkedinWindow: function() {
+    window.open('https://www.linkedin.com/vsearch/c?type=companies')
+  },
+
+  render: function() {
+    return (
+      <div className="col-md-offset-3 col-md-6" style={{height:400}}>
+      <div className="panel panel-default" style={{marginTop:100,height:200}}>
+        <div className="panel-body">
+          <h1 className="lead" style={{textAlign:'center'}}>Start Prospecting On Linkedin</h1>
+          <a href="javascript:" onClick={this.openLinkedinWindow} className="btn btn-primary" style={{backgroundImage: 'linear-gradient(180deg, #0096ff 0%, #005dff 100%) !important',display:'block',marginRight:'auto',marginLeft:'auto',width:200, marginTop:50}}>
+            <i className="fa fa-search" /> &nbsp;
+            Search for companies!</a>
+        </div>
+      </div>
+    </div>
     );
   }
 });
