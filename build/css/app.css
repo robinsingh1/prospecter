@@ -133,6 +133,7 @@ text-shadow: 0 -1px 0 rgba(0,0,0,0.4);
 -webkit-box-shadow: rgba(0,0,0,0.3) 0 2px 4px 0 inset,rgba(255,255,255,0.2) 0 1px 0 0;
 -moz-box-shadow: rgba(0,0,0,0.3) 0 2px 4px 0 inset,rgba(255,255,255,0.2) 0 1px 0 0;
 box-shadow: rgba(0,0,0,0.3) 0 2px 4px 0 inset,rgba(255,255,255,0.2) 0 1px 0 0;
+border-color: rgb(0, 65, 150)
 }
 
 #heading {
@@ -460,7 +461,8 @@ a.prospect-list-select:hover{
 }
 
 .fixed-data-column {
-  width:300px;
+  /* width:300px; */
+  width:220px;
 }
 
 .container1 > div, .container2 > div, .container3 > div {
@@ -1074,7 +1076,7 @@ font-weight: bold;
 }
 
 .detail-tab > li{
-  width:14%;
+  width:12.5%;
 }
 .campaign-tabs{
   margin-bottom: -1px;
@@ -1181,9 +1183,9 @@ font-weight: bold;
   background-color: #1ca3fd !important;
 }
 .company-prospect-list-select-form {
-  width: 414px;
+  width: 444px;
   display: inline;
-  margin-left: 58px;
+  margin-left: 54px;
   margin-bottom: 15px;
 }
 .gradient-2{
@@ -1277,7 +1279,8 @@ height: 356px;
 }
 
 .lp-icon {
-  font-size: 200px;
+  margin-top:10px;
+  font-size: 220px;
   background: -webkit-linear-gradient(#eee, #333);
   background-image: -o-linear-gradient(90deg, #003CFF 0%, #0FB3FA 100%);
   background-image: -moz-linear-gradient(90deg, #003CFF 0%, #0FB3FA 100%);
@@ -1287,7 +1290,25 @@ height: 356px;
   -moz-box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.50), inset 0px 1px 3px 0px rgba(255,255,255,0.50);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  padding: 50px;
+}
+
+.signal-icon {
+  margin-top:10px;
+  font-size: 20px;
+  background: -webkit-linear-gradient(#eee, #333);
+  background-image: -o-linear-gradient(90deg, #003CFF 0%, #0FB3FA 100%);
+  background-image: -moz-linear-gradient(90deg, #003CFF 0%, #0FB3FA 100%);
+  background-image: -webkit-linear-gradient(90deg, #003CFF 0%, #0FB3FA 100%);
+  background-image: -ms-linear-gradient(90deg, #003CFF 0%, #0FB3FA 100%);
+  background-image: linear-gradient(0deg, #003CFF 0%, #0FB3FA 100%);
+  -moz-box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.50), inset 0px 1px 3px 0px rgba(255,255,255,0.50);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.lp-text {
+  margin: 0px;
+  color: white;
+  text-shadow: 2px 2px 2px rgba(0,0,0,0.3);
 }
 .tmp-footer {
   display: block;
@@ -1317,13 +1338,16 @@ height: 356px;
   font-weight: bold;
 }
 .strategy-app {
+  /*
   width: 100px;
   height: 100px;
+  */
+  width: 40px;
+  height: 40px;
   display: inline-block;
   opacity: 1;
   z-index: 4;
   overflow: hidden;
-  pointer-events: none;
   -webkit-transform-origin: 50% 50% 0px;
   -webkit-perspective: 0;
   /*
@@ -1332,7 +1356,9 @@ height: 356px;
   box-shadow: rgba(0, 0, 0, 0.14902) 0px 6px 16px 0px;
   border-radius: 4px;
   background-color: rgb(255, 255, 255);
-  margin:10px
+  margin:14px;
+  cursor:pointer;
+  margin-bottom:2px;
 }
 .signal-gradient-bg {
   /* Rectangle 94: */
@@ -1352,8 +1378,9 @@ height: 356px;
   position: absolute;
   height: 100%;
   width: 100%;
-  background-color: rgb(0, 122, 265);
-  opacity: 0.5;
+  /*background-color: rgb(0, 122, 265);*/
+  background-image: linear-gradient(180deg, #0096ff 0%, #005dff 100%) !important;
+  opacity: 0.35;
 }
 .company_detail_mode {
   position: absolute;
@@ -1363,5 +1390,181 @@ height: 356px;
   right: 0px;
   -webkit-box-shadow: -8px -3px 10px -6px rgba(0, 0, 0, 0.3);
   /* position: relative; */
+  z-index: 5;
+}
+.feature-badge {
+  border: 1px solid blue;
+  height: 100px;
+  width: 100px;
+  border-radius: 50px;
+  padding: 28px;
+  padding-top: 32px;
+  /* font-size: 0px; */
+  margin-left: 35px;
+}
+
+/* Am CHarts  */
+.amChartsInputField {
+  background-color:rgba(0,0,0,0);
+  border: 1px solid white;
+  border-radius:5px;
+}
+
+.amChartsButtonSelected {
+  background-color:rgba(255,255,255,0.3);
+  border: 1px solid white;
+  border-radius:5px;
+}
+
+.amcharts-compare-item-div {
+  height:17px;
+}
+text {
+  color:"#fff";
+  fill: "#fff"
+
+}
+
+.amChartsButton {
+  background-color:rgba(0,0,0,0);
+  border: 1px solid white;
+  border-radius:5px;
+}
+
+.amChartsPeriodSelector {
+  display:none;
+}
+.ob-step-header {
+  text-align:center;
+  background-color: rgb(245, 245, 245);
+  font-weight:bold;
+  font-size:12px;
+}
+.ob-step {
+  padding-top:20px;
+  padding-bottom:20px;
+  cursor:pointer;
+}
+
+.ob-step-holder {
+  width: 66.5%;
+  top: 0px;
+  display: inline-block;
+  float: right;
+  text-align:center;
+  padding:5px;
+}
+
+.ob-list {
+  display:inline-block;
+}
+
+.input-form {
+  height: 35px;
+  border-radius: 3px;
+  border: 1px solid #eee;
+  color: #777;
+  font-weight: 200;
+  font-size: 18px;
+  font-family: Helvetica;
+  font-weight: 100;
+  width: 90%;
+  margin-left: 13px;
+  margin-top:10px;
+  padding: 10px;
+  width: 84%;
+  font-size: 16px;
+  border-radius: 5px;
+  /* background: #D8D8D8; */
+  border: 1px solid #bbb;
+  -moz-box-shadow: inset 0px 1px 3px 0px rgba(0,0,0,0.50);
+  -webkit-box-shadow: inset 0px 1px 3px 0px rgba(0,0,0,0.50);
+  box-shadow: inset 0px 1px 6px 0px rgba(0,0,0,0.30);
+}
+
+.ob-step:hover {
+  background-color: rgb(217, 237, 247);
+}
+
+.amcharts-left-div {
+  position:initial !important;
+  height: 0px;
+  display: block;
+}
+
+.amcharts-data-set-select {
+  position:absolute !important;
+  right:0px;
+  margin-top:-20px;
+  z-index:100;
+}
+.amChartsCompareList {
+  display:none;
+}
+.amChartsDataSetSelector {
+  color:rgba(0,0,0,0)
+}
+.amcharts-center-div {
+  padding-left:0px !important;
+}
+.feed-sidebar {
+  width: 200px;
+  border-right: 1px solid #ccc;
+  height: 100%;
+  font-family: proxima-nova;
+  padding-top: 15px;
+  float:left;
+  overflow: auto;
+}
+.feed-sidebar > div > h6 {
+  cursor:pointer;
+  margin:0px;
+  padding-top:5px;
+  padding-bottom:5px;
+  padding-left: 15px;
+}
+.feed-sidebar > div > h6:hover {
+  background-color:#eee
+}
+.light-blue-gradient {
+background: linear-gradient(#dae8ff,#dae8ff);
+  background-image: radial-gradient(circle at center center,#fff,#dff1fd 900px);
+  height: 100%;
+}
+.news-feed {
+  float:right;
+  width:82%;
+}
+.news-card {
+  height:200px;
+  width:400px;
+  position: relative;
+  z-index: 10;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+.news-card-bottom {
+  height: 50px;
+  width: 400px !important;
+  margin: 0px;
+  /* border-radius: 0px; */
   z-index: 1;
+  margin-top: -2px;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.pretty-blue-gradient-1{
+  background: #2e73d7 linear-gradient(135deg,#2e73d7,#5298fc) !important;
+}
+.company-name-holder {
+  display: block;
+  font-weight: bold;
+  width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.company-name-width {
+  width:220px;
 }

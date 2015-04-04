@@ -1,5 +1,7 @@
 /** @jsx React.DOM */
 
+var Jigsaw = require("../lib/jigsaw.min.js")
+
 module.exports = React.createClass({
   // createCompanyProfileModal
   createProfile: function() {
@@ -7,12 +9,25 @@ module.exports = React.createClass({
 
     titleProfile = {
       'className': 'ProspectTitleProfile',
-      'title_keywords'    : $('.prospect-profile-title').tagsinput('items').reverse()
+      'title_keywords': $('.prospect-profile-title').tagsinput('items').reverse()
     }
 
-    /* */
-    
-    profiles = [titleProfile]
+    revenueProfile = {
+      className: "RevenueProfile",
+      revenues: _.map($(".revenues:checked"), function(box) { return $(box).parent().parent().text().trim() })
+    }
+
+    industryProfile = {
+      className: "IndustryProfile",
+      industries: _.map($(".industries:checked"), function(box) { return $(box).parent().parent().text().trim() })
+    }
+
+    companySizeProfile = {
+      className: "EmployeeProfile",
+      employees: _.map($(".employees:checked"), function(box) { return $(box).parent().parent().text().trim() })
+    }
+
+    profiles = [titleProfile, revenueProfile, industryProfile, companySizeProfile]
 
     nonemptyProfiles = _.filter(profiles, function(profile) {
       if(_.values(profile)[1]){ return _.values(profile)[1].length }
@@ -33,7 +48,7 @@ module.exports = React.createClass({
         className:'_User',
         objectId:JSON.parse(localStorage.currentUser).objectId
       },
-      company: JSON.parse(localStorage.currentUser).company
+      user_company: Parse._user_company
     }
 
     if(nonemptyProfiles.length) {
@@ -83,7 +98,7 @@ module.exports = React.createClass({
               success: function(res){ 
                 console.log(res) 
                 $('.modal').click()
-                location.href="#signals" 
+                //location.href="#signals" 
               },
               error: function(err){ console.log(err) }
             })
@@ -145,16 +160,19 @@ module.exports = React.createClass({
               <div className="modal-content">
                 <div className="modal-header">
                   <h4 className="modal-title" id="myModalLabel">
+                    <i className="fa fa-user-plus" /> &nbsp;
                     Create Prospect Profile
                   </h4>
                   <a href="javascript:" className="btn btn-success btn-sm" 
                      onClick={this.createProfile}
-                     style={{float:'right',marginTop:-28,marginRight:-5}}>
+                     style={{float:'right',marginTop:-28,marginRight:-5,
+                      backgroundImage: "linear-gradient(#8add6d, #60b044)"}}>
                     Create Profile
                   </a>
                 </div>
                 <div className="modal-body">
                   <CreateHiringSignal />
+                  <IndustryMenu />
                 </div>
               <div className="modal-footer" style={{display:'none'}}>
                 <button type="button" className="btn btn-default">
@@ -172,6 +190,85 @@ module.exports = React.createClass({
   createCompanyProfile: function() {
   },
 });
+
+var IndustryMenu = React.createClass({
+
+  render: function() {
+    revenues = _.map(Jigsaw._annual_revenue(), function(val, key) {
+      return <SelectGroup name={key} value={val} _class={"revenues"}/>
+    })
+    employees = _.map(Jigsaw._number_of_employees(), function(val, key) {
+      return <SelectGroup name={key} value={val} _class={"employees"}/>
+    })
+    industries = _.map(Jigsaw._industries(), function(val, key) {
+      return <SelectGroup name={key} value={val} _class={"industries"}/>
+    })
+
+    return (
+    <div className="row">
+      <div className="col-md-4">
+        <h6>Industry</h6>
+        <div className="well" style={{height:200, overflow:"auto"}}>
+          {industries}
+        </div>
+      </div>
+      <div className="col-md-4">
+        <h6>Revenue</h6>
+        <div className="well" style={{height:200, overflow:"auto"}}>
+          {revenues}
+        </div>
+      </div>
+      <div className="col-md-4">
+        <h6>Company Size</h6>
+        <div className="well" style={{height:200, overflow:"auto"}}>
+          {employees}
+        </div>
+      </div>
+    </div>
+    )
+  }
+})
+
+var SelectGroup = React.createClass({
+  getInitialState: function() {
+    return {
+      hidden: true,
+    }
+  },
+
+  toggleHidden: function() {
+    this.setState({hidden: !this.state.hidden})
+  },
+
+  render: function() {
+
+    icon = (this.state.hidden) ? "fa fa-plus" : "fa fa-minus"
+    
+    plus_btn = <i className={icon} onClick={this.toggleHidden}
+                 style={{float:"left",marginRight:5,marginTop:7,
+                         fontSize:9,cursor:"pointer"}}/>
+    plus_btn = (this.props.subs) ? plus_btn : ""
+    selects = <span> {plus_btn}
+              <label className="checkbox-inline">
+                <input type="checkbox" id="inlineCheckbox1" className={this.props._class}
+                      value={this.props.value}/> 
+                {this.props.name}
+            </label><br/>
+            </span>
+    subs = _.map(this.props.subs, function(sub) {
+            return <span style={{marginLeft:30}}>
+              <label className="checkbox-inline">
+              <input type="checkbox" id="inlineCheckbox1" value="option1" /> 
+                {sub}
+            </label><br/>
+          </span>
+    })
+    select = (this.state.hidden) ? selects : _.flatten([[selects], subs])
+    return (
+      <span> {select} </span>
+    )
+  }
+})
 
 var CreateHiringSignal = React.createClass({
   getInitialState: function() {
@@ -238,13 +335,12 @@ var CreateHiringSignal = React.createClass({
           </span>
           <br/>
           <span style={{display:'block',marginBottom:-10}}> 
-            <h6 style={{width:140,display:'none'}}>
+            <h6 style={{width:140,display:'inline-block',display:'none'}}>
               Location: &nbsp;
             </h6>
-            <input type="text" 
-                   style={{display:'none',width:'73.1%',marginRight:10}} 
-                   data-role="tagsinput"
-                   className="form-control prospect-location-profile-tmp" />
+            <input type="text" style={{display:'none',width:'73.1%',marginRight:10,display:'none'}} 
+                   data-role="tagsinput1"
+                   className="form-control bootstrap-tagsinput prospect-location-profile-tmp" />
 
                 <a href="javascript:" 
                    className="btn btn-xs btn-success" style={{display:'none'}}>

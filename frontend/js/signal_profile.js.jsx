@@ -195,12 +195,12 @@ module.exports = React.createClass({
              onClick={this.removeProfile}>
             <i className="fa fa-archive" /></a>
           <a href="javascript:" 
-            style={{display:'block'}}
+            style={{display:'none'}}
             className="btn btn-primary btn-xs signal-detail-btn"
              onClick={this.analyticsClick}>
             <i className="fa fa-pie-chart" /></a>
           <a href="javascript:" 
-            style={{display:'block'}}
+            style={{display:'none'}}
             className="btn btn-primary btn-xs signal-detail-btn"
              onClick={this.settingsClick}>
             <i className="fa fa-wrench" /></a>
@@ -210,7 +210,7 @@ module.exports = React.createClass({
             <i className="fa fa-calendar" /></a>
           <a href="javascript:" 
              onClick={this.launchModal}
-             style={(signal_type != "signal") ? {display:'block'}:{display:'none'}}
+             style={(signal_type != "signal") ? {display:'none'}:{display:'none'}}
              className="btn btn-primary btn-xs signal-detail-btn">
             <i className="fa fa-cloud-download" /></a>
         </span>
@@ -299,6 +299,22 @@ var ProfileType = React.createClass({
      function(result, role) {
         return role + ", "+ result
       }, "");
+    } else if (this.props.profile.className  == "PressProfile") {
+      signalName = "Press Release"
+      signalValue = [this.props.profile.press[0]]
+      if(this.props.profile.press[0] == "Awards") {
+        signalIcon = <i className="fa fa-trophy" />
+      } else if(this.props.profile.press[0] == "Contracts") {
+        signalIcon = <i className="fa fa-file-text" />
+      } else if(this.props.profile.press[0] == "M&A") {
+        signalIcon = <i className="fa fa-plus-circle" />
+      } else if(this.props.profile.press[0] == "Product") {
+        signalIcon = <i className="fa fa-cubes" />
+      } else if(this.props.profile.press[0] == "Personnel") {
+        signalIcon = <i className="fa fa-user-plus" />
+      }
+      signalIcon = <i className="fa fa-bullhorn" />
+
     } else {
       signalIcon = "not found"
       signalName = "Not found"

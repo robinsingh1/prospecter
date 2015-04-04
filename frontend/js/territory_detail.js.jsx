@@ -40,7 +40,9 @@ module.exports = React.createClass({
     });
   },
 
-  setCompanyState: function() { this.setState({currentSignal: 'CompanySignal'}) }, 
+  setCompanyState: function() { 
+    this.setState({currentSignal: 'CompanySignal'}) 
+  }, 
   setPersonState: function() { this.setState({currentSignal: 'PeopleSignal'}) }, 
 
   componentDidMount: function() {

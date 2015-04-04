@@ -123,6 +123,11 @@ module.exports = React.createClass({
 
 <ul className="list-group email-holder" style={{borderTop:'solid 1px #eee'}}>
   <li className="list-group-item">
+    <h5 style={{display:'inline-block',marginTop:0,marginBottom:0}}>From:&nbsp;&nbsp;</h5> 
+    
+    <span className="label label-primary">{Parse._current_user.username}</span>
+  </li>
+  <li className="list-group-item">
     <h5 style={{display:'inline-block',marginTop:0,marginBottom:0}}>To:&nbsp;&nbsp;</h5> 
     
     <span className="label label-primary">{email}</span>

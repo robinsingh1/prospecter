@@ -41,7 +41,8 @@ module.exports = React.createClass({
     $('.modal-backdrop').remove();
   },
 
-  createListButtonClick: function() {
+  createListButtonClick: function(e) {
+    e.preventDefault()
     if($('#listTitle').val().trim() != "")
       this.createList()
   },

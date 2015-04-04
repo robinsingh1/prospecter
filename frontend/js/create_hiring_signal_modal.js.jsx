@@ -40,6 +40,7 @@ module.exports = React.createClass({
       name: profileName,
       autoProspect: autoProspect,
       profiles: nonemptyProfiles,
+      list_type:"signal",
       user:{
         __type:'Pointer',
         className:'_User',
@@ -73,7 +74,7 @@ module.exports = React.createClass({
           data:JSON.stringify(_.pick(newProfile, 
                                      'name','user','list_type',
                                      'open_people', 'company',
-                                     'mining_job_list')),
+                                     'user_company', 'mining_job_list')),
           success: function(res) {
             console.log(res)
             prospectList = appConfig.pointer('CompanyProspectList',res.objectId)
@@ -139,16 +140,19 @@ module.exports = React.createClass({
         });
 
         // Start Mining Job
+        /*
         $.ajax({
           //url:'https://nameless-retreat-3525.herokuapp.com/mining_job/title',
           ///url:'https://nameless-retreat-3525.herokuapp.com/title_mining_job',
           //url:'http://127.0.0.1:5000/signal/hiring',
-          url:'https://nameless-retreat-3525.herokuapp.com/v1/signal/hiring',
+          //url:'https://nameless-retreat-3525.herokuapp.com/v1/signal/hiring',
+          url:'https://prospecter.herokuapp.com/v1/hiring',
           type:'GET',
           data: {profile: ress.objectId, type: "signal"},
           success: function(res) { console.log(res) },
           error: function(err) { console.log(err) }
         })
+        */
       
 
       },
@@ -228,8 +232,16 @@ var CreateHiringSignal = React.createClass({
                                            onClick={this.toggleProspect}
                                            className="btn btn-sm btn-default">
                                           <i className="fa fa-plus" />&nbsp;
-                                          Add Prospect Details
-                                        </a> : <ProspectProfile hideProspectDetails={this.state.hideProspectDetails}/>
+                                          Add Prospect Details </a> : <div>
+                                          <a href="javascript:" 
+                                             onClick={this.toggleProspect}
+                                             style={{marginBottom:12,marginLeft:200}}
+                                             className="btn btn-sm btn-default">
+                                            <i className="fa fa-minus" /> &nbsp;
+                                            Remove Prospect Details
+                                          </a>
+                                          <ProspectProfile hideProspectDetails={this.state.hideProspectDetails}/> </div>
+
     addCompanyStyle = (!this.state.addCompany) ? {display:'block',textAlign:'center'} : {}
     addProspectStyle = (!this.state.addProspect) ? {display:'block',textAlign:'center'} : {}
 
@@ -281,7 +293,7 @@ var CreateHiringSignal = React.createClass({
                   <i className="fa fa-plus" />
                 </a>
           </span>
-          <div style={{marginTop:10}}>
+          <div style={{marginTop:10, display:'none'}}>
           <h6 style={{width:140,display:'inline-block'}}>Auto Prospect: &nbsp;</h6>
           <div className="btn-group autoprospect" data-toggle="buttons" >
             <label className="btn btn-sm btn-default active">
@@ -297,8 +309,10 @@ var CreateHiringSignal = React.createClass({
             <div style={addCompanyStyle}> {addCompany} </div>
 
             <hr/> {closeProspectBtns} {prospectHeading}     
-            <div style={addProspectStyle}> {addProspect} </div>
           </div>
+            <div style={addProspectStyle}> 
+              {addProspect} 
+            </div>
         </form>
       </div>
     )
@@ -381,7 +395,6 @@ var ProspectProfile = React.createClass({
     showDetails = (this.props.hideProspectDetails) ? {display: 'none'} : {display:'block'}
     return (
       <div style={showDetails}>
-        <form className="createSignal" onSubmit={this.prospectFormSubmit}>
           <span> 
             <span style={{width:140,display:'inline-block'}}>
               <h6>Job Title Keyword: &nbsp;</h6>
@@ -392,8 +405,6 @@ var ProspectProfile = React.createClass({
                    className="form-control prospectRoleKeywords" 
                    placeholder="" />
           </span>
-
-        </form>
       </div>
     )
   }

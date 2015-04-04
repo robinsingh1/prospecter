@@ -2,6 +2,8 @@
 var HorizantalSpinner = require('./horizantal_spinner.js.min.js')
 var LoadingSpinner = require('./loading_spinner.js.min.js')
 
+// TODO  - if company domain not found
+
 module.exports = React.createClass({
   getInitialState: function() {
     loading  = true
@@ -18,6 +20,11 @@ module.exports = React.createClass({
       editMode: false,
       mouseOver: false
     }
+  },
+
+  toggleDetailMode: function(e) {
+    e.stopPropagation()
+    this.props.toggleDetailMode(this.props.prospect.company)
   },
 
   mouseEnter: function() {
@@ -161,6 +168,7 @@ module.exports = React.createClass({
       phone = <div style={{display:'block',paddingTop:2}}><ReadOnlyForm icon="phone" value={company.phone}/></div> 
     else 
       phone = ""
+    //phone = <div style={{display:'block',paddingTop:2}}><ReadOnlyForm icon="phone" value={"No Phone Found"} disabled={true} /></div> 
 
     company_size   = (this.state.loading) ? <LoadingLabel /> : ""
     if(company.headcount){ 
@@ -215,8 +223,12 @@ module.exports = React.createClass({
               <i className="fa fa-search"/>
             </a>
             <a className="text-muted" onClick={this.archiveProspects}
-              style={{marginTop:5}}>
+              style={{marginTop:5,display:"none"}}>
               <i className="fa fa-archive"/>
+            </a>
+            <a className="text-muted" onClick={this.reloadProspect}
+              style={{marginTop:5}}>
+              <i className="fa fa-refresh"/>
             </a>
             </div>
           
@@ -252,7 +264,9 @@ module.exports = React.createClass({
             <h6 style={{fontWeight:'400',margin:'0px'}}> {position} </h6>
           </td>
           <td style={color} className="fixed-data-column">
-            <span style={{fontWeight:'bold'}}> {prospect_company_name} </span>
+            <span style={{fontWeight:'bold'}} className="company-name-holder"> 
+              <a href="javascript:" onClick={this.toggleDetailMode}>{prospect_company_name}</a>
+            </span>
             <h6 style={{fontWeight:'400',margin:'0px'}} className="company-size">
             {company_size}
             </h6>
@@ -266,7 +280,12 @@ module.exports = React.createClass({
             <h6 style={{margin:'0px'}}>{city}</h6></td>
           <td style={infoColor}> {prospect_email} {phone} </td>
           <td style={color}>
-            <div style={{width:92,paddingTop:5,height:5}}>
+            <div style={{width:118,paddingTop:5,height:5}}>
+              <a href="javascript:" 
+                onClick={this.openLinkedinProfile} 
+                className="btn btn-xs btn-primary btn-gradient linkedin_link" 
+                style={{float:'right',marginLeft:5}}>
+                <i className="fa fa-line-chart" /></a>
               <a href="javascript:" 
                 onClick={this.openLinkedinProfile} 
                 className="btn btn-xs btn-primary btn-gradient linkedin_link" 
@@ -279,6 +298,34 @@ module.exports = React.createClass({
           </td>
         </tr>
     );
+  },
+
+  reloadProspect: function(e) {
+    e.stopPropagation()
+    console.log("reload")
+    $.ajax({
+      url:"https://prospecter.herokuapp.com/profile_detail",
+      data: {name: this.props.prospect.name, 
+             description: this.props.prospect.description },
+      success: function() {
+        console.log("started prospect research")
+      },
+      error: function(e) { console.log(e)}
+    })
+    
+    $.ajax({
+      url:"https://clear-spark.herokuapp.com/v1/companies",
+      data: {company_name: this.props.prospect.company_name},
+      success: function() {
+        console.log("started company research")
+      },
+      error: function(e) { console.log(e)}
+    })
+
+
+    // profile detail search
+    // company_research
+    // email_pattern
   },
 
   searchProspect: function(e) {
@@ -433,6 +480,7 @@ var UserUpdateForm = React.createClass({
           type="text" className="form-control input-sm" 
           disabled={this.state.submitted}
           onChange={this.handleChange}
+          readOnly
           value={this.state.value}
           placeholder={this.props.formText} />
         <button type="submit" className={btn}
@@ -492,7 +540,7 @@ var UserUpdateForm = React.createClass({
 
 var ReadOnlyForm = React.createClass({
   render: function() {
-    style = {fontSize:12, width:'70%', height:22, marginTop: 0, zIndex:1,cursor:'default'}
+    style = {fontSize:12, width:'75%', height:22, marginTop: 0, zIndex:1,cursor:'default'}
 
     style.fontStyle = (this.props.disabled) ? 'italic' : ''
     return (

@@ -17,10 +17,17 @@ var SignalApps = require('./signal_apps.js.min.js')
 
 var CreateHiringSignalModal = require('./create_hiring_signal_modal.js.min.js')
 var CreateFundingSignalModal = require('./create_funding_signal_modal.js.min.js')
-var CreateProspectProfileModal = require('./create_prospect_profile_modal.js.min.js')
+//var CreateProspectProfileModal = require('./create_prospect_profile_modal.js.min.js')
 var CreateCompanyProfileModal = require('./create_company_profile_modal.js.min.js')
 var CreateTerritoryStrategyModal = require('./create_territory_strategy_modal.js.min.js')
 var CreateMiningJobModal = require('./create_mining_job_modal.js.min.js')
+var CreateProspectListFromCompanyListModal = require('./create_prospect_list_from_company_list.js.min.js')
+var CreateProspectProfileModal = require('./create_title_mining_job.js.min.js')
+var CreateCompanyMiningJobModal = require('./create_company_mining_job.js.min.js')
+var CreatePressSignalModal = require('./create_company_mining_job.js.min.js')
+var CreateEmployeeMiningJobModal = require('./create_employee_mining_job.js.min.js')
+var CreatePressSignalModal = require('./create_press_signal_modal.js.min.js')
+/* Loading Stuff */
 
 module.exports = React.createClass({
   getInitialState: function() {
@@ -30,6 +37,8 @@ module.exports = React.createClass({
       currentProfileObjectId: {},
       currentProfileReport: {},
       signals: [],
+      pressSignal:"",
+      pressSignalObjectId: {},
       currentView: 'Apps',
       profiles: [],
     }
@@ -43,6 +52,15 @@ module.exports = React.createClass({
       currentView:'Detail',
       currentProfileReport: newProfileReport 
     })
+  },
+
+  setCurrentPressSignal: function(signal, signal_id) {
+    this.setState({
+      pressSignal: signal,
+      pressSignalObjectId: signal_id
+    })
+    console.debug(signal)
+    console.debug(signal_id)
   },
 
   setReport: function(view, report) {
@@ -78,6 +96,8 @@ module.exports = React.createClass({
   },
 
   setCurrentView: function(newSignalView) {
+    console.log("VIEW")
+    console.log(newSignalView)
     this.setState({currentView: newSignalView})
   },
 
@@ -89,10 +109,11 @@ module.exports = React.createClass({
     //console.log(currentProfile)
     console.log('CURRENT VIEW')
     console.log(this.state.currentView)
-    if(currentProfile.name == "All" || currentProfile.done){
+    if(currentProfile.name == "All" || currentProfile.done || this.state.currentView == "Apps"){
       if(this.state.currentView == "Apps") {
-        signalView = <SignalApps />
-      } else if(this.state.currentView == "Feed") {
+        // SignalNews
+        signalView = <div style={{height:"100%"}}><SignalApps setCurrentPressSignal={this.setCurrentPressSignal}/></div>
+      } else if(this.state.currentView == "Feed"){
         signalView = <div>
             <SignalDetailButtons signalType={this.state.signalType} 
                                  currentProfile={this.state.currentProfile}
@@ -171,6 +192,7 @@ module.exports = React.createClass({
                               addProfile={this.addProfile}
                               updateMiningJobDone={this.updateMiningJobDone}
                               removeProfile={this.removeProfile}
+                              setCurrentPressSignal={this.setCurrentPressSignal}
                               setCurrentView={this.setCurrentView}
                               currentProfile={this.state.currentProfile}
                               setCurrentProfile={this.setCurrentProfile}/>
@@ -190,6 +212,9 @@ module.exports = React.createClass({
                       updateProfileWithObjectId={this.updateProfileWithObjectId}/>
         <CreateTerritoryStrategyModal addProfile={this.addProfile} 
                       updateProfileWithObjectId={this.updateProfileWithObjectId}/>
+        <CreateCompanyMiningJobModal />
+        <CreatePressSignalModal pressSignal={this.state.pressSignal} 
+                          pressSignalObjectId={this.state.pressSignalObjectId}/>
       </div>
       </div>
 
@@ -469,8 +494,12 @@ var SignalsOptions = React.createClass({
             style={{borderTop:0,borderLeft:0,height:44,paddingRight:5,paddingLeft:10,
                     backgroundColor:'#e0e6ea',
                     backgroundImage:'linear-gradient(#f5f7f8,#e0e6ea);'}}>
-            <h4 style={{margin:0,textAlign:'center',fontWeight:200,
-                        float:'left',marginTop:2}}>Profiles ({profiles_num})</h4> 
+            <h4 style={{margin:0,textAlign:'center',fontWeight:200,cursor:"pointer",
+              float:'left',marginTop:2}}
+              onClick={this.mainPage}>
+              <i className="fa fa-th" />&nbsp;
+              Profiles ({profiles_num})
+            </h4> 
           <a href="javascript:" 
              className="btn btn-xs btn-primary create-profile-dropdown" 
              data-toggle="dropdown"
@@ -483,6 +512,20 @@ var SignalsOptions = React.createClass({
           <ul className="dropdown-menu" 
               style={{marginLeft:175,marginTop:-10}}
               role="menu" aria-labelledby="dropdownMenu1">
+            <li role="presentation" style={{display:'block'}}>
+              <a href="javascript:" onClick={this.launchModal} style={{paddingLeft:5}}>
+                <h6 style={{margin:2}}><i className="fa fa-globe"  style={{width:10}}/>
+                  &nbsp;&nbsp;Create Territory Strategy
+                </h6>
+              </a>
+            </li>
+            <li role="presentation" style={{display:'block'}}>
+              <a href="javascript:" onClick={this.launchModal} style={{paddingLeft:5}}>
+                <h6 style={{margin:2}}><i className="fa fa-map-marker"  style={{width:10}}/>
+                  &nbsp;&nbsp;Create SMB Strategy
+                </h6>
+              </a>
+            </li>
             <li role="presentation">
               <a href="javascript:"
                  onClick={this.launchModal}
@@ -503,11 +546,44 @@ var SignalsOptions = React.createClass({
               </a>
             </li>
             <li role="presentation" style={{display:'block'}}>
-              <a href="javascript:"
-                 onClick={this.launchModal}
-                 style={{paddingLeft:5}}>
-                <h6 style={{margin:2}}><i className="fa fa-globe"  style={{width:10}}/>
-                  &nbsp;&nbsp;Create Territory Strategy
+              <a href="javascript:" onClick={this.launchModal} style={{paddingLeft:5}}>
+                <h6 style={{margin:2}}><i className="fa fa-trophy"  style={{width:10}}/>
+                  &nbsp;&nbsp;Create Award Signal
+                </h6>
+              </a>
+            </li>
+            <li role="presentation" style={{display:'block'}}>
+              <a href="javascript:" onClick={this.launchModal} style={{paddingLeft:5}}>
+                <h6 style={{margin:2}}><i className="fa fa-comments"  style={{width:10}}/>
+                  &nbsp;&nbsp;Create Social Signal
+                </h6>
+              </a>
+            </li>
+            <li role="presentation" style={{display:'block'}}>
+              <a href="javascript:" onClick={this.launchModal} style={{paddingLeft:5}}>
+                <h6 style={{margin:2}}><i className="fa fa-cubes"  style={{width:10}}/>
+                  &nbsp;&nbsp;Create Product News Signal
+                </h6>
+              </a>
+            </li>
+            <li role="presentation" style={{display:'block'}}>
+              <a href="javascript:" onClick={this.launchModal} style={{paddingLeft:5}}>
+                <h6 style={{margin:2}}><i className="fa fa-plus-circle"  style={{width:10}}/>
+                  &nbsp;&nbsp;{"Create M&A Signal"}
+                </h6>
+              </a>
+            </li>
+            <li role="presentation" style={{display:'block'}}>
+              <a href="javascript:" onClick={this.launchModal} style={{paddingLeft:5}}>
+                <h6 style={{margin:2}}><i className="fa fa-file-text"  style={{width:10}}/>
+                  &nbsp;&nbsp;Create Contracts News Signal
+                </h6>
+              </a>
+            </li>
+            <li role="presentation" style={{display:'block'}}>
+              <a href="javascript:" onClick={this.launchModal} style={{paddingLeft:5}}>
+                <h6 style={{margin:2}}><i className="fa fa-user-plus"  style={{width:10}}/>
+                  &nbsp;&nbsp;Create Personnel Signal
                 </h6>
               </a>
             </li>
@@ -517,17 +593,17 @@ var SignalsOptions = React.createClass({
                  href="javascript">
                 <h6 style={{margin:2}}>
                   <i className="fa fa-user" style={{width:10}} />
-                  &nbsp;&nbsp;Create Prospect Profile
+                  &nbsp;&nbsp;Download Prospect List
                 </h6>
               </a>
             </li>
-            <li role="presentation" style={{display:'none'}}>
+            <li role="presentation" style={{display:'block'}}>
               <a role="menuitem" tabindex="-1" 
                  onClick={this.launchModal}
                  style={{paddingLeft:5,paddingRight:2}} href="#">
                  <h6 style={{margin:2}}>
                    <i className="fa fa-building" style={{width:10}}/>
-                   &nbsp;&nbsp;Create Company Profile
+                   &nbsp;&nbsp;Download Company List
                  </h6>
               </a>
             </li>
@@ -541,19 +617,45 @@ var SignalsOptions = React.createClass({
     );
   },
 
+  mainPage: function(e) {
+    //this.setState({currentView: "Apps"})
+    this.props.setCurrentView("Apps")
+    console.log("main page")
+  },
+
   launchModal: function(e) {
     e.preventDefault()
     console.log($(e.target).text().trim())
     if($(e.target).text().trim() == 'Create Hiring Signal')
       $('#createHiringSignalModal').modal()
-    else if($(e.target).text().trim() == 'Create Funding Signal')
+    else if($(e.target).text().trim() == 'Create Funding Signal') {
+      this.props.setCurrentPressSignal("Funding", "BfeCJW0YK6")
+      $('#createPressSignalModal').modal()
+    } else if($(e.target).text().trim() == 'Create Award Signal') {
+      this.props.setCurrentPressSignal("Awards", "xYI8bAh39b")
+      $('#createPressSignalModal').modal()
+    } else if($(e.target).text().trim() == 'Create Social Signal')
       $('#createFundingSignalModal').modal()
-    else if($(e.target).text().trim() == 'Create Prospect Profile')
+    else if($(e.target).text().trim() == 'Create Product News Signal') {
+      this.props.setCurrentPressSignal("Product News", "jwfmvkrnQw")
+      $('#createPressSignalModal').modal()
+    } else if($(e.target).text().trim() == 'Create M&A Signal') {
+      this.props.setCurrentPressSignal("M&A", "rXTD2ZeW6D")
+      $('#createPressSignalModal').modal()
+    } else if($(e.target).text().trim() == 'Create Contract News Signal') {
+      this.props.setCurrentPressSignal("Contract News", "PEWk9hDbzf")
+      $('#createPressSignalModal').modal()
+    } else if($(e.target).text().trim() == 'Create Personnel Signal') {
+      this.props.setCurrentPressSignal("Personnel", "UGNDEb6Sy7")
+      $('#createPressSignalModal').modal()
+    } else if($(e.target).text().trim() == 'Download Prospect List')
       $('#createProspectProfileModal').modal()
     else if($(e.target).text().trim() == 'Create Territory Strategy')
       $('#createTerritoryStrategyModal').modal()
-    else if($(e.target).text().trim() == 'Create Company Profile')
-      $('#createCompanyProfileModal').modal()
+    else if($(e.target).text().trim() == 'Create SMB Strategy')
+      $('#createTerritoryStrategyModal').modal()
+    else if($(e.target).text().trim() == 'Download Company List')
+      $('#createCompanyMiningJobModal').modal() 
   },
 
   launchDropdown: function(e) {

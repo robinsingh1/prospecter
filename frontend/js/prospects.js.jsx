@@ -2,29 +2,34 @@
 
 //TODO - abstract lists
 //TODO - rename this
+var _Parse = require("../lib/parse-require.min.js")
 var Lists = require('./side_menu_user_prospects.js.min.js'); 
 
+//var CompanyProspectHeader
 var UserProspectHeader = require('./user_prospect_header.js.min.js');
 var UserProspectRow = require('./user_prospect.js.min.js');
-
-//var CompanyProspectHeader
+var CompanyDetail = require('./company_detail.js.min.js')
 var CompanyProspectRow = require('./data_row.js.min.js');
 var LoadingSpinner = require('./loading_spinner.js.min.js')
 var Spinner = require('./spinner.js.min.js')
 var Messenger = require('./messenger.js.min.js')
 var PanelFooting = require('./panel_footing.js.min.js')
 
-//var CreateProspectListFromCompanyListModal = require('./create_prospect_list_from_company_list.js.min.js')
-//var CreateProspectProfileModal = require('./create_title_mining_job.js.min.js')
+var CreateProspectListFromCompanyListModal = require('./create_prospect_list_from_company_list.js.min.js')
+var CreateProspectProfileModal = require('./create_title_mining_job.js.min.js')
+var CreateCompanyMiningJobModal = require('./create_company_mining_job.js.min.js')
+var CreateEmployeeMiningJobModal = require('./create_employee_mining_job.js.min.js')
+// Create Company Profile Modal
+
 /*
-      <CreateProspectListFromCompanyListModal 
-        currentList={this.state.currentList} 
-        currentListObjectId={this.state.currentListObjectId}/>
-      <CreateProspectProfileModal 
-        currentList={this.state.currentList} 
-        currentListObjectId={this.state.currentListObjectId}/>
-      <RenameListModal renameList={this.props.renameList}/>
-      <DeleteListModal deleteList={this.props.deleteList}/>
+<CreateProspectListFromCompanyListModal 
+  currentList={this.state.currentList} 
+  currentListObjectId={this.state.currentListObjectId}/>
+<CreateProspectProfileModal 
+  currentList={this.state.currentList} 
+  currentListObjectId={this.state.currentListObjectId}/>
+<RenameListModal renameList={this.props.renameList}/>
+<DeleteListModal deleteList={this.props.deleteList}/>
 */
 
 module.exports = React.createClass({
@@ -119,7 +124,7 @@ module.exports = React.createClass({
     console.log(qry)
 
     var _this = this;
-    Parse.get(this.state.className, qry).done(function(res) {
+    Parse.get(_this.state.className, qry).done(function(res) {
       console.log(res)
       _this.setState({
         prospects: res.results,
@@ -174,6 +179,7 @@ module.exports = React.createClass({
                       key={this.generate_id()}
                       link={""}
                       archiveProspects={this.archiveProspects}
+                      toggleDetailMode={this.toggleDetailMode}
                       keyboardSelected={keyboardSelected}
                       alreadyChecked={alreadyChecked}
                       checkboxAction={this.checkboxAction}
@@ -183,6 +189,7 @@ module.exports = React.createClass({
         prospects.push(
           <CompanyProspectRow deleteProspect={this.deleteProspect} 
                             prospect={this.state.prospects[i]} 
+                            toggleDetailMode={this.toggleDetailMode}
                             masterCheckboxChecked={this.state.masterCheckboxChecked}
                             key={this.generate_id()}
                             link={""}
@@ -218,6 +225,37 @@ module.exports = React.createClass({
     prospectTableStyle = (this.state.count == 0) ? {display:'none'} :{height:'400px',overflow:'auto'}
 
     header = (this.props.className == "Prospect") ? <UserProspectHeader masterCheckboxChanged={this.masterCheckboxChanged}/> : <CompanyProspectHeader masterCheckboxChanged={this.masterCheckboxChanged}/>
+    employee_mining_job = <a href="javascript:" 
+               onClick={this.launchProspectProfileModal}
+               style={{display:'block'}}
+               id="downloadEmployees"
+               className="drop-target btn btn-primary btn-xs list-options">
+               <i className="fa fa-cloud-download" />
+               &nbsp; Find Employees &nbsp; 
+            </a>
+    company_mining_job = <a href="javascript:" 
+               onClick={this.launchProspectProfileModal}
+               style={{display:'block'}}
+               id="downloadCompanyProspects"
+               className="drop-target btn btn-primary btn-xs list-options">
+               <i className="fa fa-cloud-download" />
+               &nbsp; Find Companies &nbsp; 
+            </a>
+    prospect_title_mining_job = <a href="javascript:" 
+                   onClick={this.launchProspectProfileModal}
+                   style={{display:'block'}}
+                   id="downloadProspects"
+                   className="drop-target btn btn-primary btn-xs list-options">
+                   <i className="fa fa-cloud-download" />
+                   &nbsp; Find Prospects By Title &nbsp; 
+                </a>
+    if(JSON.parse(localStorage.currentUser).accountType == "Staff")
+      if(this.props.className == "Prospect")
+        mining_job_btns = prospect_title_mining_job
+      else
+        mining_job_btns = <div>{employee_mining_job}{company_mining_job}</div>
+    else
+      mining_job_btns = ""
 
     return (
         <div>
@@ -225,14 +263,18 @@ module.exports = React.createClass({
         <Lists currentList={this.state.currentList} 
                count={this.state.count} 
                listClassName={this.state.listClassName}
+               className={this.state.className}
                currentListObjectId={this.state.currentListObjectId}
                totalCount={this.state.totalCount} 
                removeProspects={this.removeProspects}
+               copySelectedProspects={this.copySelectedProspects}
+               moveSelectedProspects={this.moveSelectedProspects}
                changeList={this.changeList} 
                createList={this.createList}
                lists={this.state.lists}/>
 
       <div className="col-lg-10 col-md-10 col-sm-10 col-xs-10" style={{padding:'0'}}>
+          {(this.state.detailMode) ? <CompanyDetail toggleDetailMode={this.toggleDetailMode} detailCompany={this.state.detailCompany}/> : ""}
               {paginateOverlay}
               <div id="prospectDetailButtons">
                 <ListDetailButtons 
@@ -245,7 +287,7 @@ module.exports = React.createClass({
                   <a href="javascript:" 
                      className="btn btn-primary btn-xs list-options" 
                      id=""
-                     style={listOptions}>
+                     style={{display:"none"}}>
                     <i className="fa fa-bars" />
                   </a>
                 </div>
@@ -275,7 +317,7 @@ module.exports = React.createClass({
 
                 <a onClick={this.downloadFile} 
                    href="javascript:" 
-                   id="downloadProspects"
+                   id="downloadProspectsCSV"
                    className="drop-target btn btn-primary btn-xs list-options">
                    {downloadIcon}
                    &nbsp; Download CSV &nbsp; 
@@ -283,20 +325,13 @@ module.exports = React.createClass({
 
                 <a href="javascript:" 
                    onClick={this.archiveProspects}
-                   id="downloadProspects"
+                   id="archiveProspects"
                    className="drop-target btn btn-primary btn-xs list-options">
                    <i className="fa fa-archive" />
                    &nbsp; Archive &nbsp; 
                 </a>
 
-                <a href="javascript:" 
-                   onClick={this.launchProspectProfileModal}
-                   style={{display:'none'}}
-                   id="downloadProspects"
-                   className="drop-target btn btn-primary btn-xs list-options">
-                   <i className="fa fa-cloud-download" />
-                   &nbsp; Find Prospects By Title &nbsp; 
-                </a>
+                {mining_job_btns}
               </div>
           {(this.state.count == 0) ? <EmptyPeopleProspectsPanel className={this.props.className}/>  : ""}
           <div id="autoscroll" style={prospectTableStyle}>
@@ -321,11 +356,33 @@ module.exports = React.createClass({
                     setPaginate={this.setPaginate}
                     pages={this.state.pages}/>
       <Messenger />
+      <CreateProspectListFromCompanyListModal 
+        lists = {this.state.lists}
+        currentList={this.state.currentList} 
+        currentListObjectId={this.state.currentListObjectId}/>
+      <CreateProspectProfileModal 
+        currentList={this.state.currentList} 
+        currentListObjectId={this.state.currentListObjectId}/>
+      <CreateCompanyMiningJobModal />
     </div>
     );
   },
 
-  launchProspectProfileModal: function(){ $('#createProspectProfileModal').modal() },
+  toggleDetailMode: function(company) {
+    this.setState({detailMode: !this.state.detailMode})
+    this.setState({detailCompany: company})
+  },
+
+  launchProspectProfileModal: function(e) {
+    console.log($(e.target).text().trim())
+    text = $(e.target).text().trim()
+    if(text == "Find Employees")
+      $('#createEmployeeMiningJobModal').modal() 
+    else if(text == "Find Companies")
+      $('#createCompanyMiningJobModal').modal() 
+    else
+      $('#createProspectProfileModal').modal() 
+  },
 
   paginate: function(newProspects, newPage) {
     this.setState({
@@ -456,6 +513,7 @@ module.exports = React.createClass({
   componentDidUpdate: function() { $('.dropdown').show() },
 
   componentDidMount: function() {
+    Parse = _Parse()
     $('.dropdown').show(); 
     localStorage.selectedProspects = JSON.stringify([]);
 
@@ -483,6 +541,7 @@ module.exports = React.createClass({
     })
 
     Parse.get(this.props.listClassName, { order: '-createdAt'}).done(function(res) {
+      console.log(res)
       _this.setState({lists: res.results})
     })
   },
@@ -652,9 +711,10 @@ var CurrentLists = React.createClass({
     lists = [] 
     for(i=0;i< this.props.lists.length;i++) {
       console.log(this.props.lists[i].objectId)
+      _id = this.props.lists[i].objectId
       lists.push(
         <li><a style={{fontWeight:'bold',fontSize:'10px'}} 
-            className="dropdown-move-list-name dropdown-list-name"
+            className={"dropdown-move-list-name dropdown-list-name objectId-"+_id}
             href="javascript:" 
             data-move-objectId={"this.props.lists[i].objectId"}>
            {this.props.lists[i].name}</a></li>
@@ -684,9 +744,10 @@ var CurrentListsTwo = React.createClass({
   render: function() {
     lists = [] 
     for(i=0;i< this.props.lists.length;i++) {
+      _id = this.props.lists[i].objectId
       lists.push(
         <li><a style={{fontWeight:'bold',fontSize:'10px'}}
-               className="dropdown-copy-list-name dropdown-list-name"
+               className={"dropdown-copy-list-name dropdown-list-name objectId-"+_id}
                href="javascript:" 
                data-objectId={this.props.lists[i].objectId}>
                

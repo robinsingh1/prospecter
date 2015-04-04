@@ -6,6 +6,11 @@ module.exports = React.createClass({
     return { }
   },
 
+  toggleDetailMode: function(e) {
+    e.stopPropagation()
+    this.props.toggleDetailMode(this.props.prospect.company)
+  },
+
   clickCheck: function() {
     domNode = this.getDOMNode()
     isChecked = $($(domNode).find('input[type="checkbox"]')[0]).prop('checked')
@@ -90,7 +95,9 @@ module.exports = React.createClass({
 
           <td style={color}
               className="fixed-data-column">
-            <span style={{fontWeight:'bold',fontSize:15}}>{company.company_name}</span>
+              <span style={{fontWeight:'bold',fontSize:15}}>
+            <a href="javascript:" onClick={this.toggleDetailMode}>{company.company_name}</a>
+              </span>
             <h6 style={{fontWeight:'400',margin:'0px',fontSize:11}}>
               {company.headcount}</h6>
           </td>
@@ -109,13 +116,13 @@ module.exports = React.createClass({
             <a href="javascript:" className={btnClass}
               onClick={this.openLinkedinCompanyProfile}>
               <i className="fa fa-search" /> &nbsp;
-              Search Profiles
+              Employees
             </a>
             &nbsp; &nbsp;
             <a href="javascript:" className={btnClass}
               onClick={this.openSimilarCompanies}>
               <i className="fa fa-copy" /> &nbsp;
-              Find Similar Companies
+              Similar Companies
             </a>
             </div>
           </td>

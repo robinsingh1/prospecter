@@ -59,7 +59,6 @@ module.exports = React.createClass({
       <br/>
       <br/>
       <MarketingBody />
-      <MarketingFooter />
     </div>
     )
   }
@@ -84,9 +83,9 @@ var MarketingBody = React.createClass({
         </div>
 
       <div style={{borderBottom: '1px solid #ecedee', borderTop: '1px solid #ecedee', backgroundColor:'#f5f7f9', textAlign:'center'}}>
-        <div className="container">
-          <div className="row" style={{height:300}}>
-              <h1>How It Works</h1>
+        <div className="container" style={{display:"none"}}>
+          <div className="row" style={{height:300, display:"none"}}>
+              <h1>LHow It Works</h1>
             <div className="col-md-3"> 
               We have a dedicated fully-trained inside sales team .
             </div>
@@ -104,7 +103,7 @@ var MarketingBody = React.createClass({
         </div>
       </div>
 
-      <div> <div className="container">
+      <div> <div className="container" style={{display:"none"}}>
             <div className="row" style={{height:300, textAlign:'center'}}>
 
               <h1>{"Why we're different"}</h1>
@@ -131,7 +130,7 @@ var MarketingBody = React.createClass({
               Plans that grow with you, adjust at any time.
             </h2>
             <br/>
-            <a href="javascript:" className="btn btn-success btn-lg start-trial" style={{marginTop:10}}> 
+            <a href="#signup" className="btn btn-success btn-lg start-trial" style={{marginTop:10}}> 
               SCHEDULE A FREE DEMO &nbsp;<i className="fa fa-chevron-right" style={{fontSize:18}}/>
             </a>
           </div>

@@ -1,19 +1,22 @@
 /** @jsx React.DOM */
 
+
 module.exports = React.createClass({
   // createProspectListFromCompanyListModal
   createProfile: function() {
     //profileName = $(".profileName").val()
+    profileName = $(".company-prospect-list-select-form").val()
     titleProfile = {
       'className': 'ProspectTitleProfile',
       'title_keywords' : $('.prospectRoleKeywords').tagsinput('items').reverse()
     }
 
+
+    _id =$(".company-prospect-list-select-form").find(":selected").data("objectid")
     listProfile = {
       'className': 'ListProfile',
-      'listName':this.props.currentList,
-      'list' : appConfig.pointer('CompanyProspectList', 
-                                  this.props.currentListObjectId),
+      'listName': $(".company-prospect-list-select-form").val() +" employees",
+      'list' : appConfig.pointer('CompanyProspectList', _id)
     }
 
     profiles = [titleProfile, listProfile]
@@ -28,8 +31,9 @@ module.exports = React.createClass({
     console.log(nonemptyProfiles)
     console.log(this.props.currentList)
 
+
     newProfile = {
-      name: this.props.currentList,
+      name: profileName,
       profiles: nonemptyProfiles,
       type: 'prospect_profile',
       mining_job:true,
@@ -40,7 +44,7 @@ module.exports = React.createClass({
         className:'_User',
         objectId:JSON.parse(localStorage.currentUser).objectId
       },
-      company: JSON.parse(localStorage.currentUser).company
+      user_company: Parse._user_company
     }
 
     if(nonemptyProfiles.length) {
@@ -70,7 +74,7 @@ module.exports = React.createClass({
         
         user_id = JSON.parse(localStorage.currentUser).objectId
         newProfile.user = appConfig.pointer('_User', user_id) 
-        newProfile.company = JSON.parse(localStorage.currentUser).company
+        newProfile.user_company = Parse._current_user.user_company
 
         if(newProfile.type == 'prospect_profile')
           newProfile.mining_job_list = true
@@ -90,8 +94,10 @@ module.exports = React.createClass({
               url:'https://api.parse.com/1/classes/ProspectProfile/'+ress.objectId,
               type:'PUT',
               headers: appConfig.headers,
-              data: JSON.stringify({'prospect_list':{ __type:'Pointer',
-                                    className:'ProspectList',objectId:res.objectId } }),
+              data: JSON.stringify({'prospect_list':
+                                      { __type:'Pointer',
+                                        className:'ProspectList',
+                                        objectId:res.objectId } }),
               success: function(res){ console.log(res); 
                 $('.modal').click()
                 location.href="#signals" 
@@ -147,30 +153,35 @@ module.exports = React.createClass({
     //console.log('PROSPECT LIST FROM COMPANY LIST')
     //console.log(this.props)
     options = _.map(this.props.lists, function(list) {
-      return <option>{list.name}</option>
+      return <option data-objectid={list.objectId} >{list.name}
+              <span></span>
+            </option>
     })
     title = (this.props.currentList == "All") ? "Find Prospects At From Company Lists" : <span>Find Prospects from <i className="fa fa-list-alt" />{" "+this.props.currentList}</span>
+    title = "Download Employees"
     return (
       <div className="modal fade " tabIndex="-1" role="dialog" 
            aria-labelledby="mySmallModalLabel" aria-hidden="true" 
-           id="createProspectListFromCompanyListModal" 
+           id="createEmployeeMiningJobModal"
            style={{top:'50px',overflow:'hidden'}}>
             <div className="modal-dialog modal-sm" style={{width:650}}>
               <div className="modal-content">
                 <div className="modal-header">
                   <h4 className="modal-title" id="myModalLabel">
+                    <i className="fa fa-user-plus" /> &nbsp;
                     {title}
                   </h4>
                   <a href="javascript:" className="btn btn-success btn-sm" 
                      onClick={this.createProfile}
-                     style={{float:'right',marginTop:-28,marginRight:-5}}>
+                     style={{float:'right',marginTop:-28,marginRight:-5,
+                      backgroundImage: "linear-gradient(#8add6d, #60b044)"}}>
                     Create Profile
                   </a>
                 </div>
                 <div className="modal-body">
                   <div style={(this.props.currentList == "All") ? {display:'block'} : {display: 'none'}}>
                   <span style={{display:'inline',fontSize:12,fontWeight:'bold'}}>Company List: </span>
-                  <select className="form-control input-sm company-prospect-list-select-form" style={{width:400}}>
+                  <select className="form-control input-sm company-prospect-list-select-form" style={{width:444}}>
                     {options}
                   </select>
                   </div>

@@ -260,10 +260,13 @@ var SideMenu = React.createClass({
                   className="sharp btn btn-default" onClick={this.toggleScreen}>
             <i className="fa fa-pie-chart" /> &nbsp; Analytics
           </button>
-          <button type="button" 
-                  className="sharp btn btn-default" 
+          <button type="button" className="sharp btn btn-default" 
                   onClick={this.toggleScreen}>
             <i className="fa fa-paper-plane" /> &nbsp; Sent Mail
+          </button>
+          <button type="button" className="sharp btn btn-default" 
+                  onClick={this.toggleScreen}>
+            <i className="fa fa-wrench" /> &nbsp; Settings
           </button>
         </div>
 

@@ -1,5 +1,6 @@
 /** @jsx React.DOM */
 
+//var Parse = require("../lib/parse-require.min.js")
 var SideMenuListOption = require('./user_side_menu_list.js.min.js');
 var CreateListModal = require('./create_list_modal.js.min.js')
 var Messenger = require('./messenger.js.min.js')
@@ -19,8 +20,7 @@ module.exports = React.createClass({
       changeList:
       currentList:
       totalCount:
-      lists:
-
+      lists: 
       */
      lists: [],
     }
@@ -31,23 +31,57 @@ module.exports = React.createClass({
   },
 
   componentDidUpdate: function() {
-    $('.dropdown-copy-list-name').on('click', function(e) {
-      console.log(e.target)
-      console.log($(e.target).data('objectId'))
-      //this.props.copySelectedProspects(listSelect[0].objectId)
-    })
-
-    $('.dropdown-move-list-name').on('click', function(e) {
-      console.log(e.target)
-      console.log($(e.target).data('move-objectId'))
-      //this.props.moveSelectedProspects(listSelect[0].objectId)
-    })
   },
 
   componentDidMount: function() {
     var _this = this;
+    setTimeout(function() {
+    $('.dropdown-copy-list-name').on('click', function(e) {
+        _id = _.map(($(e.target).attr("class").split(" ")), function(obj) {
+          if(obj.indexOf("objectId-") != -1)
+            return _.last(obj.split("objectId-"))
+        })
+        _id = _.first(_.compact(_id))
+      //console.log(e.target)
+      console.log(_id)
+      _this.copySelectedProspects(_id)
+    })
+
+    $('.dropdown-move-list-name').on('click', function(e) {
+        _id = _.map(($(e.target).attr("class").split(" ")), function(obj) {
+          if(obj.indexOf("objectId-") != -1)
+            return _.last(obj.split("objectId-"))
+        })
+        _id = _.first(_.compact(_id))
+      //console.log(e.target)
+      console.log(_id)
+      _this.moveSelectedProspects(_id)
+    })
+    }, 1000)
+
+
+    var _this = this;
     Parse.get(this.props.listClassName, { order: '-createdAt'}).done(function(res) {
-      _this.setState({lists: res.results})
+      console.log(res.results)
+      var lists = res.results
+      _this.setState({lists: lists})
+      _.map(lists, function(_list) {
+        console.log(_list)
+        qry = {lists: Parse._pointer(_this.props.listClassName, 
+                                     _list.objectId)}
+        qry = {where: JSON.stringify(qry), count: 1}
+        Parse.get(_this.props.className, qry).then(function(res) {
+          _objectId = JSON.parse(this._data.where).lists.objectId
+          console.log(res.count)
+          lists = _.map(lists, function(list) {
+            if(list.objectId == _objectId)
+              list._count = res.count
+            return list
+          })
+          console.log(lists)
+          _this.setState({lists: lists})
+        })
+      })
     })
 
     $('.dropdown-copy-list-name').on('click', function(e) {
@@ -88,8 +122,25 @@ module.exports = React.createClass({
     console.log(_list)
     console.log(this.props.currentListObjectId)
     body = { lists: { '__op' : 'Remove', "objects" : [old_list] } }
+    _body = { lists: { '__op' : 'AddUnique', "objects" : [new_list] } }
+    /* */
+
+    var lists = _.map(this.state.lists, function(list) {
+      //console.log(list)
+      if(list.objectId == _list) {
+        console.log(selectedProspects)
+        console.log(list._count)
+        list._count = list._count + selectedProspects.length
+      } else if (list.objectId == _this.props.currentListObjectId) {
+        list._count = list._count - selectedProspects.length
+      }
+      return list
+    })
+    this.setState({lists: lists})
+    
     Parse.batchUpdate('Prospect', selectedProspects, body).done(function() {
       increment = {count: {__op: 'Increment', amount: -1*selectedProspects.length}}
+      alertify.success("Successfully Moved Prospects to list!")
       Parse.put(_this.props.listClassName+'/'+_list, increment, function(res) {
         console.log(res)
       })
@@ -131,10 +182,23 @@ module.exports = React.createClass({
     new_list = Parse._pointer(this.props.listClassName, _list)
     body = { lists: { '__op' : 'AddUnique', "objects" : [new_list] } }
     console.log(body)
-
-    //
-
     var _this = this;
+    //qry = {where: JSON.stringify(body)}
+    _.map(selectedProspects, function(prospect) {
+      //console.log(_this.props)
+      Parse.put(_this.props.className, prospect, body).then(function(res) { console.log(res) })
+    })
+    var lists = _.map(this.state.lists, function(list) {
+      //console.log(list)
+      if(list.objectId == _list) {
+        console.log(selectedProspects)
+        console.log(list.count)
+        list._count = list._count + selectedProspects.length
+      }
+      return list
+    })
+    this.setState({lists: lists})
+    /*
     Parse.batchUpdate('Prospect', selectedProspects, body).done(function(res) {
       console.log(res)
       // if success
@@ -151,7 +215,7 @@ module.exports = React.createClass({
       })
       console.log(lists)
       _this.setState({lists: lists})
-    })
+      }) */
   },
 
   changeList: function(e) {
@@ -178,16 +242,20 @@ module.exports = React.createClass({
 
     for(i=0;i< this.state.lists.length;i++){
       list = this.state.lists[i]
-      if(list.list_type == "signal_list")
+      if(list.list_type == "signal")
         iconType = "wifi"
       else if (list.list_type == "mining_job")
         iconType = "cloudDownload"
+      else
+        iconType = ""
       if(list.list_type)
         lists.push(<SideMenuListOption list={list} 
                                        iconType={iconType}
+                                       listClassName={this.props.listClassName}
                                        changeList={this.props.changeList}/>)
       else 
         lists.push(<SideMenuListOption list={list} 
+                                       listClassName={this.props.listClassName}
                                        changeList={this.props.changeList}/>)
     }
 
@@ -302,7 +370,7 @@ var CurrentListsTwo = React.createClass({
        return item.name == listName
     });
 
-    this.props.copySelectedProspects(listSelect[0].objectId)
+    this.copySelectedProspects(listSelect[0].objectId)
   },
 
   render: function() {

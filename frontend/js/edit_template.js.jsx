@@ -157,6 +157,10 @@ module.exports = React.createClass({
     }
   },
 
+  testEmail: function() {
+    console.log("test email")
+  },
+
 
   render: function() {
     subjectPlace = (this.state.editMode) ? <input style={{display:'inline',width:480}} className="form-control subject" ></input> : this.state.subject
@@ -207,10 +211,18 @@ module.exports = React.createClass({
                  {the_name}
               <a href="javascript:"
                 className="btn btn-default btn-xs"
+                onClick={this.deleteTemplate}
                 style={{float:'right',marginLeft:5,marginTop:5}}>
                 <i className="fa fa-trash"/>
               </a>
+              <a href="javascript:"
+                className="btn btn-default btn-xs"
+                onClick={this.testTemplate}
+                style={{float:'right',marginLeft:5,marginTop:5}}>
+                <i className="fa fa-paper-plane"/>&nbsp;&nbsp;Test
+              </a>
               {toggleButton}
+            
             </div>
             <div className="panel-body">
               <div className="editTemplateTitle">
@@ -235,5 +247,39 @@ module.exports = React.createClass({
       </div>
     </div>
     );
+  },
+  testTemplate: function() {
+    console.log("send template")
+    var _this = this;
+    template = this.props.initialTemplateValues
+    template.body = Mustache.render(template.body, Parse._current_user)
+    $.ajax({
+      url:"https://prospecter.herokuapp.com/v1/mail/test",
+      //url:"http://localhost:5000/v1/mail/test",
+      data: {data:JSON.stringify({
+        prospect: {"template": template,
+                   "test":true,
+                   "objectId":"",
+                   "campaign_id": _this.props.campaignId,
+                   "email":Parse._current_user.username},
+        campaign_id: "",
+        batch_id: "",
+        user: Parse._current_user,
+      })},
+      success: function(res) {
+        console.log("success")
+        console.log(res)
+        // TODO - add messenger
+        alertify.log("Test Email Sent! Check your email to check it out!")
+      },
+      error: function(err) {
+        console.log("error")
+        console.log(err)
+      }
+    })
+  },
+
+  deleteTemplate: function() {
+    console.log("delete template")
   }
 });

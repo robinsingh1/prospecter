@@ -117,7 +117,6 @@ var SignalReportRow = React.createClass({
       count: 1
     }
     var thiss = this;
-    /*
     $.ajax({
       url:'https://api.parse.com/1/classes/PeopleSignal',
       data: qry,
@@ -133,7 +132,6 @@ var SignalReportRow = React.createClass({
       success: function(res) { thiss.setState({companyCount: res.count})},
       error: function(err) { console.log(err.responseText) },
     })
-    */
   },
 
   render: function() {
@@ -160,7 +158,7 @@ var SignalReportRow = React.createClass({
         </td>
         <td style={{textAlign:'center'}}>
           <h6> 
-            {moment(this.props.report.createdAt).fromNow()}
+            {moment(this.props.report.createdAt).calendar()}
           </h6>
         </td>
         <td style={{textAlign:'center',display:'none'}}>
@@ -170,7 +168,9 @@ var SignalReportRow = React.createClass({
         </td>
         <td>
           <span className="label label-success">
-            {this.props.report.company_count}
+            { this.state.companyCount
+              //this.props.report.company_count
+            }
           </span>
           <h6 style={{display:'inline-block'}}>
             &nbsp; Companies found.
@@ -178,7 +178,10 @@ var SignalReportRow = React.createClass({
         </td>
         <td style={{display:'block'}}>
           <span className="label label-success">
-            {this.props.report.people_count}
+            {
+              this.state.peopleCount
+              //this.props.report.people_count
+            }
           </span>
           <h6 style={{display:'inline-block'}}>
             &nbsp; People found.

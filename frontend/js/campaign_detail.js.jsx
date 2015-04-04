@@ -297,6 +297,7 @@ module.exports = React.createClass({
           {(this.state.templateDetailMode) ? <EditTemplateView 
             editMode={this.state.editMode}
             initialTemplateValues={this.state.currentTemplate}
+            campaignId={this.props.selectedCampaign.objectId}
             saveTemplate={this.saveTemplate}
             prospect={this.state.prospects[0]}
             toggleTemplateEditMenu={this.toggleTemplateEditMenu}
@@ -378,7 +379,7 @@ var FollowupTimeline = React.createClass({
     return (
         <div>
           <div className="col-md-8 panel panel-default" 
-               style={{height:436,paddingLeft:305,paddingTop:50,overflow:'auto',borderRight:0,borderRadius:0, borderTop:0}}>
+               style={{height:418,paddingLeft:305,paddingTop:50,overflow:'auto',borderRight:0,borderRadius:0, borderTop:0}}>
                 <Timeline 
                   templates={this.props.templates}
                   prospects={this.props.prospects}
@@ -389,7 +390,7 @@ var FollowupTimeline = React.createClass({
                   initialFollowups={this.props.initialFollowups} />
           </div>
           <div className="col-md-4" 
-               style={{paddingLeft:0,paddingRight:0,height:436}}>
+               style={{paddingLeft:0,paddingRight:0,height:418}}>
             <TemplatesMenu 
               templates={this.props.templates}
               toggleTemplateEditMenu={this.props.toggleTemplateEditMenu} />

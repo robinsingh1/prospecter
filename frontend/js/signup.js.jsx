@@ -47,7 +47,7 @@ module.exports = React.createClass({
     }
 
     $.ajax({
-      url:'https://api.parse.com/1/classes/Company',
+      url:'https://api.parse.com/1/classes/UserCompany',
       type:'POST',
       headers: appConfig.headers,
       data: JSON.stringify({ 'name': $('#company').val(), }),

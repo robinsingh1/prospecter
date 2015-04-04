@@ -1,4 +1,5 @@
 /** @jsx React.DOM */
+var Jigsaw = require("../lib/jigsaw.min.js")
 
 module.exports = React.createClass({
   // createCompanyProfileModal
@@ -15,13 +16,23 @@ module.exports = React.createClass({
                     Create Territory Stategy
                   </h4>
                   <a href="javascript:" className="btn btn-success btn-sm" 
-                     onClick={this.createCompanyProfile}
+                     onClick={this.createProfile}
                      style={{float:'right',marginTop:-28,marginRight:-5}}>
                     Create Profile
                   </a>
                 </div>
                 <div className="modal-body">
-                  <CreateHiringSignal />
+        <form className="createSignal" onSubmit={this.createSignal}>
+          <span> 
+            <h6 style={{width:140,display:'inline-block',marginBottom:20}}>
+              Company Profile Name: &nbsp;</h6>
+            <input type="text" 
+                   style={{display:'inline-block',width:'73.1%'}}
+                   className="form-control company-profile-name" 
+                   placeholder="Company Profile Name ..."/>
+          </span>
+        </form>
+                  <IndustryMenu />
                 </div>
               <div className="modal-footer" style={{display:'none'}}>
                 <button type="button" className="btn btn-default">
@@ -35,6 +46,61 @@ module.exports = React.createClass({
             </div>
           </div>
     );
+  },
+
+  createProfile: function() {
+    profileName = $(".profileName").val()
+
+    titleProfile = {
+      'className': 'ProspectTitleProfile',
+      'title_keywords': $('.prospect-profile-title').tagsinput('items').reverse()
+    }
+
+    revenueProfile = {
+      className: "RevenueProfile",
+      revenues: _.map($(".revenues:checked"), function(box) { return $(box).parent().parent().text().trim() })
+    }
+
+    industryProfile = {
+      className: "IndustryProfile",
+      industries: _.map($(".industries:checked"), function(box) { return $(box).parent().parent().text().trim() })
+    }
+
+    companySizeProfile = {
+      className: "EmployeeProfile",
+      employees: _.map($(".employees:checked"), function(box) { return $(box).parent().parent().text().trim() })
+    }
+
+    profiles = [titleProfile, revenueProfile, industryProfile, companySizeProfile]
+
+    nonemptyProfiles = _.filter(profiles, function(profile) {
+      if(_.values(profile)[1]){ return _.values(profile)[1].length }
+    });
+    console.log(nonemptyProfiles)
+
+    newProfile = {
+      name: profileName,
+      profiles: nonemptyProfiles,
+      type: 'prospect_profile',
+      mining_job:true,
+      list_type:"territory",
+      only_people:true,
+      timestamp: moment().valueOf(),
+      done: 0,
+      user:{
+        __type:'Pointer',
+        className:'_User',
+        objectId:JSON.parse(localStorage.currentUser).objectId
+      },
+      user_company: Parse._user_company
+    }
+
+    if(nonemptyProfiles.length) {
+      //this.props.addProfile(newProfile)
+      this.persistSignal(nonemptyProfiles, newProfile)
+      $('.modal').click()
+      $('.prospect-profile-title').val('')
+    }
   },
 
   createCompanyProfile: function() {
@@ -252,3 +318,82 @@ var CreateHiringSignal = React.createClass({
     )
   },
 });
+
+var IndustryMenu = React.createClass({
+
+  render: function() {
+    revenues = _.map(Jigsaw._annual_revenue(), function(val, key) {
+      return <SelectGroup name={key} value={val} _class={"revenues"}/>
+    })
+    employees = _.map(Jigsaw._number_of_employees(), function(val, key) {
+      return <SelectGroup name={key} value={val} _class={"employees"}/>
+    })
+    industries = _.map(Jigsaw._industries(), function(val, key) {
+      return <SelectGroup name={key} value={val} _class={"industries"}/>
+    })
+
+    return (
+    <div className="row">
+      <div className="col-md-4">
+        <h6>Industry</h6>
+        <div className="well" style={{height:200, overflow:"auto"}}>
+          {industries}
+        </div>
+      </div>
+      <div className="col-md-4">
+        <h6>Revenue</h6>
+        <div className="well" style={{height:200, overflow:"auto"}}>
+          {revenues}
+        </div>
+      </div>
+      <div className="col-md-4">
+        <h6>Company Size</h6>
+        <div className="well" style={{height:200, overflow:"auto"}}>
+          {employees}
+        </div>
+      </div>
+    </div>
+    )
+  }
+})
+
+var SelectGroup = React.createClass({
+  getInitialState: function() {
+    return {
+      hidden: true,
+    }
+  },
+
+  toggleHidden: function() {
+    this.setState({hidden: !this.state.hidden})
+  },
+
+  render: function() {
+
+    icon = (this.state.hidden) ? "fa fa-plus" : "fa fa-minus"
+    
+    plus_btn = <i className={icon} onClick={this.toggleHidden}
+                 style={{float:"left",marginRight:5,marginTop:7,
+                         fontSize:9,cursor:"pointer"}}/>
+    plus_btn = (this.props.subs) ? plus_btn : ""
+    selects = <span> {plus_btn}
+              <label className="checkbox-inline">
+                <input type="checkbox" id="inlineCheckbox1" className={this.props._class}
+                      value={this.props.value}/> 
+                {this.props.name}
+            </label><br/>
+            </span>
+    subs = _.map(this.props.subs, function(sub) {
+            return <span style={{marginLeft:30}}>
+              <label className="checkbox-inline">
+              <input type="checkbox" id="inlineCheckbox1" value="option1" /> 
+                {sub}
+            </label><br/>
+          </span>
+    })
+    select = (this.state.hidden) ? selects : _.flatten([[selects], subs])
+    return (
+      <span> {select} </span>
+    )
+  }
+})

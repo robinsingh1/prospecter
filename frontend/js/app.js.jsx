@@ -14,7 +14,9 @@
  * - Add email uneditable email fields
  */
 
+var Parse = require("../lib/parse-require.min.js")
 var Prospects = require('./prospects.js.min.js');
+var Feed = require('./home.js.min.js');
 var DataTable = require('./prospects.js.min.js');
 var MiningJob = require('./mining_job.js.min.js');
 var Campaigns = require('./email.js.min.js');
@@ -29,6 +31,8 @@ var Signals = require('./signals.js.min.js');
 var MouseTrap = require('../lib/mousetrap.min.min.js')
 var Headhesive = require('../lib/headhesive.min.js')
 var UpgradePlanModal = require('./upgrade_plan_modal.js.min.js')
+var OnboardingWizard = require('./onboarding_wizard.js.min.js')
+var NewUserOnboardingWizard = require('./new_user_onboarding_wizard.js.min.js')
 var LandingPageFeatures = require('./landing_page_features.js.min.js')
 var LandingPageServices = require('./landing_page_services.js.min.js')
 //var checkAuth = require('./auth.min.js')
@@ -56,6 +60,14 @@ var Home = React.createClass({
         keyboard: false
       })
     }
+  },
+
+  launchOnboardingWizard: function() {
+    $("#onboardingWizardModal").modal()
+  },
+
+  launchNewUserOnboardingWizard: function() {
+    $("#newUserOnboardingWizardModal").modal()
   },
 
   componentWillMount: function(){
@@ -155,8 +167,15 @@ var Home = React.createClass({
     companyProspects = "choose btn btn-primary "
     campaigns = "choose btn btn-primary "
     signals = "choose btn btn-primary "
+    home = "choose btn btn-primary "
 
     switch (this.state.selectedScreen) {
+      case 'Home':
+        currentScreen = <Feed />
+        //currentScreen = <Prospects><ProspectRow /></Prospects>
+        home = "choose btn btn-primary app-active"
+        location.href= "#home"
+        break;
       case 'Prospects':
         currentScreen = <Prospects listClassName={'ProspectList'}
                                    className={'Prospect'}> 
@@ -270,6 +289,21 @@ var Home = React.createClass({
               <span style={{paddingLeft:2}}>{'Support'}</span>
         </a> </h6>
         <h6 style={{marginTop:'20px',float:'right',display:'inline', marginRight:'10px'}}> 
+          <a href="javascript:"
+             onClick={this.launchNewUserOnboardingWizard}
+              style={{color:'#1ca3fd'}}>
+              <i className="fa fa-magic" />
+              <span style={{paddingLeft:2}}>Onboarding</span>
+          </a> </h6>
+        <h6 style={{marginTop:'20px',float:'right',display:'inline', marginRight:'10px'}}> 
+          <a href="javascript:"
+             onClick={this.launchOnboardingWizard}
+              style={{color:'#1ca3fd'}}>
+              <i className="fa fa-magic" />
+              <span style={{paddingLeft:2}}>Tutorials</span>
+          </a> </h6>
+
+        <h6 style={{marginTop:'20px',float:'right',display:'inline', marginRight:'10px'}}> 
           <a href="http://resources.customerohq.com/v1.0/docs" style={{color:'#1ca3fd'}}>
               <i className="fa fa-book" />
               <span style={{paddingLeft:2}}>Resources</span>
@@ -286,7 +320,6 @@ var Home = React.createClass({
               <span style={{paddingLeft:2}}>Mining Jobs </span>
               <div className="label notification-badge">0</div>
           </a></h6>
-
       </span>
       <br/>
       <br/>
@@ -296,6 +329,9 @@ var Home = React.createClass({
           <div className="btn-group col-md-offset-4" >
             <a href="javascript:" className={signals} style={{display:'block'}} onClick={this.toggleScreen}> 
                 <i className="fa fa-line-chart" />&nbsp;Strategies
+            </a>
+            <a href="javascript:" className={home} style={{display:'none'}} onClick={this.toggleScreen}> 
+                <i className="fa fa-home" />&nbsp;Home
             </a>
             <a href="javascript:" className={prospects} onClick={this.toggleScreen}> 
                 <i className="fa fa-user" />&nbsp;Prospects
@@ -323,6 +359,8 @@ var Home = React.createClass({
         </div>
       </div>
       <UpgradePlanModal />
+      <OnboardingWizard />
+      <NewUserOnboardingWizard />
       </div>
     );
   },
@@ -368,6 +406,7 @@ var Workspace = Backbone.Router.extend({
     "login"       : "login",
     "pricing"     : "pricing",
     
+    "home"        : "home",
     "signals"     : "signals",
     "strategies"  : "strategies",
     "prospects"   : "prospects",
@@ -404,6 +443,10 @@ var Workspace = Backbone.Router.extend({
   prospects: function() { this.mainRoute('Prospects') },
   companies: function() { this.mainRoute('Companies') },
   campaigns: function() { this.mainRoute('Campaigns') },
+
+  feed: function() {
+    this.mainRoute('Home')
+  },
 
   home: function() {
     currentUser = localStorage.getItem('currentUser')
@@ -443,3 +486,15 @@ $(document).ready(function(){
   // Add to linkedin
   // Add To Base
 });
+
+/*
+  $("#chartdiv").css({
+    color:"white",
+  })
+
+  $(".amChartsInputField").css({
+    "background-color": "rgba(0,0,0,0)",
+    "border": "1px solid white",
+    "border-radius": "5px"
+  })
+*/

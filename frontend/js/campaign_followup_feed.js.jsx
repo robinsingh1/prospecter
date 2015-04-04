@@ -37,7 +37,7 @@ module.exports = React.createClass({
     console.debug(activities)
 
     return (
-      <div style={{overflow:'auto',height:436}}>
+      <div style={{overflow:'auto',height:418}}>
         <table className="table" style={{marginBottom:0}}>
           <thead>
             <th></th>

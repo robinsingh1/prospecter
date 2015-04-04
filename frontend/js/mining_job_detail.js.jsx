@@ -150,7 +150,7 @@ module.exports = React.createClass({
           <div style={{overflow:'auto',height:356}}>
             <table className="table table-striped">
               <thead>
-                <th style={{textAlign:'center',width:90}}>
+                <th style={{textAlign:'center',width:90, display:'none'}}>
                   <i className="fa fa-clock-o" />
                 </th>
 
@@ -198,7 +198,7 @@ var CompanyHiringSignalRow = React.createClass({
     company = (this.props.signal) ? this.props.signal : {}
     return (
       <tr style={{}}>
-        <td style={{textAlign:'center',width:120}}>
+        <td style={{textAlign:'center',width:120,display:'none'}}>
           <h6> 
             {moment(this.props.signal.createdAt).fromNow()}
           </h6>

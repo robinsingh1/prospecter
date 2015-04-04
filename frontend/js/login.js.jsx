@@ -1,5 +1,6 @@
 /** @jsx React.DOM */
 
+var _Parse = require("../lib/parse-require.min.js")
 theData = require('../lib/data.min.js') 
 
 module.exports = React.createClass({
@@ -30,6 +31,7 @@ module.exports = React.createClass({
         //alertify.success('Logging in...')
         localStorage.setItem('currentUser', JSON.stringify(res))
         location.href = "#"
+        Parse = _Parse()
       },
       error: function(res) {
         alertify.error('There was an error with your login request. Please try again')

@@ -111,11 +111,11 @@ module.exports = React.createClass({
       <div className="panel-footing" 
            id="navbar" 
            style={{height:'35px',padding:'0px', paddingTop:'7px'}}>
-          <span style={{float:'right',marginRight:5}}>
+          <span style={{float:'right',marginRight:5, width:200}}>
             <a href="javascript:" 
                style={{marginRight:'5px'}} 
                onClick={this.fastPrevious} 
-               className={"blue-gradient btn btn-primary btn-xs "+previous} >
+               className={"blue-gradient paginate-fast-backward btn btn-primary btn-xs "+previous} >
             <i className="fa fa-fast-backward" />
           </a>
           <a href="javascript:" 
@@ -135,7 +135,7 @@ module.exports = React.createClass({
           <a href="javascript:" 
              style={{marginLeft:'5px'}} 
              onClick={this.fastForward} 
-             className={"blue-gradient btn btn-primary btn-xs "+forward}>
+             className={"blue-gradient btn btn-primary btn-xs paginate-fast-forward "+forward}>
             <i className="fa fa-fast-forward" /></a>
           </span>
         </div>

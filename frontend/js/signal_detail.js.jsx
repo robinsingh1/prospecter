@@ -8,7 +8,8 @@ module.exports = React.createClass({
     return {
       currentSignal: 'CompanySignal',
       signals: [],
-      //allProspected: this.props.currentProfileReport.prospected,
+      allCompanyProspected: this.props.currentProfileReport.allCompanyProspected,
+      allPeopleProspected: this.props.currentProfileReport.allPeopleProspected,
       companyCount: '~',
       peopleCount: '~',
       detailMode: false,
@@ -24,8 +25,8 @@ module.exports = React.createClass({
     qry = {
       where:JSON.stringify({ report: currentProfileReport }),
       include:'company,signal.signal,signal',
-      order:'-createdAt',
-      limit:100
+      order:'-title_score',
+      limit:1000,
     }
 
     $.ajax({
@@ -80,26 +81,27 @@ module.exports = React.createClass({
       this.getSignals(nextState.currentSignal)
   },
 
+  researchSignalReport: function() {
+    $.ajax({
+      url:"https://prospecter.herokuapp.com/v1/research_signal_report",
+      data: {report: this.props.currentProfileReport.objectId},
+    })
+  },
+
   returnToCalendarView: function() {
     console.log('return to calendar view')
   },
 
   render: function() {
-    console.log('ALL PROSPECTED')
-    console.log(this.state.allProspected)
-    console.log('CURRENT SIGNAL')
-    console.log(this.state.currentSignal)
-    console.log('SIGNAL')
-    console.log(this.state.signals)
     signals = []
     for(i=0;i< this.state.signals.length; i++) {
       if(this.state.currentSignal == 'CompanySignal')
         signals.push(<CompanyHiringSignalRow signal={this.state.signals[i]} 
                                        toggleDetailMode={this.toggleDetailMode}
-                                       allProspected={this.state.allProspected}/>)
+                                 allProspected={this.state.allCompanyProspected}/>)
       else
         signals.push(<PeopleSignalRow signal={this.state.signals[i]} 
-                                       allProspected={this.state.allProspected}/>)
+                                 allProspected={this.state.allPeopleProspected}/>)
     }
 
     currentProfileReport = this.props.currentProfileReport
@@ -107,6 +109,7 @@ module.exports = React.createClass({
     peopleBtn = (this.state.currentSignal == "PeopleSignal") ? "btn btn-xs btn-default active" : "btn btn-xs btn-default"
     score_column=(this.state.currentSignal == "PeopleSignal") ? <th>Score</th> : ""
     logo_column=(this.state.currentSignal == "CompanySignal") ? <th></th> : ""
+    allProspected = (this.state.currentSignal == "CompanySignal") ? this.state.allCompanyProspected : this.state.allPeopleProspected
     return (
       <div className="container" style={{height:456,paddingLeft:0,
                                          paddingRight:0,width:'100%'}}>
@@ -121,10 +124,10 @@ module.exports = React.createClass({
           <h6 style={{fontSize:13,paddingLeft:5,paddingTop:5,display:'inline-block'}}>
             <i className="fa fa-chevron-right" style={{fontSize:9}}/> &nbsp;
             <i className="fa fa-clock-o" /> &nbsp;
-            {moment(currentProfileReport.createdAt).fromNow()} &nbsp;
+            {moment(currentProfileReport.createdAt).calendar()} &nbsp;
           </h6>
 
-          {(this.state.allProspected) ?
+          {(allProspected) ?
           <a href="javascript:" style={{fontWeight:'bold',float:'right',
                                         marginRight:10,marginTop:10}}
              className="btn btn-success btn-xs disabled">
@@ -138,6 +141,11 @@ module.exports = React.createClass({
           </a>
           }
 
+          <a href="javascript:" className="btn btn-default btn-xs"
+            onClick={this.researchSignalReport}>
+            <i className="fa fa-refresh" />&nbsp;
+            Research Companies
+          </a>
           <div className="btn-group" 
                style={{float:'right',marginTop:10,marginRight:10}}
                data-toggle="buttons">
@@ -161,7 +169,7 @@ module.exports = React.createClass({
           <div style={{overflow:'auto',height:456}}>
             <table className="table table-striped">
               <thead>
-                <th style={{textAlign:'center',width:90}}>
+                <th style={{textAlign:'center',width:90,display:'none'}}>
                   <i className="fa fa-clock-o" />
                 </th>
 
@@ -195,13 +203,21 @@ module.exports = React.createClass({
     var thiss = this;
     $.ajax({
       //url: 'http://127.0.0.1:5000/signal_to_prospect',
-      url: 'https://nameless-retreat-3525.herokuapp.com/signal_to_prospect',
-      data: {all_signals:true, report_id: report_id, 
+      //url: 'https://nameless-retreat-3525.herokuapp.com/signal_to_prospect',
+      //url: 'https://prospecter.herokuapp.com/signal_to_prospect',
+      url: 'https://prospecter.herokuapp.com/v1/prospectify',
+      data: {report: report_id, 
              signal_type: thiss.state.currentSignal},
       success: function(res) { console.log(res)},
       error: function(err) { console.log(err.responseText)},
     })
+
+    if(this.state.currentSignal == "CompanySignal")
+      this.setState({allCompanyProspected: true})
+    else
+      this.setState({allPeopleProspected: true})
   },
+
   toggleDetailMode: function(company) {
     this.setState({detailMode: !this.state.detailMode})
     this.setState({detailCompany: company})
@@ -218,17 +234,17 @@ var CompanyHiringSignalRow = React.createClass({
     signal = this.props.signal.signal[0]
     return (
       <tr style={{}}>
-        <td style={{textAlign:'center',width:120}}>
+        <td style={{textAlign:'center',width:120,display:'none'}}>
           <h6> 
-            {moment(this.props.signal.createdAt).fromNow()}
+            {moment(this.props.signal.createdAt).calendar()}
           </h6>
         </td>
 
-        <td>
+        <td style={{width:50,paddingLeft:25}}>
           <div style={{backgroundImage: "url("+company.logo+")",height:60,width:60}} 
           className="company-img-thumbnail"/>
         </td>
-        <td style={{width:200}}>
+        <td style={{width:250}}>
           <a href="javascript:" onClick={this.toggleDetailMode}>{company.name}</a>
           <h6>{company.industry}</h6>
           <h6>{(company.address) ? company.address.normalizedLocation : ""}</h6>
@@ -238,15 +254,15 @@ var CompanyHiringSignalRow = React.createClass({
           <h6>{company.city}</h6>
         </td>
 
-        <td style={{width:200}}>
+        <td style={{width:250}}>
           <h6>{signal.job_title}</h6>
           <h6>{signal.company_name}</h6>
           <h6>{signal.location}</h6>
           <h6>{signal.summary}</h6>
         </td>
-        <td> 
-          {signal.source} 
-          <h6>{moment(signal.timestamp*1000).fromNow()}</h6>
+        <td style={{width:100}}> 
+          <label className="label label-default">{_.title(signal.source.replace("_"," "))} </label>
+          <h6 style={{fontSize:10,fontStyle:"italic"}}>{moment(signal.timestamp*1000).fromNow()}</h6>
         </td>
         <td>
           {(this.props.allProspected) ? 
@@ -279,9 +295,16 @@ var CompanyHiringSignalRow = React.createClass({
 })
 
 var PeopleSignalRow = React.createClass({
+  getInitialState: function() {
+    return {
+      prospected: this.props.signal.prospected
+    }
+  },
+
   turnSignalIntoProspect: function() {
     var thiss = this;
     console.log(this.props.signal)
+    /*
     $.ajax({
       //url:'http://127.0.0.1:5000/signal_to_prospect',
       url:'http://nameless-retreat-3525.herokuapp.com/signal_to_prospect',
@@ -290,6 +313,8 @@ var PeopleSignalRow = React.createClass({
       success: function(res) { console.log(res) },
       error: function(err) { console.log(err.responseText) } 
     })
+    */
+    this.setState({ prospected: true })
   },
 
   render: function() {
@@ -298,16 +323,22 @@ var PeopleSignalRow = React.createClass({
     company = people.company
     signal = people.signal.signal[0]
     console.log(people)
+    time = moment(currentProfileReport.createdAt).fromNow()
+    //time = (time.indexOf("hours") == -1) ? time : ""
+
     return (
       <tr style={{}}>
         <td style={{textAlign:'center',width:120}}>
-          <h6> 
-            {moment(this.props.signal.createdAt).fromNow()}
+          <h6 style={{display:"none"}}> 
+            {moment(this.props.signal.createdAt).calendar()}
           </h6>
         </td>
 
         <td>
+          <label className="label label-danger" >
+          <i className="fa fa-fire" /> &nbsp;
           {people.title_score}
+          </label>
         </td>
         <td>
           <h6>{people.name + " - "} <span style={{fontStyle:'italic'}}>
@@ -323,13 +354,17 @@ var PeopleSignalRow = React.createClass({
           <h6>{signal.location}</h6>
           <h6>{signal.summary}</h6>
         </td>
-        <td>
-          {signal.source} 
-          <h6>{moment(signal.timestamp*1000).fromNow()}</h6>
+
+        <td style={{width:100}}>
+          <label className="label label-default">{_.title(signal.source.replace("_"," "))} </label>
+          <h6 style={{fontSize:10,fontStyle:"italic"}}>{moment(signal.timestamp*1000).fromNow()}</h6>
         </td>
 
         <td>
-          {(this.props.allProspected) ? 
+        </td>
+
+        <td>
+          {(this.props.allProspected || this.state.prospected) ? 
           <a href="javascript:" className="btn btn-success btn-xs green-gradient disabled"
             style={{fontWeight:'bold'}}>
             Prospected

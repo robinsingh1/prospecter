@@ -137,7 +137,7 @@ module.exports = React.createClass({
               <div className="modal-content">
                 <div className="modal-header">
                   <h4 className="modal-title" id="myModalLabel">
-                    Create Prospect Profile
+                    Create Prospect Profile lmao
                   </h4>
                   <a href="javascript:" className="btn btn-success btn-sm" 
                      onClick={this.createProfile}
